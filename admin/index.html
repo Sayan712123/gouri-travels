@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>অ্যাডমিন লগইন — Gouri Travels</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="mark">GT</span>
+        <span>Gouri Travels</span>
+      </div>
+      <h1>অ্যাডমিন লগইন</h1>
+      <p class="sub">বুকিং ও ট্রিপ ম্যানেজ করতে সাইন ইন করুন।</p>
+
+      <div id="login-alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">ইমেইল</label>
+          <input id="email" name="email" type="email" autocomplete="username" required placeholder="admin@example.com" />
+        </div>
+        <div class="field">
+          <label for="password">পাসওয়ার্ড</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+        </div>
+        <button class="btn btn--block" type="submit" id="login-btn">লগইন</button>
+      </form>
+
+      <p style="margin:20px 0 0;font-size:.82rem;color:#7b8a84;text-align:center">
+        <a href="../public/index.html" style="color:#0f6b52;font-weight:600">← পাবলিক সাইটে ফিরুন</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
