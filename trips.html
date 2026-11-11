@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>সব ট্রিপ — Gouri Travels</title>
+  <meta name="description" content="Gouri Travels এর সব ট্রিপ প্যাকেজ — দাম, তারিখ ও সিট দেখে বুক করুন।" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
+      <nav class="nav" data-nav>
+        <a href="index.html">হোম</a>
+        <a href="trips.html">সব ট্রিপ</a>
+        <a href="contact.html">যোগাযোগ</a>
+        <a href="admin/index.html">অ্যাডমিন</a>
+      </nav>
+      <a class="btn btn--sm" href="contact.html">কাস্টম ট্রিপ</a>
+      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+    </div>
+  </header>
+
+  <section class="page-head">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="index.html">হোম</a> / সব ট্রিপ</div>
+      <h1>আমাদের ট্রিপ প্যাকেজ</h1>
+      <p>প্রতিটি প্যাকেজে থাকছে থাকা-খাওয়া, পরিবহন ও স্থানীয় গাইড।</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="filters" id="filters">
+        <button class="chip is-active" data-filter="all">সব</button>
+        <button class="chip" data-filter="short">১–৩ দিন</button>
+        <button class="chip" data-filter="mid">৪–৫ দিন</button>
+        <button class="chip" data-filter="long">৬+ দিন</button>
+        <button class="chip" data-filter="budget">₹১০,০০০ এর নিচে</button>
+      </div>
+      <div class="trip-grid" id="trip-grid"></div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-bottom" style="border:0;padding:0">
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
+        <span><a data-phone href="#" style="display:inline">+91 90000 00000</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    (async function () {
+      const grid = document.getElementById("trip-grid");
+      const params = new URLSearchParams(location.search);
+      const q = (params.get("q") || "").toLowerCase();
+      const month = params.get("month") || "";
+      let all = [];
+      let active = "all";
+
+      grid.innerHTML = GT.skeletonCards(6);
+
+      function render() {
+        let list = all.slice();
+        if (q) {
+          list = list.filter((t) =>
+            (t.title + " " + t.destination + " " + (t.summary || "")).toLowerCase().includes(q)
+          );
+        }
+        if (month) {
+          list = list.filter((t) => (t.departure_date || "").startsWith(month));
+        }
+        if (active === "short") list = list.filter((t) => t.duration_days <= 3);
+        if (active === "mid") list = list.filter((t) => t.duration_days >= 4 && t.duration_days <= 5);
+        if (active === "long") list = list.filter((t) => t.duration_days >= 6);
+        if (active === "budget") list = list.filter((t) => Number(t.price_per_person) < 10000);
+
+        grid.innerHTML = list.length
+          ? list.map(GT.tripCard).join("")
+          : '<div class="empty-state" style="grid-column:1/-1"><strong>কোনো ট্রিপ পাওয়া যায়নি</strong>ফিল্টার বদলে দেখুন বা আমাদের কল করুন।</div>';
+      }
+
+      try {
+        all = await GT.fetchTrips();
+        render();
+      } catch (err) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><strong>ট্রিপ লোড করা যায়নি</strong>' + GT.escapeHtml(err.message) + '</div>';
+      }
+
+      document.getElementById("filters").addEventListener("click", function (e) {
+        const btn = e.target.closest("[data-filter]");
+        if (!btn) return;
+        document.querySelectorAll(".chip").forEach((c) => c.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        active = btn.dataset.filter;
+        render();
+      });
+    })();
+  </script>
+</body>
+</html>

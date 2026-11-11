@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gouri Travels — ট্রিপ বুকিং</title>
+  <meta name="description" content="Gouri Travels — দার্জিলিং, দিঘা, পুরী, মেঘালয়, কাশ্মীর ও আন্দামানের ট্রিপ প্যাকেজ। সহজে অনলাইনে বুক করুন।" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">GT</span>
+        <span data-brand>Gouri Travels</span>
+      </a>
+      <nav class="nav" data-nav>
+        <a href="index.html">হোম</a>
+        <a href="trips.html">সব ট্রিপ</a>
+        <a href="contact.html">যোগাযোগ</a>
+        <a href="admin/index.html">অ্যাডমিন</a>
+      </nav>
+      <a class="btn btn--sm" href="trips.html">ট্রিপ দেখুন</a>
+      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero__bg"></div>
+    <div class="wrap hero__inner">
+      <span class="hero__eyebrow">🌿 ১২ বছরের অভিজ্ঞতা · ৪,০০০+ খুশি যাত্রী</span>
+      <h1>আপনার পরবর্তী যাত্রা,<br />আমাদের দায়িত্বে</h1>
+      <p class="lead">
+        দার্জিলিং থেকে আন্দামান — হাতে বাছাই করা ট্রিপ প্যাকেজ, স্বচ্ছ মূল্য,
+        এবং প্রতিটি ধাপে একজন সত্যিকারের মানুষ আপনার পাশে।
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--light" href="trips.html">ট্রিপ ব্রাউজ করুন</a>
+        <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="contact.html">কথা বলুন</a>
+      </div>
+      <div class="hero__stats">
+        <div class="hero__stat"><strong>৪,০০০+</strong><span>সন্তুষ্ট যাত্রী</span></div>
+        <div class="hero__stat"><strong>৩৫+</strong><span>গন্তব্য</span></div>
+        <div class="hero__stat"><strong>৪.৮/৫</strong><span>গড় রেটিং</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <form class="searchbar" id="search-form">
+      <div class="field">
+        <label for="q">কোথায় যেতে চান?</label>
+        <input id="q" name="q" type="text" placeholder="দার্জিলিং, দিঘা, কাশ্মীর…" />
+      </div>
+      <div class="field">
+        <label for="month">কখন?</label>
+        <input id="month" name="month" type="month" />
+      </div>
+      <div class="field">
+        <label for="people">কতজন?</label>
+        <select id="people" name="people">
+          <option value="1">১ জন</option>
+          <option value="2" selected>২ জন</option>
+          <option value="4">৪ জন</option>
+          <option value="6">৬+ জন</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">খুঁজুন</button>
+    </form>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">জনপ্রিয় প্যাকেজ</p>
+          <h2>এখনই বুক করা যাচ্ছে</h2>
+          <p>আসন্ন ডিপার্চার — সিট সীমিত, আগে বুক করলে সেরা দাম।</p>
+        </div>
+        <a class="btn btn--ghost btn--sm" href="trips.html">সব ট্রিপ →</a>
+      </div>
+      <div class="trip-grid" id="featured-trips"></div>
+    </div>
+  </section>
+
+  <section class="section section--tight" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">কেন Gouri Travels</p>
+          <h2>ভ্রমণ সহজ হওয়া উচিত</h2>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <div class="feature__icon">₹</div>
+          <h3>লুকানো খরচ নেই</h3>
+          <p>যা দেখছেন সেটাই দাম। টোল, পার্কিং, গাইড — সব আগেই হিসাবে ধরা।</p>
+        </div>
+        <div class="feature">
+          <div class="feature__icon">🛡️</div>
+          <h3>নিরাপদ ও নির্ভরযোগ্য</h3>
+          <p>ট্রেনিংপ্রাপ্ত ড্রাইভার, নিয়মিত সার্ভিসিং করা গাড়ি এবং ২৪×৭ সাপোর্ট।</p>
+        </div>
+        <div class="feature">
+          <div class="feature__icon">🗺️</div>
+          <h3>লোকাল বিশেষজ্ঞ</h3>
+          <p>প্রতিটি রুটে স্থানীয় গাইড, তাই আপনি দেখবেন আসল জায়গাটা — শুধু পর্যটন স্পট নয়।</p>
+        </div>
+        <div class="feature">
+          <div class="feature__icon">⚡</div>
+          <h3>মিনিটে বুকিং</h3>
+          <p>অনলাইনে ফর্ম ভরুন, আমরা ২ ঘণ্টার মধ্যে কল করে কনফার্ম করি।</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">যাত্রীদের কথা</p>
+          <h2>তারা যা বলেছেন</h2>
+        </div>
+      </div>
+      <div class="quote-grid">
+        <div class="quote">
+          <div class="quote__stars">★★★★★</div>
+          <p>“দার্জিলিং ট্রিপটা খুব গোছানো ছিল। হোটেল, গাড়ি, গাইড — কোনো ঝামেলা হয়নি। বাচ্চাদের নিয়েও আরামে ঘুরেছি।”</p>
+          <div class="quote__who">
+            <div class="quote__avatar">SM</div>
+            <div><strong>Suman Mondal</strong><span>দার্জিলিং · ৫ দিন</span></div>
+          </div>
+        </div>
+        <div class="quote">
+          <div class="quote__stars">★★★★★</div>
+          <p>“দিঘার বুকিংটা ফোনেই ১০ মিনিটে হয়ে গেল। দামও ঠিক ছিল, কোনো লুকানো চার্জ নেই। আবার যাব।”</p>
+          <div class="quote__who">
+            <div class="quote__avatar">PD</div>
+            <div><strong>Priya Das</strong><span>দিঘা · ৩ দিন</span></div>
+          </div>
+        </div>
+        <div class="quote">
+          <div class="quote__stars">★★★★☆</div>
+          <p>“মেঘালয়ের রুটটা অসাধারণ ছিল। রুট ব্রিজ ট্রেক কঠিন, কিন্তু টিম আগেই বলে দিয়েছিল — তাই প্রস্তুত ছিলাম।”</p>
+          <div class="quote__who">
+            <div class="quote__avatar">AB</div>
+            <div><strong>Arindam Bose</strong><span>মেঘালয় · ৬ দিন</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="cta">
+        <div>
+          <h2>কাস্টম ট্রিপ দরকার?</h2>
+          <p>আপনার তারিখ, বাজেট আর পছন্দ বলুন — আমরা একটি প্ল্যান বানিয়ে দেব, কোনো খরচ ছাড়াই।</p>
+        </div>
+        <a class="btn btn--light" href="contact.html">ফ্রি প্ল্যান নিন</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></div>
+          <p>পশ্চিমবঙ্গ ও উত্তর-পূর্ব ভারতের বিশ্বস্ত ট্রিপ পার্টনার। ২০১৩ থেকে যাত্রীদের সাথে।</p>
+        </div>
+        <div>
+          <h4>লিংক</h4>
+          <a href="index.html">হোম</a>
+          <a href="trips.html">সব ট্রিপ</a>
+          <a href="contact.html">যোগাযোগ</a>
+          <a href="admin/index.html">অ্যাডমিন প্যানেল</a>
+        </div>
+        <div>
+          <h4>গন্তব্য</h4>
+          <a href="trips.html">দার্জিলিং</a>
+          <a href="trips.html">দিঘা</a>
+          <a href="trips.html">পুরী</a>
+          <a href="trips.html">মেঘালয়</a>
+        </div>
+        <div>
+          <h4>যোগাযোগ</h4>
+          <a data-phone href="#">+91 90000 00000</a>
+          <a data-email href="#">hello@gouritravels.in</a>
+          <a data-whatsapp href="#" target="_blank" rel="noopener">WhatsApp</a>
+          <p style="margin-top:10px;font-size:.85rem">Station Road, Kolkata 700001</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
+        <span>Made with care in Kolkata</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    (async function () {
+      const grid = document.getElementById("featured-trips");
+      grid.innerHTML = GT.skeletonCards(3);
+      try {
+        const trips = await GT.fetchTrips(6);
+        grid.innerHTML = trips.length
+          ? trips.map(GT.tripCard).join("")
+          : '<div class="empty-state" style="grid-column:1/-1"><strong>এখনো কোনো ট্রিপ যোগ করা হয়নি</strong>অ্যাডমিন প্যানেল থেকে ট্রিপ যোগ করুন।</div>';
+      } catch (err) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><strong>ট্রিপ লোড করা যায়নি</strong>' + GT.escapeHtml(err.message) + '</div>';
+      }
+
+      document.getElementById("search-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const q = document.getElementById("q").value.trim();
+        const month = document.getElementById("month").value;
+        const params = new URLSearchParams();
+        if (q) params.set("q", q);
+        if (month) params.set("month", month);
+        location.href = "trips.html" + (params.toString() ? "?" + params.toString() : "");
+      });
+    })();
+  </script>
+</body>
+</html>
