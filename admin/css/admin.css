@@ -197,3 +197,67 @@ td .sub { display: block; font-size: .78rem; color: var(--muted); }
   .main { padding: 20px 16px 48px; }
   .field-row, .field-row--3 { grid-template-columns: 1fr; }
 }
+
+/* ================================================================
+ * Admin additions: language switch, Google sign-in, settings form
+ * ================================================================ */
+
+.lang-switch {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px; padding: 3px; cursor: pointer; font: inherit;
+  font-size: .74rem; font-weight: 700; line-height: 1;
+}
+.lang-switch span { padding: 5px 9px; border-radius: 999px; color: rgba(255,255,255,.7); }
+.lang-switch span.is-on { background: #fff; color: #0f6b52; }
+
+.login-lang { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+.login-lang .lang-switch { background: #eef4f1; border-color: #dbe6e1; }
+.login-lang .lang-switch span { color: #6b7a74; }
+.login-lang .lang-switch span.is-on { background: #0f6b52; color: #fff; }
+
+.sidebar__lang { padding: 10px 16px; }
+
+.btn--google {
+  background: #fff; color: #2b3a35; border: 1px solid var(--line, #e3e8e5);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn--google:hover { background: #f7faf9; }
+.btn--google::before {
+  content: "G"; display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; background: #4285f4; color: #fff;
+  font-size: .7rem; font-weight: 800;
+}
+
+.or-sep { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: #9aa5a0; font-size: .78rem; }
+.or-sep::before, .or-sep::after { content: ""; flex: 1; height: 1px; background: var(--line, #e3e8e5); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .field--full { grid-column: 1 / -1; }
+.form-grid .field label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 6px; color: #4a5a54; }
+.form-grid .field input, .form-grid .field select, .form-grid .field textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--line, #e3e8e5);
+  border-radius: 8px; font: inherit; font-size: .88rem; background: #fff;
+}
+.form-grid .field textarea { resize: vertical; font-family: inherit; }
+
+.tag { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: .72rem; font-weight: 700; background: #eef1ef; color: #5c6b65; }
+.tag--ok { background: #e2f2ea; color: #0f6b52; }
+.tag--warn { background: #fdf3d8; color: #8a6a12; }
+
+.btn--xs { padding: 5px 10px; font-size: .74rem; }
+.muted { color: #8b9791; font-size: .82rem; }
+code { background: #f2f5f3; padding: 2px 6px; border-radius: 5px; font-size: .8rem; }
+
+.gt-toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  background: #12332a; color: #fff; padding: 12px 20px; border-radius: 10px;
+  font-size: .88rem; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,.22);
+  max-width: 90vw; text-align: center;
+}
+.gt-toast--err { background: #8c2f2f; }
+
+@media (max-width: 860px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .sidebar__lang { padding: 0 8px; }
+}
