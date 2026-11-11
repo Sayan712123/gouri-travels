@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ট্রিপ ডিটেইল — Gouri Travels</title>
+  <title data-i18n="page.tripTitle">Trip Details — Gouri Travels</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -13,21 +13,26 @@
     <div class="wrap site-header__inner">
       <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
       <nav class="nav" data-nav>
-        <a href="index.html">হোম</a>
-        <a href="trips.html">সব ট্রিপ</a>
-        <a href="contact.html">যোগাযোগ</a>
-        <a href="admin/index.html">অ্যাডমিন</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="trips.html" data-i18n="nav.trips">All Trips</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="admin/index.html" data-i18n="nav.admin">Admin</a>
       </nav>
-      <a class="btn btn--sm" href="trips.html">সব ট্রিপ</a>
-      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+      <div class="header-actions">
+        <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
+          <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
+        </button>
+        <a class="btn btn--sm" href="trips.html" data-i18n="nav.viewAll">All Trips</a>
+        <button class="nav-toggle" data-nav-toggle aria-label="Menu">☰</button>
+      </div>
     </div>
   </header>
 
   <main id="trip-root">
     <section class="page-head">
       <div class="wrap">
-        <div class="breadcrumb"><a href="index.html">হোম</a> / <a href="trips.html">ট্রিপ</a> / <span id="crumb">…</span></div>
-        <h1 id="trip-title">লোড হচ্ছে…</h1>
+        <div class="breadcrumb"><a href="index.html" data-i18n="nav.home">Home</a> / <a href="trips.html" data-i18n="nav.trips">All Trips</a> / <span id="crumb">…</span></div>
+        <h1 id="trip-title">…</h1>
         <p id="trip-sub"></p>
       </div>
     </section>
@@ -37,21 +42,48 @@
         <div>
           <div class="detail-hero" id="trip-image"></div>
           <div class="detail-meta" id="trip-meta"></div>
-          <h2>ট্রিপ সম্পর্কে</h2>
+
+          <h2 data-i18n="trip.about">About this trip</h2>
           <p id="trip-desc" class="muted"></p>
-          <h2 style="margin-top:32px">হাইলাইটস</h2>
-          <ul class="highlights" id="trip-highlights"></ul>
-          <h2 style="margin-top:32px">দিন-ভিত্তিক পরিকল্পনা</h2>
-          <ul class="itinerary" id="trip-itinerary"></ul>
+
+          <div id="trip-highlights-wrap">
+            <h2 style="margin-top:32px" data-i18n="trip.highlights">Highlights</h2>
+            <ul class="highlights" id="trip-highlights"></ul>
+          </div>
+
+          <div id="trip-itinerary-wrap">
+            <h2 style="margin-top:32px" data-i18n="trip.itinerary">Day-wise plan</h2>
+            <ul class="itinerary" id="trip-itinerary"></ul>
+          </div>
+
+          <div id="trip-inc-wrap">
+            <h2 style="margin-top:32px" data-i18n="trip.included">Included</h2>
+            <ul class="highlights" id="trip-inc"></ul>
+          </div>
+
+          <div id="trip-exc-wrap">
+            <h2 style="margin-top:32px" data-i18n="trip.excluded">Not included</h2>
+            <ul class="highlights" id="trip-exc"></ul>
+          </div>
+
+          <div id="trip-pol-wrap">
+            <h2 style="margin-top:32px" data-i18n="trip.policy">Cancellation and policy</h2>
+            <ul class="highlights" id="trip-pol"></ul>
+          </div>
+
+          <div id="trip-gallery-wrap">
+            <h2 style="margin-top:32px" data-i18n="adm.photosSection">Photos</h2>
+            <div class="gallery" id="trip-gallery"></div>
+          </div>
         </div>
 
         <aside class="booking-card" id="booking-card">
           <div class="booking-card__price" id="trip-price">—</div>
-          <p class="muted" style="font-size:.85rem;margin:6px 0 0">প্রতি জন, সব খরচ সহ</p>
+          <p class="muted" style="font-size:.85rem;margin:6px 0 0" data-i18n="trip.perPerson">per person, all inclusive</p>
           <dl id="trip-facts"></dl>
-          <a class="btn btn--block" id="book-btn" href="#">এখনই বুক করুন</a>
-          <a class="btn btn--ghost btn--block" style="margin-top:10px" data-whatsapp target="_blank" rel="noopener">WhatsApp-এ জিজ্ঞাসা</a>
-          <p class="form-note">বুকিং ফ্রি — আমরা ২ ঘণ্টার মধ্যে কল করে কনফার্ম করি।</p>
+          <a class="btn btn--block" id="book-btn" href="#" data-i18n="trip.book">Book now</a>
+          <a class="btn btn--ghost btn--block" style="margin-top:10px" data-whatsapp target="_blank" rel="noopener" data-i18n="trip.wa">Ask on WhatsApp</a>
+          <p class="form-note" data-i18n="trip.note">Booking is free — we confirm within 2 hours.</p>
         </aside>
       </div>
     </section>
@@ -60,79 +92,120 @@
   <footer class="site-footer">
     <div class="wrap">
       <div class="footer-bottom" style="border:0;padding:0">
-        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
-        <span><a data-phone href="#" style="display:inline">+91 90000 00000</a></span>
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. <span data-i18n="foot.rights">All rights reserved.</span></span>
+        <span><a data-phone href="#" style="display:inline">—</a></span>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/site.js"></script>
   <script>
     (async function () {
-      const slug = new URLSearchParams(location.search).get("slug");
+      const params = new URLSearchParams(location.search);
+      const key = params.get("id") || params.get("slug");
       const root = document.getElementById("trip-root");
 
-      if (!slug) {
-        root.innerHTML = '<div class="wrap section"><div class="empty-state"><strong>ট্রিপ সিলেক্ট করা হয়নি</strong><a class="btn btn--sm" href="trips.html" style="margin-top:16px">সব ট্রিপ দেখুন</a></div></div>';
+      if (!key) {
+        root.innerHTML = '<div class="wrap section"><div class="empty-state"><strong>' + GT.t("trip.pick") + '</strong><a class="btn btn--sm" href="trips.html" style="margin-top:16px">' + GT.t("nav.viewAll") + "</a></div></div>";
         return;
       }
 
       let trip = null;
-      try {
-        trip = await GT.fetchTripBySlug(slug);
-      } catch (err) {
-        GT.toast(err.message, "error");
-      }
+      try { trip = await GT.fetchTripBySlug(key); } catch (err) { GT.toast(err.message, "error"); }
 
       if (!trip) {
-        root.innerHTML = '<div class="wrap section"><div class="empty-state"><strong>এই ট্রিপটি পাওয়া যায়নি</strong>সম্ভবত এটি আর অ্যাক্টিভ নেই।<br><a class="btn btn--sm" href="trips.html" style="margin-top:16px">সব ট্রিপ দেখুন</a></div></div>';
+        root.innerHTML = '<div class="wrap section"><div class="empty-state"><strong>' + GT.t("trip.notFound") + "</strong>" + GT.t("trip.notFoundSub") + '<br><a class="btn btn--sm" href="trips.html" style="margin-top:16px">' + GT.t("nav.viewAll") + "</a></div></div>";
         return;
       }
 
-      document.title = trip.title + " — Gouri Travels";
-      document.getElementById("crumb").textContent = trip.title;
-      document.getElementById("trip-title").textContent = trip.title;
-      document.getElementById("trip-sub").textContent = trip.destination + " · " + trip.duration_days + " দিন";
+      function paint() {
+        const d = GT.parseDetails(trip.details);
+        const left = GT.seatsLeft(trip);
+        const closed = GT.isClosed(trip);
 
-      const img = trip.cover_image_url || "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1400&q=70";
-      document.getElementById("trip-image").innerHTML = '<img src="' + GT.escapeHtml(img) + '" alt="' + GT.escapeHtml(trip.title) + '" />';
+        document.title = trip.title + " — Gouri Travels";
+        document.getElementById("crumb").textContent = trip.title;
+        document.getElementById("trip-title").textContent = trip.title;
+        document.getElementById("trip-sub").textContent =
+          [trip.from_place, trip.to_place].filter(Boolean).join(" → ") + (trip.trip_date ? " · " + GT.prettyDate(trip.trip_date) : "");
 
-      const left = GT.seatsLeft(trip);
-      document.getElementById("trip-meta").innerHTML = [
-        '<span class="pill">' + GT.escapeHtml(trip.destination) + '</span>',
-        '<span class="pill">' + trip.duration_days + ' দিন</span>',
-        '<span class="pill' + (left <= 5 ? ' pill--accent' : '') + '">' + (left > 0 ? left + ' সিট বাকি' : 'সিট শেষ') + '</span>',
-      ].join("");
+        const img = trip.thumb || (trip.photos && trip.photos[0]) || "";
+        document.getElementById("trip-image").innerHTML = img
+          ? '<img src="' + GT.escapeHtml(img) + '" alt="' + GT.escapeHtml(trip.title) + '" />'
+          : '<div class="trip-card__ph" style="height:100%"></div>';
 
-      document.getElementById("trip-desc").textContent = trip.description || trip.summary || "";
+        document.getElementById("trip-meta").innerHTML = [
+          '<span class="pill">' + GT.kindTag(trip) + "</span>",
+          trip.to_place ? '<span class="pill">' + GT.escapeHtml(trip.to_place) + "</span>" : "",
+          trip.trip_date ? '<span class="pill">' + GT.prettyDate(trip.trip_date) + "</span>" : "",
+          '<span class="pill' + (left <= 5 ? " pill--accent" : "") + '">' + (left > 0 ? left + " " + GT.t("trip.seatsLeftPill") : GT.t("trip.noSeats")) + "</span>",
+          closed ? '<span class="pill pill--accent">' + GT.t("trip.closed") + "</span>" : "",
+        ].join("");
 
-      const hl = document.getElementById("trip-highlights");
-      hl.innerHTML = (trip.highlights || []).map((h) => "<li>" + GT.escapeHtml(h) + "</li>").join("") || '<li>বিস্তারিত জানতে কল করুন</li>';
+        document.getElementById("trip-desc").textContent = d.ov || "";
 
-      const it = document.getElementById("trip-itinerary");
-      const days = Array.isArray(trip.itinerary) ? trip.itinerary : [];
-      it.innerHTML = days.length
-        ? days.map((d) => '<li><span class="day">দিন ' + GT.escapeHtml(d.day) + '</span><strong>' + GT.escapeHtml(d.title) + '</strong><span>' + GT.escapeHtml(d.detail || "") + '</span></li>').join("")
-        : '<li><span>দিন-ভিত্তিক পরিকল্পনা শীঘ্রই যোগ করা হবে।</span></li>';
+        const hl = GT.lines(d.hl);
+        document.getElementById("trip-highlights-wrap").style.display = hl.length ? "" : "none";
+        document.getElementById("trip-highlights").innerHTML = hl.map(function (h) { return "<li>" + GT.escapeHtml(h) + "</li>"; }).join("");
 
-      document.getElementById("trip-price").innerHTML = GT.inr(trip.price_per_person) + ' <small>/ জন</small>';
+        const days = GT.daysOf(trip);
+        const itWrap = document.getElementById("trip-itinerary-wrap");
+        if (days.length) {
+          itWrap.style.display = "";
+          document.getElementById("trip-itinerary").innerHTML = days.map(function (day, i) {
+            const title = day.title || day.t || "";
+            const detail = day.detail || day.d || "";
+            return '<li><span class="day">' + GT.t("trip.day") + " " + (day.day || i + 1) + "</span><strong>" + GT.escapeHtml(title) + "</strong><span>" + GT.escapeHtml(detail) + "</span></li>";
+          }).join("");
+        } else if (d.it) {
+          itWrap.style.display = "";
+          document.getElementById("trip-itinerary").innerHTML = GT.lines(d.it).map(function (l) { return "<li><span>" + GT.escapeHtml(l) + "</span></li>"; }).join("");
+        } else {
+          itWrap.style.display = "none";
+        }
 
-      document.getElementById("trip-facts").innerHTML = [
-        ["ডিপার্চার", GT.prettyDate(trip.departure_date)],
-        ["রিটার্ন", GT.prettyDate(trip.return_date)],
-        ["মোট সিট", trip.seats_total],
-        ["বাকি সিট", left],
-      ].map(([k, v]) => '<div><dt>' + k + '</dt><dd>' + GT.escapeHtml(v) + '</dd></div>').join("");
+        const inc = GT.lines(d.inc);
+        document.getElementById("trip-inc-wrap").style.display = inc.length ? "" : "none";
+        document.getElementById("trip-inc").innerHTML = inc.map(function (l) { return "<li>" + GT.escapeHtml(l) + "</li>"; }).join("");
 
-      const bookBtn = document.getElementById("book-btn");
-      bookBtn.href = "booking.html?trip=" + encodeURIComponent(trip.slug);
-      if (left <= 0) {
-        bookBtn.textContent = "সিট শেষ — ওয়েটলিস্টে যোগ দিন";
-        bookBtn.classList.add("btn--ghost");
+        const exc = GT.lines(d.exc);
+        document.getElementById("trip-exc-wrap").style.display = exc.length ? "" : "none";
+        document.getElementById("trip-exc").innerHTML = exc.map(function (l) { return "<li>" + GT.escapeHtml(l) + "</li>"; }).join("");
+
+        const pol = GT.lines(d.pol);
+        document.getElementById("trip-pol-wrap").style.display = pol.length ? "" : "none";
+        document.getElementById("trip-pol").innerHTML = pol.map(function (l) { return "<li>" + GT.escapeHtml(l) + "</li>"; }).join("");
+
+        const photos = (trip.photos || []).filter(Boolean);
+        document.getElementById("trip-gallery-wrap").style.display = photos.length ? "" : "none";
+        document.getElementById("trip-gallery").innerHTML = photos.map(function (p) {
+          return '<a href="' + GT.escapeHtml(p) + '" target="_blank" rel="noopener"><img src="' + GT.escapeHtml(p) + '" alt="" loading="lazy" /></a>';
+        }).join("");
+
+        document.getElementById("trip-price").innerHTML = GT.inr(trip.price) + ' <small>/ ' + GT.t("book.package") + "</small>";
+
+        document.getElementById("trip-facts").innerHTML = [
+          [GT.t("trip.departure"), GT.prettyDate(trip.trip_date) + (trip.trip_time ? " · " + trip.trip_time : "")],
+          [GT.t("adm.boarding"), trip.boarding || "—"],
+          [GT.t("trip.totalSeats"), trip.seats || 0],
+          [GT.t("trip.left"), left],
+        ].map(function (row) { return "<div><dt>" + row[0] + "</dt><dd>" + GT.escapeHtml(row[1]) + "</dd></div>"; }).join("");
+
+        const bookBtn = document.getElementById("book-btn");
+        bookBtn.href = "booking.html?trip=" + encodeURIComponent(trip.id);
+        if (left <= 0 || closed) {
+          bookBtn.textContent = GT.t("trip.soldOut");
+          bookBtn.classList.add("btn--ghost");
+        }
       }
+
+      paint();
+      GT.applyBrand();
+      document.addEventListener("gt:langchange", paint);
     })();
   </script>
 </body>
