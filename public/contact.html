@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>যোগাযোগ — Gouri Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
+      <nav class="nav" data-nav>
+        <a href="index.html">হোম</a>
+        <a href="trips.html">সব ট্রিপ</a>
+        <a href="contact.html">যোগাযোগ</a>
+        <a href="../admin/index.html">অ্যাডমিন</a>
+      </nav>
+      <a class="btn btn--sm" href="trips.html">ট্রিপ দেখুন</a>
+      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+    </div>
+  </header>
+
+  <section class="page-head">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="index.html">হোম</a> / যোগাযোগ</div>
+      <h1>আমরা শুনতে চাই</h1>
+      <p>কাস্টম ট্রিপ, গ্রুপ বুকিং বা যেকোনো প্রশ্ন — লিখে পাঠান, আমরা সেদিনই উত্তর দিই।</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap detail-grid">
+      <div class="form-card">
+        <div id="form-alert"></div>
+        <form id="contact-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">নাম *</label>
+              <input id="name" name="name" type="text" required placeholder="আপনার নাম" />
+            </div>
+            <div class="field">
+              <label for="phone">মোবাইল *</label>
+              <input id="phone" name="phone" type="tel" required placeholder="+91 90000 00000" />
+            </div>
+            <div class="field field--full">
+              <label for="email">ইমেইল</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div class="field field--full">
+              <label for="message">আপনার প্রশ্ন *</label>
+              <textarea id="message" name="message" required placeholder="কোথায় যেতে চান, কত দিন, কতজন, বাজেট…"></textarea>
+            </div>
+          </div>
+          <button class="btn btn--block" type="submit" id="submit-btn" style="margin-top:20px">মেসেজ পাঠান</button>
+        </form>
+      </div>
+
+      <aside>
+        <div class="booking-card" style="position:static">
+          <h3>সরাসরি যোগাযোগ</h3>
+          <dl>
+            <div><dt>ফোন</dt><dd><a data-phone href="#">+91 90000 00000</a></dd></div>
+            <div><dt>ইমেইল</dt><dd><a data-email href="#">hello@gouritravels.in</a></dd></div>
+            <div><dt>WhatsApp</dt><dd><a data-whatsapp target="_blank" rel="noopener">চ্যাট করুন</a></dd></div>
+            <div><dt>অফিস</dt><dd style="font-weight:500;font-size:.85rem">Station Road, Kolkata 700001</dd></div>
+            <div><dt>সময়</dt><dd style="font-weight:500;font-size:.85rem">সকাল ৯টা – রাত ৯টা</dd></div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-bottom" style="border:0;padding:0">
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
+        <span>Made with care in Kolkata</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    (function () {
+      const form = document.getElementById("contact-form");
+      const alertBox = document.getElementById("form-alert");
+      const submitBtn = document.getElementById("submit-btn");
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        alertBox.innerHTML = "";
+
+        const payload = {
+          name: form.name.value.trim(),
+          phone: form.phone.value.trim(),
+          email: form.email.value.trim() || null,
+          message: form.message.value.trim(),
+        };
+
+        if (payload.name.length < 2) return (alertBox.innerHTML = '<div class="form-error">নাম লিখুন।</div>');
+        if (payload.phone.length < 6) return (alertBox.innerHTML = '<div class="form-error">সঠিক মোবাইল নম্বর দিন।</div>');
+        if (payload.message.length < 3) return (alertBox.innerHTML = '<div class="form-error">আপনার প্রশ্ন লিখুন।</div>');
+
+        if (!window.gtClient) {
+          alertBox.innerHTML = '<div class="form-error">Supabase কনফিগার করা হয়নি — js/config.js দেখুন।</div>';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "পাঠানো হচ্ছে…";
+
+        const { error } = await window.gtClient.from("enquiries").insert(payload);
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "মেসেজ পাঠান";
+
+        if (error) {
+          alertBox.innerHTML = '<div class="form-error">পাঠানো যায়নি: ' + GT.escapeHtml(error.message) + '</div>';
+          return;
+        }
+
+        form.reset();
+        alertBox.innerHTML = '<div class="form-success"><strong>মেসেজ পেয়েছি!</strong><br>আমরা খুব শীঘ্রই আপনার সাথে যোগাযোগ করব।</div>';
+      });
+    })();
+  </script>
+</body>
+</html>

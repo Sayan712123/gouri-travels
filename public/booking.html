@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>বুকিং — Gouri Travels</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap site-header__inner">
+      <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
+      <nav class="nav" data-nav>
+        <a href="index.html">হোম</a>
+        <a href="trips.html">সব ট্রিপ</a>
+        <a href="contact.html">যোগাযোগ</a>
+        <a href="../admin/index.html">অ্যাডমিন</a>
+      </nav>
+      <a class="btn btn--sm" href="trips.html">সব ট্রিপ</a>
+      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+    </div>
+  </header>
+
+  <section class="page-head">
+    <div class="wrap">
+      <div class="breadcrumb"><a href="index.html">হোম</a> / <a href="trips.html">ট্রিপ</a> / বুকিং</div>
+      <h1>বুকিং ফর্ম</h1>
+      <p id="booking-sub">আপনার তথ্য দিন — আমরা ২ ঘণ্টার মধ্যে কল করে কনফার্ম করি।</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap" style="max-width:820px">
+      <div class="form-card">
+        <div id="form-alert"></div>
+
+        <form id="booking-form" novalidate>
+          <div class="form-grid">
+            <div class="field field--full">
+              <label for="trip_id">ট্রিপ</label>
+              <select id="trip_id" name="trip_id" required>
+                <option value="">ট্রিপ বেছে নিন…</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="full_name">পুরো নাম *</label>
+              <input id="full_name" name="full_name" type="text" required placeholder="যেমন: সায়ন ঘোষ" />
+            </div>
+            <div class="field">
+              <label for="phone">মোবাইল নম্বর *</label>
+              <input id="phone" name="phone" type="tel" required placeholder="+91 90000 00000" />
+            </div>
+            <div class="field">
+              <label for="email">ইমেইল</label>
+              <input id="email" name="email" type="email" placeholder="you@example.com" />
+            </div>
+            <div class="field">
+              <label for="travellers">কতজন যাত্রী *</label>
+              <input id="travellers" name="travellers" type="number" min="1" max="20" value="2" required />
+            </div>
+            <div class="field">
+              <label for="travel_date">যাত্রার তারিখ</label>
+              <input id="travel_date" name="travel_date" type="date" />
+            </div>
+            <div class="field">
+              <label for="pickup_point">পিকআপ পয়েন্ট</label>
+              <input id="pickup_point" name="pickup_point" type="text" placeholder="যেমন: শিয়ালদহ স্টেশন" />
+            </div>
+            <div class="field field--full">
+              <label for="notes">বিশেষ কিছু জানাতে চান?</label>
+              <textarea id="notes" name="notes" placeholder="খাবারের পছন্দ, বাচ্চাদের বয়স, অ্যালার্জি ইত্যাদি"></textarea>
+            </div>
+          </div>
+
+          <div id="price-summary" class="form-note" style="font-size:.95rem;color:var(--ink);margin:20px 0"></div>
+
+          <button class="btn btn--block" type="submit" id="submit-btn">বুকিং রিকোয়েস্ট পাঠান</button>
+          <p class="form-note">সাবমিট করলে কোনো পেমেন্ট কাটবে না। আমরা কল করে কনফার্ম করার পরই অ্যাডভান্স নেওয়া হয়।</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-bottom" style="border:0;padding:0">
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
+        <span><a data-phone href="#" style="display:inline">+91 90000 00000</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/site.js"></script>
+  <script>
+    (async function () {
+      const form = document.getElementById("booking-form");
+      const select = document.getElementById("trip_id");
+      const alertBox = document.getElementById("form-alert");
+      const summary = document.getElementById("price-summary");
+      const submitBtn = document.getElementById("submit-btn");
+      const travellersInput = document.getElementById("travellers");
+      const dateInput = document.getElementById("travel_date");
+      const wanted = new URLSearchParams(location.search).get("trip");
+      let trips = [];
+
+      function updateSummary() {
+        const trip = trips.find((t) => t.id === select.value);
+        if (!trip) { summary.textContent = ""; return; }
+        const n = Math.max(1, Number(travellersInput.value) || 1);
+        summary.innerHTML = "আনুমানিক মোট: <strong>" + GT.inr(Number(trip.price_per_person) * n) + "</strong> (" + n + " জন × " + GT.inr(trip.price_per_person) + ")";
+      }
+
+      try {
+        trips = await GT.fetchTrips();
+        select.innerHTML = '<option value="">ট্রিপ বেছে নিন…</option>' + trips.map((t) =>
+          '<option value="' + t.id + '">' + GT.escapeHtml(t.title) + ' — ' + GT.inr(t.price_per_person) + '</option>'
+        ).join("");
+
+        if (wanted) {
+          const match = trips.find((t) => t.slug === wanted);
+          if (match) {
+            select.value = match.id;
+            document.getElementById("booking-sub").textContent = match.title + " · " + match.destination;
+            if (match.departure_date) dateInput.value = match.departure_date;
+          }
+        }
+        updateSummary();
+      } catch (err) {
+        alertBox.innerHTML = '<div class="form-error">ট্রিপ লোড করা যায়নি: ' + GT.escapeHtml(err.message) + '</div>';
+      }
+
+      select.addEventListener("change", function () {
+        const trip = trips.find((t) => t.id === select.value);
+        if (trip && trip.departure_date) dateInput.value = trip.departure_date;
+        updateSummary();
+      });
+      travellersInput.addEventListener("input", updateSummary);
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        alertBox.innerHTML = "";
+
+        const payload = {
+          trip_id: select.value || null,
+          full_name: form.full_name.value.trim(),
+          phone: form.phone.value.trim(),
+          email: form.email.value.trim() || null,
+          travellers: Number(form.travellers.value) || 1,
+          travel_date: form.travel_date.value || null,
+          pickup_point: form.pickup_point.value.trim() || null,
+          notes: form.notes.value.trim() || null,
+          status: "pending",
+        };
+
+        if (!payload.trip_id) return (alertBox.innerHTML = '<div class="form-error">ট্রিপ বেছে নিন।</div>');
+        if (payload.full_name.length < 2) return (alertBox.innerHTML = '<div class="form-error">পুরো নাম লিখুন।</div>');
+        if (payload.phone.length < 6) return (alertBox.innerHTML = '<div class="form-error">সঠিক মোবাইল নম্বর দিন।</div>');
+
+        const trip = trips.find((t) => t.id === payload.trip_id);
+        if (trip) payload.total_amount = Number(trip.price_per_person) * payload.travellers;
+
+        if (!window.gtClient) {
+          alertBox.innerHTML = '<div class="form-error">Supabase কনফিগার করা হয়নি — js/config.js দেখুন।</div>';
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "পাঠানো হচ্ছে…";
+
+        const { data, error } = await window.gtClient
+          .from("bookings")
+          .insert(payload)
+          .select("booking_code")
+          .single();
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = "বুকিং রিকোয়েস্ট পাঠান";
+
+        if (error) {
+          alertBox.innerHTML = '<div class="form-error">বুকিং পাঠানো যায়নি: ' + GT.escapeHtml(error.message) + '</div>';
+          return;
+        }
+
+        form.reset();
+        summary.textContent = "";
+        alertBox.innerHTML =
+          '<div class="form-success"><strong>ধন্যবাদ! বুকিং রিকোয়েস্ট পেয়েছি।</strong><br>' +
+          'আপনার বুকিং কোড: <strong>' + GT.escapeHtml(data.booking_code) + '</strong><br>' +
+          'আমরা ২ ঘণ্টার মধ্যে ' + GT.escapeHtml(payload.phone) + ' নম্বরে কল করব।</div>';
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    })();
+  </script>
+</body>
+</html>
