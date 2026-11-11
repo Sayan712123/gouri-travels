@@ -27,7 +27,7 @@
       seats_total: 24,
       seats_booked: 19,
       offset: 20,
-      cover_image_url: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=1200&q=70",
+      cover_image_url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=70",
       highlights: ["টাইগার হিল সূর্যোদয়", "দার্জিলিং হিমালয়ান রেলওয়ে", "সোমগো লেক", "এমজি মার্গ, গ্যাংটক"],
       itinerary: [
         { day: 1, title: "দার্জিলিং পৌঁছানো", detail: "NJP / বাগডোগরা থেকে পিকআপ ও হোটেলে ট্রান্সফার।" },
