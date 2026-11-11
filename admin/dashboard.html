@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ড্যাশবোর্ড — Gouri Travels Admin</title>
+  <title data-i18n="page.dashTitle">Dashboard — Gouri Travels Admin</title>
   <meta name="robots" content="noindex, nofollow" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/admin.css" />
@@ -14,53 +14,56 @@
 
     <aside class="sidebar">
       <div class="sidebar__brand"><span class="mark">GT</span><span>Gouri Admin</span></div>
-      <a href="#" data-tab="bookings" class="is-active">📋 বুকিং</a>
-      <a href="#" data-tab="trips">🗺️ ট্রিপ</a>
-      <a href="#" data-tab="enquiries">✉️ মেসেজ</a>
-      <a href="../index.html" target="_blank" rel="noopener">🌐 সাইট দেখুন</a>
+      <a href="#" data-tab="bookings" class="is-active">📋 <span data-i18n="adm.tabBookings">Bookings</span></a>
+      <a href="#" data-tab="trips">🗺️ <span data-i18n="adm.tabTrips">Trips</span></a>
+      <a href="#" data-tab="settings">⚙️ <span data-i18n="adm.tabSettings">Settings</span></a>
+      <a href="../index.html" target="_blank" rel="noopener">🌐 <span data-i18n="adm.viewSite">View site</span></a>
       <div class="sidebar__spacer"></div>
+      <div class="sidebar__lang">
+        <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
+          <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
+        </button>
+      </div>
       <div class="sidebar__user">
         <strong id="admin-email">…</strong>
-        <button id="logout-btn">লগআউট</button>
+        <button id="logout-btn" data-i18n="adm.logout">Logout</button>
       </div>
     </aside>
 
     <main class="main">
       <div class="topbar">
         <div>
-          <h1>ড্যাশবোর্ড</h1>
-          <p>বুকিং, ট্রিপ ও মেসেজ এক জায়গায়।</p>
+          <h1 data-i18n="adm.dash">Dashboard</h1>
+          <p data-i18n="adm.dashSub">Bookings, trips and settings in one place.</p>
         </div>
         <div class="toolbar">
-          <button class="btn btn--ghost btn--sm" id="refresh-btn">↻ রিফ্রেশ</button>
-          <button class="btn btn--sm" id="new-trip-btn">+ নতুন ট্রিপ</button>
+          <button class="btn btn--ghost btn--sm" id="refresh-btn" data-i18n="adm.refresh">↻ Refresh</button>
+          <button class="btn btn--sm" id="new-trip-btn" data-i18n="adm.newTrip">+ New trip</button>
         </div>
       </div>
 
       <div id="admin-warning" class="hidden"></div>
 
       <div class="stat-grid">
-        <div class="stat"><div class="stat__label">মোট বুকিং</div><div class="stat__value" id="stat-bookings">—</div></div>
-        <div class="stat stat--warn"><div class="stat__label">পেন্ডিং</div><div class="stat__value" id="stat-pending">—</div><div class="stat__hint">কল করে কনফার্ম করুন</div></div>
-        <div class="stat stat--accent"><div class="stat__label">কনফার্মড</div><div class="stat__value" id="stat-confirmed">—</div></div>
-        <div class="stat"><div class="stat__label">আনুমানিক আয়</div><div class="stat__value" id="stat-revenue">—</div><div class="stat__hint">কনফার্মড + সম্পন্ন</div></div>
-        <div class="stat"><div class="stat__label">অ্যাক্টিভ ট্রিপ</div><div class="stat__value" id="stat-trips">—</div></div>
-        <div class="stat"><div class="stat__label">অপঠিত মেসেজ</div><div class="stat__value" id="stat-enquiries">—</div></div>
+        <div class="stat"><div class="stat__label" data-i18n="adm.statBookings">Total bookings</div><div class="stat__value" id="stat-bookings">—</div></div>
+        <div class="stat stat--warn"><div class="stat__label" data-i18n="adm.statPending">Pending</div><div class="stat__value" id="stat-pending">—</div></div>
+        <div class="stat stat--accent"><div class="stat__label" data-i18n="adm.statConfirmed">Confirmed</div><div class="stat__value" id="stat-confirmed">—</div></div>
+        <div class="stat"><div class="stat__label" data-i18n="adm.statRevenue">Estimated revenue</div><div class="stat__value" id="stat-revenue">—</div></div>
+        <div class="stat"><div class="stat__label" data-i18n="adm.statTrips">Active trips</div><div class="stat__value" id="stat-trips">—</div></div>
+        <div class="stat"><div class="stat__label" data-i18n="adm.statMsgs">Total trips</div><div class="stat__value" id="stat-total-trips">—</div></div>
       </div>
 
       <!-- ============ BOOKINGS ============ -->
       <section data-pane="bookings">
         <div class="panel">
           <div class="panel__head">
-            <h2>বুকিং লিস্ট</h2>
+            <h2 data-i18n="adm.tabBookings">Bookings</h2>
             <div class="toolbar">
-              <input id="booking-search" type="search" placeholder="কোড, নাম বা ফোন…" />
+              <input id="booking-search" type="search" data-i18n-ph="adm.search" placeholder="Code, name or phone…" />
               <select id="booking-status">
-                <option value="all">সব স্টেটাস</option>
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="cancelled">Cancelled</option>
-                <option value="completed">Completed</option>
+                <option value="all" data-i18n="adm.allStatus">All statuses</option>
+                <option value="held" data-i18n="adm.held">Held</option>
+                <option value="booked" data-i18n="adm.booked">Booked</option>
               </select>
             </div>
           </div>
@@ -69,7 +72,13 @@
               <table>
                 <thead>
                   <tr>
-                    <th>কোড</th><th>যাত্রী</th><th>ট্রিপ</th><th>জন</th><th>মোট</th><th>স্টেটাস</th><th>অ্যাকশন</th>
+                    <th data-i18n="adm.code">Code</th>
+                    <th data-i18n="adm.traveller">Traveller</th>
+                    <th data-i18n="adm.trip">Trip</th>
+                    <th data-i18n="adm.pax">Pax</th>
+                    <th data-i18n="adm.total">Total</th>
+                    <th data-i18n="adm.status">Status</th>
+                    <th data-i18n="adm.action">Action</th>
                   </tr>
                 </thead>
                 <tbody id="bookings-body"></tbody>
@@ -83,14 +92,22 @@
       <section data-pane="trips" class="hidden">
         <div class="panel">
           <div class="panel__head">
-            <h2>ট্রিপ প্যাকেজ</h2>
-            <button class="btn btn--sm" id="new-trip-btn-2" onclick="document.getElementById('new-trip-btn').click()">+ নতুন ট্রিপ</button>
+            <h2 data-i18n="adm.tabTrips">Trips</h2>
+            <button class="btn btn--sm" id="new-trip-btn-2" data-i18n="adm.newTrip">+ New trip</button>
           </div>
           <div class="panel__body panel__body--flush">
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr><th>ট্রিপ</th><th>গন্তব্য</th><th>দিন</th><th>দাম</th><th>সিট</th><th>স্টেটাস</th><th>অ্যাকশন</th></tr>
+                  <tr>
+                    <th data-i18n="adm.trip">Trip</th>
+                    <th data-i18n="adm.to">To</th>
+                    <th data-i18n="adm.date">Date</th>
+                    <th data-i18n="adm.price">Price</th>
+                    <th data-i18n="adm.seats">Seats</th>
+                    <th data-i18n="adm.status">Status</th>
+                    <th data-i18n="adm.action">Action</th>
+                  </tr>
                 </thead>
                 <tbody id="trips-body"></tbody>
               </table>
@@ -99,17 +116,12 @@
         </div>
       </section>
 
-      <!-- ============ ENQUIRIES ============ -->
-      <section data-pane="enquiries" class="hidden">
+      <!-- ============ SETTINGS ============ -->
+      <section data-pane="settings" class="hidden">
         <div class="panel">
-          <div class="panel__head"><h2>কন্টাক্ট মেসেজ</h2></div>
-          <div class="panel__body panel__body--flush">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>নাম</th><th>যোগাযোগ</th><th>মেসেজ</th><th>স্টেটাস</th><th>অ্যাকশন</th></tr></thead>
-                <tbody id="enquiries-body"></tbody>
-              </table>
-            </div>
+          <div class="panel__head"><h2 data-i18n="adm.settings">Site settings</h2></div>
+          <div class="panel__body">
+            <div class="form-grid" id="settings-form"></div>
           </div>
         </div>
       </section>
@@ -121,7 +133,7 @@
     <div class="modal">
       <div class="modal__head">
         <h2 id="modal-title">—</h2>
-        <button class="modal__close" data-modal-close aria-label="বন্ধ">×</button>
+        <button class="modal__close" data-modal-close aria-label="Close">×</button>
       </div>
       <div class="modal__body" id="modal-body"></div>
       <div class="modal__foot" id="modal-foot"></div>
@@ -129,7 +141,13 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/i18n.js"></script>
   <script src="js/config.js"></script>
   <script src="js/admin.js"></script>
+  <script>
+    document.getElementById("new-trip-btn-2").addEventListener("click", function () {
+      document.getElementById("new-trip-btn").click();
+    });
+  </script>
 </body>
 </html>

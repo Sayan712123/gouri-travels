@@ -1,16 +1,17 @@
 /* ---------------------------------------------------------------
  * Gouri Travels — admin panel configuration
  *
- * ⚠️  এখানে আপনার বিদ্যমান Supabase প্রজেক্টের দুটি মান বসান
- *     (js/config.js-এ যেগুলো দিয়েছেন, ঠিক সেগুলোই):
- *       SUPABASE_URL      → Project Settings → API → Project URL
- *       SUPABASE_ANON_KEY → একই পেজের anon / public key
+ * js/config.js-এ যে মানগুলো দিয়েছেন, ঠিক সেগুলোই এখানে বসানো আছে।
  *
- * মান বসানো না থাকলে অ্যাডমিন প্যানেল "ডেমো মোড"-এ ড্যাশবোর্ড
- * দেখাবে (লগইন ছাড়া, শুধু প্রিভিউ — কোনো ডেটা বদলাবে না)।
+ *   SUPABASE_URL      → Project Settings → API → Project URL
+ *   SUPABASE_ANON_KEY → একই পেজের anon / public key
+ *
+ * service_role key কখনোই এখানে বসাবেন না।
  * ------------------------------------------------------------- */
 window.GT_ADMIN_CONFIG = {
-  SUPABASE_URL: "https://your-project-ref.supabase.co",
-  SUPABASE_ANON_KEY: "your-anon-public-key",
+  SUPABASE_URL: "https://kjoynpeidivqqanwfsno.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_-zosCdXmn_UzfvHMeXSXLw_smvznBnY",
   BRAND_NAME: "Gouri Travels",
+  DEFAULT_LANG: "en",
+  STORAGE_BUCKET: "trip-photos",
 };
