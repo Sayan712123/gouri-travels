@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>যোগাযোগ — Gouri Travels</title>
+  <title data-i18n="page.contactTitle">Contact — Gouri Travels</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -13,21 +13,26 @@
     <div class="wrap site-header__inner">
       <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
       <nav class="nav" data-nav>
-        <a href="index.html">হোম</a>
-        <a href="trips.html">সব ট্রিপ</a>
-        <a href="contact.html">যোগাযোগ</a>
-        <a href="admin/index.html">অ্যাডমিন</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="trips.html" data-i18n="nav.trips">All Trips</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="admin/index.html" data-i18n="nav.admin">Admin</a>
       </nav>
-      <a class="btn btn--sm" href="trips.html">ট্রিপ দেখুন</a>
-      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+      <div class="header-actions">
+        <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
+          <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
+        </button>
+        <a class="btn btn--sm" href="trips.html" data-i18n="nav.book">Book a Trip</a>
+        <button class="nav-toggle" data-nav-toggle aria-label="Menu">☰</button>
+      </div>
     </div>
   </header>
 
   <section class="page-head">
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">হোম</a> / যোগাযোগ</div>
-      <h1>আমরা শুনতে চাই</h1>
-      <p>কাস্টম ট্রিপ, গ্রুপ বুকিং বা যেকোনো প্রশ্ন — লিখে পাঠান, আমরা সেদিনই উত্তর দিই।</p>
+      <div class="breadcrumb"><a href="index.html" data-i18n="nav.home">Home</a> / <span data-i18n="nav.contact">Contact</span></div>
+      <h1 data-i18n="contact.title">We would love to hear from you</h1>
+      <p data-i18n="contact.sub">Custom trips, group bookings or any question — write to us and we reply the same day.</p>
     </div>
   </section>
 
@@ -38,35 +43,35 @@
         <form id="contact-form" novalidate>
           <div class="form-grid">
             <div class="field">
-              <label for="name">নাম *</label>
-              <input id="name" name="name" type="text" required placeholder="আপনার নাম" />
+              <label for="name" data-i18n="contact.name">Name *</label>
+              <input id="name" name="name" type="text" data-i18n-ph="contact.namePh" placeholder="Your name" />
             </div>
             <div class="field">
-              <label for="phone">মোবাইল *</label>
-              <input id="phone" name="phone" type="tel" required placeholder="+91 90000 00000" />
+              <label for="phone" data-i18n="contact.phone">Mobile *</label>
+              <input id="phone" name="phone" type="tel" placeholder="+91 90000 00000" />
             </div>
             <div class="field field--full">
-              <label for="email">ইমেইল</label>
+              <label for="email" data-i18n="contact.email">Email</label>
               <input id="email" name="email" type="email" placeholder="you@example.com" />
             </div>
             <div class="field field--full">
-              <label for="message">আপনার প্রশ্ন *</label>
-              <textarea id="message" name="message" required placeholder="কোথায় যেতে চান, কত দিন, কতজন, বাজেট…"></textarea>
+              <label for="message" data-i18n="contact.msg">Your question *</label>
+              <textarea id="message" name="message" data-i18n-ph="contact.msgPh" placeholder="Where you want to go, how many days, how many people, budget…"></textarea>
             </div>
           </div>
-          <button class="btn btn--block" type="submit" id="submit-btn" style="margin-top:20px">মেসেজ পাঠান</button>
+          <button class="btn btn--block" type="submit" id="submit-btn" style="margin-top:20px" data-i18n="contact.send">Send message</button>
+          <p class="form-note" data-i18n="contact.waNote">Your message opens in WhatsApp so it reaches us instantly — nothing is stored on this site.</p>
         </form>
       </div>
 
       <aside>
         <div class="booking-card" style="position:static">
-          <h3>সরাসরি যোগাযোগ</h3>
+          <h3 data-i18n="contact.direct">Reach us directly</h3>
           <dl>
-            <div><dt>ফোন</dt><dd><a data-phone href="#">+91 90000 00000</a></dd></div>
-            <div><dt>ইমেইল</dt><dd><a data-email href="#">hello@gouritravels.in</a></dd></div>
-            <div><dt>WhatsApp</dt><dd><a data-whatsapp target="_blank" rel="noopener">চ্যাট করুন</a></dd></div>
-            <div><dt>অফিস</dt><dd style="font-weight:500;font-size:.85rem">Station Road, Kolkata 700001</dd></div>
-            <div><dt>সময়</dt><dd style="font-weight:500;font-size:.85rem">সকাল ৯টা – রাত ৯টা</dd></div>
+            <div><dt data-i18n="contact.phoneL">Phone</dt><dd><a data-phone href="#">—</a></dd></div>
+            <div><dt>WhatsApp</dt><dd><a data-whatsapp target="_blank" rel="noopener" data-i18n="contact.wa">Chat on WhatsApp</a></dd></div>
+            <div><dt data-i18n="contact.office">Office</dt><dd style="font-weight:500;font-size:.85rem">Station Road, Kolkata 700001</dd></div>
+            <div><dt data-i18n="contact.hours">Hours</dt><dd style="font-weight:500;font-size:.85rem" data-i18n="contact.hoursVal">9 AM – 9 PM</dd></div>
           </dl>
         </div>
       </aside>
@@ -76,60 +81,50 @@
   <footer class="site-footer">
     <div class="wrap">
       <div class="footer-bottom" style="border:0;padding:0">
-        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
-        <span>Made with care in Kolkata</span>
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. <span data-i18n="foot.rights">All rights reserved.</span></span>
+        <span data-i18n="foot.made">Made with care in Kolkata</span>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/site.js"></script>
   <script>
-    (function () {
+    (async function () {
       const form = document.getElementById("contact-form");
       const alertBox = document.getElementById("form-alert");
-      const submitBtn = document.getElementById("submit-btn");
 
-      form.addEventListener("submit", async function (e) {
+      try { await GT.load(); } catch (e) { /* settings optional */ }
+      GT.applyBrand();
+
+      form.addEventListener("submit", function (e) {
         e.preventDefault();
         alertBox.innerHTML = "";
 
-        const payload = {
-          name: form.name.value.trim(),
-          phone: form.phone.value.trim(),
-          email: form.email.value.trim() || null,
-          message: form.message.value.trim(),
-        };
+        const name = form.name.value.trim();
+        const phone = form.phone.value.trim();
+        const email = form.email.value.trim();
+        const message = form.message.value.trim();
 
-        if (payload.name.length < 2) return (alertBox.innerHTML = '<div class="form-error">নাম লিখুন।</div>');
-        if (payload.phone.length < 6) return (alertBox.innerHTML = '<div class="form-error">সঠিক মোবাইল নম্বর দিন।</div>');
-        if (payload.message.length < 3) return (alertBox.innerHTML = '<div class="form-error">আপনার প্রশ্ন লিখুন।</div>');
+        if (name.length < 2) { alertBox.innerHTML = '<div class="form-error">' + GT.t("contact.errName") + "</div>"; return; }
+        if (phone.length < 6) { alertBox.innerHTML = '<div class="form-error">' + GT.t("contact.errPhone") + "</div>"; return; }
+        if (message.length < 3) { alertBox.innerHTML = '<div class="form-error">' + GT.t("contact.errMsg") + "</div>"; return; }
 
-        if (!window.gtClient) {
-          alertBox.innerHTML =
-            '<div class="form-success"><strong>ডেমো মোড — মেসেজ সেভ হয়নি।</strong><br>' +
-            'Supabase কনফিগার করা হলে এই মেসেজটি অ্যাডমিন প্যানেলে পৌঁছাত।<br>' +
-            '<code>js/config.js</code>-এ Project URL ও anon key বসালেই চালু হবে।</div>';
-          return;
-        }
+        const text =
+          GT.t("contact.waIntro") + "\n\n" +
+          GT.t("contact.name").replace(" *", "") + ": " + name + "\n" +
+          GT.t("contact.phone").replace(" *", "") + ": " + phone + "\n" +
+          (email ? GT.t("contact.email") + ": " + email + "\n" : "") +
+          "\n" + message;
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "পাঠানো হচ্ছে…";
+        const url = GT.waLink(text);
+        window.open(url, "_blank", "noopener");
 
-        const { error } = await window.gtClient.from("enquiries").insert(payload);
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = "মেসেজ পাঠান";
-
-        if (error) {
-          alertBox.innerHTML = '<div class="form-error">পাঠানো যায়নি: ' + GT.escapeHtml(error.message) + '</div>';
-          return;
-        }
-
+        alertBox.innerHTML = '<div class="form-success"><strong>' + GT.t("contact.ok") + "</strong></div>";
         form.reset();
-        alertBox.innerHTML = '<div class="form-success"><strong>মেসেজ পেয়েছি!</strong><br>আমরা খুব শীঘ্রই আপনার সাথে যোগাযোগ করব।</div>';
       });
     })();
   </script>

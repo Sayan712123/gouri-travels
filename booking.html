@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>বুকিং — Gouri Travels</title>
+  <title data-i18n="page.bookingTitle">Booking — Gouri Travels</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -13,72 +13,106 @@
     <div class="wrap site-header__inner">
       <a class="brand" href="index.html"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></a>
       <nav class="nav" data-nav>
-        <a href="index.html">হোম</a>
-        <a href="trips.html">সব ট্রিপ</a>
-        <a href="contact.html">যোগাযোগ</a>
-        <a href="admin/index.html">অ্যাডমিন</a>
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="trips.html" data-i18n="nav.trips">All Trips</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+        <a href="admin/index.html" data-i18n="nav.admin">Admin</a>
       </nav>
-      <a class="btn btn--sm" href="trips.html">সব ট্রিপ</a>
-      <button class="nav-toggle" data-nav-toggle aria-label="মেনু">☰</button>
+      <div class="header-actions">
+        <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
+          <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
+        </button>
+        <a class="btn btn--sm" href="trips.html" data-i18n="nav.viewAll">All Trips</a>
+        <button class="nav-toggle" data-nav-toggle aria-label="Menu">☰</button>
+      </div>
     </div>
   </header>
 
   <section class="page-head">
     <div class="wrap">
-      <div class="breadcrumb"><a href="index.html">হোম</a> / <a href="trips.html">ট্রিপ</a> / বুকিং</div>
-      <h1>বুকিং ফর্ম</h1>
-      <p id="booking-sub">আপনার তথ্য দিন — আমরা ২ ঘণ্টার মধ্যে কল করে কনফার্ম করি।</p>
+      <div class="breadcrumb"><a href="index.html" data-i18n="nav.home">Home</a> / <a href="trips.html" data-i18n="nav.trips">All Trips</a> / <span data-i18n="book.title">Booking form</span></div>
+      <h1 data-i18n="book.title">Booking form</h1>
+      <p id="booking-sub" data-i18n="book.sub">Give us your details — we confirm within 2 hours.</p>
     </div>
   </section>
 
   <section class="section">
-    <div class="wrap" style="max-width:820px">
+    <div class="wrap" style="max-width:900px">
+
+      <!-- signed-in bar -->
+      <div id="user-bar" class="user-bar hidden">
+        <span><span data-i18n="book.hi">Hi</span>, <strong id="user-email"></strong></span>
+        <span>
+          <button class="btn btn--ghost btn--xs" id="my-bookings-btn" data-i18n="book.myBookings">My bookings</button>
+          <button class="btn btn--ghost btn--xs" id="signout-btn" data-i18n="book.signOut">Sign out</button>
+        </span>
+      </div>
+
       <div class="form-card">
         <div id="form-alert"></div>
 
-        <form id="booking-form" novalidate>
-          <div class="form-grid">
+        <!-- step 1: choose trip -->
+        <div class="field field--full">
+          <label for="trip_id" data-i18n="book.trip">Trip</label>
+          <select id="trip_id" name="trip_id">
+            <option value="" data-i18n="book.choose">Choose a trip…</option>
+          </select>
+        </div>
+
+        <!-- sign-in gate -->
+        <div id="signin-gate" class="signin-gate hidden">
+          <p data-i18n="book.signInMsg">Booking needs a Google sign-in so we can hold your seats and show your tickets later.</p>
+          <button class="btn btn--block" id="google-signin" type="button">
+            <span data-i18n="book.signIn">Sign in with Google to book</span>
+          </button>
+        </div>
+
+        <!-- step 2: seat picker -->
+        <div id="seat-panel" class="hidden">
+          <h3 style="margin:22px 0 6px" data-i18n="book.seats">Choose your seats</h3>
+          <div class="seat-legend">
+            <span><i class="dot dot--free"></i><span data-i18n="book.free">Free</span></span>
+            <span><i class="dot dot--pick"></i><span data-i18n="book.yourPick">Your pick</span></span>
+            <span><i class="dot dot--hold"></i><span data-i18n="book.onHold">On hold</span></span>
+            <span><i class="dot dot--booked"></i><span data-i18n="book.booked">Booked</span></span>
+          </div>
+          <div class="seat-grid" id="seat-grid"></div>
+
+          <div class="form-grid" style="margin-top:18px">
+            <div class="field">
+              <label for="full_name" data-i18n="book.name">Full name *</label>
+              <input id="full_name" name="full_name" type="text" data-i18n-ph="book.namePh" placeholder="e.g. Sayan Ghosh" />
+            </div>
+            <div class="field">
+              <label for="phone" data-i18n="book.phone">Mobile number *</label>
+              <input id="phone" name="phone" type="tel" placeholder="+91 90000 00000" />
+            </div>
             <div class="field field--full">
-              <label for="trip_id">ট্রিপ</label>
-              <select id="trip_id" name="trip_id" required>
-                <option value="">ট্রিপ বেছে নিন…</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="full_name">পুরো নাম *</label>
-              <input id="full_name" name="full_name" type="text" required placeholder="যেমন: সায়ন ঘোষ" />
-            </div>
-            <div class="field">
-              <label for="phone">মোবাইল নম্বর *</label>
-              <input id="phone" name="phone" type="tel" required placeholder="+91 90000 00000" />
-            </div>
-            <div class="field">
-              <label for="email">ইমেইল</label>
-              <input id="email" name="email" type="email" placeholder="you@example.com" />
-            </div>
-            <div class="field">
-              <label for="travellers">কতজন যাত্রী *</label>
-              <input id="travellers" name="travellers" type="number" min="1" max="20" value="2" required />
-            </div>
-            <div class="field">
-              <label for="travel_date">যাত্রার তারিখ</label>
-              <input id="travel_date" name="travel_date" type="date" />
-            </div>
-            <div class="field">
-              <label for="pickup_point">পিকআপ পয়েন্ট</label>
-              <input id="pickup_point" name="pickup_point" type="text" placeholder="যেমন: শিয়ালদহ স্টেশন" />
-            </div>
-            <div class="field field--full">
-              <label for="notes">বিশেষ কিছু জানাতে চান?</label>
-              <textarea id="notes" name="notes" placeholder="খাবারের পছন্দ, বাচ্চাদের বয়স, অ্যালার্জি ইত্যাদি"></textarea>
+              <label for="notes" data-i18n="book.notes">Anything we should know?</label>
+              <textarea id="notes" name="notes" data-i18n-ph="book.notesPh" placeholder="Food preference, children ages, allergies…"></textarea>
             </div>
           </div>
 
-          <div id="price-summary" class="form-note" style="font-size:.95rem;color:var(--ink);margin:20px 0"></div>
+          <div id="terms-box" class="terms-box hidden">
+            <h4 data-i18n="trip.terms">Terms and cancellation</h4>
+            <ul id="terms-list"></ul>
+            <label class="check"><input type="checkbox" id="agree" /> <span data-i18n="book.agree">I have read and agree to the Terms and cancellation policy above</span></label>
+          </div>
 
-          <button class="btn btn--block" type="submit" id="submit-btn">বুকিং রিকোয়েস্ট পাঠান</button>
-          <p class="form-note">সাবমিট করলে কোনো পেমেন্ট কাটবে না। আমরা কল করে কনফার্ম করার পরই অ্যাডভান্স নেওয়া হয়।</p>
-        </form>
+          <div id="price-summary" class="form-note" style="font-size:.95rem;color:var(--ink);margin:18px 0"></div>
+
+          <button class="btn btn--block" id="hold-btn" type="button" data-i18n="book.hold">Hold seats and continue</button>
+          <p class="form-note" data-i18n="book.note">No payment is taken on submit. We only charge after confirming with you.</p>
+        </div>
+
+        <!-- step 3: held / ticket -->
+        <div id="held-panel" class="hidden"></div>
+      </div>
+
+      <!-- my bookings -->
+      <div id="my-bookings" class="form-card hidden" style="margin-top:24px">
+        <h3 style="margin-top:0" data-i18n="book.myBookings">My bookings</h3>
+        <div id="my-bookings-list"></div>
       </div>
     </div>
   </section>
@@ -86,117 +120,196 @@
   <footer class="site-footer">
     <div class="wrap">
       <div class="footer-bottom" style="border:0;padding:0">
-        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. সর্বস্বত্ব সংরক্ষিত।</span>
-        <span><a data-phone href="#" style="display:inline">+91 90000 00000</a></span>
+        <span>© <span data-year></span> <span data-brand>Gouri Travels</span>. <span data-i18n="foot.rights">All rights reserved.</span></span>
+        <span><a data-phone href="#" style="display:inline">—</a></span>
       </div>
     </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/site.js"></script>
   <script>
     (async function () {
-      const form = document.getElementById("booking-form");
       const select = document.getElementById("trip_id");
       const alertBox = document.getElementById("form-alert");
+      const gate = document.getElementById("signin-gate");
+      const seatPanel = document.getElementById("seat-panel");
+      const heldPanel = document.getElementById("held-panel");
+      const seatGrid = document.getElementById("seat-grid");
       const summary = document.getElementById("price-summary");
-      const submitBtn = document.getElementById("submit-btn");
-      const travellersInput = document.getElementById("travellers");
-      const dateInput = document.getElementById("travel_date");
+      const holdBtn = document.getElementById("hold-btn");
+      const userBar = document.getElementById("user-bar");
       const wanted = new URLSearchParams(location.search).get("trip");
+
       let trips = [];
+      let picked = [];
+      let current = null;
+
+      function tripById(id) { return trips.filter(function (t) { return t.id === id; })[0] || null; }
+
+      function renderSeats() {
+        current = tripById(select.value);
+        if (!current) { seatPanel.classList.add("hidden"); return; }
+        seatPanel.classList.remove("hidden");
+
+        const takenMap = GT.state().seats[current.id] || {};
+        const labels = GT.seatLabels(current);
+        seatGrid.innerHTML = labels.map(function (l) {
+          const rec = takenMap[l];
+          let cls = "seat";
+          if (rec && rec.status === "booked") cls += " seat--booked";
+          else if (rec) cls += " seat--hold";
+          else if (picked.indexOf(l) !== -1) cls += " seat--pick";
+          const dis = rec ? " disabled" : "";
+          return '<button type="button" class="' + cls + '" data-seat="' + l + '"' + dis + ' title="' + GT.escapeHtml(GT.prettyLabel(l)) + '">' + GT.escapeHtml(l) + "</button>";
+        }).join("");
+
+        seatGrid.querySelectorAll("[data-seat]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            const l = b.getAttribute("data-seat");
+            const i = picked.indexOf(l);
+            if (i === -1) picked.push(l); else picked.splice(i, 1);
+            renderSeats();
+            updateSummary();
+          });
+        });
+
+        updateSummary();
+      }
 
       function updateSummary() {
-        const trip = trips.find((t) => t.id === select.value);
-        if (!trip) { summary.textContent = ""; return; }
-        const n = Math.max(1, Number(travellersInput.value) || 1);
-        summary.innerHTML = "আনুমানিক মোট: <strong>" + GT.inr(Number(trip.price_per_person) * n) + "</strong> (" + n + " জন × " + GT.inr(trip.price_per_person) + ")";
+        if (!current) { summary.textContent = ""; return; }
+        const n = picked.length;
+        summary.innerHTML = GT.t("book.estimate") + ": <strong>" + GT.inr(Number(current.price) * n) + "</strong> (" + n + " × " + GT.inr(current.price) + ")";
       }
 
+      function renderTerms() {
+        const terms = GT.lines(GT.getSetting("terms"));
+        const box = document.getElementById("terms-box");
+        if (!terms.length) { box.classList.add("hidden"); return; }
+        box.classList.remove("hidden");
+        document.getElementById("terms-list").innerHTML = terms.map(function (l) { return "<li>" + GT.escapeHtml(l) + "</li>"; }).join("");
+      }
+
+      function showHeld(code, until) {
+        heldPanel.classList.remove("hidden");
+        seatPanel.classList.add("hidden");
+        const waMsg = GT.t("book.held") + " — " + (current ? current.title : "") + " (" + picked.join(", ") + ")" + (code ? " · " + code : "");
+        const upi = GT.upiLink(Number(current ? current.price : 0) * picked.length, code || "Trip booking");
+        heldPanel.innerHTML =
+          '<div class="form-success"><strong>' + GT.t("book.held") + "</strong><br>" + GT.t("book.heldMsg") +
+          (code ? '<br><span class="muted">' + GT.t("book.code") + ": <strong>" + GT.escapeHtml(code) + "</strong></span>" : "") +
+          (until ? '<br><span class="muted">' + GT.t("book.heldUntil") + ": " + GT.escapeHtml(String(until)) + "</span>" : "") +
+          "</div>" +
+          '<a class="btn btn--block" style="margin-top:14px" target="_blank" rel="noopener" href="' + GT.waLink(waMsg) + '">' + GT.t("book.wa") + "</a>" +
+          (upi ? '<a class="btn btn--ghost btn--block" style="margin-top:10px" href="' + upi + '">' + GT.t("book.payUpi") + "</a>" : "");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      async function refreshAuth() {
+        const st = GT.state();
+        if (st.user) {
+          userBar.classList.remove("hidden");
+          document.getElementById("user-email").textContent = st.user.email || "";
+          gate.classList.add("hidden");
+          if (select.value) renderSeats();
+        } else {
+          userBar.classList.add("hidden");
+          gate.classList.remove("hidden");
+          seatPanel.classList.add("hidden");
+        }
+      }
+
+      async function loadMyBookings() {
+        const host = document.getElementById("my-bookings");
+        const list = document.getElementById("my-bookings-list");
+        host.classList.remove("hidden");
+        list.innerHTML = '<p class="muted">' + GT.t("book.loading") + "</p>";
+        try {
+          const rows = await GT.myBookings();
+          if (!rows.length) { list.innerHTML = '<p class="muted">' + GT.t("book.noBookings") + ' <a href="trips.html">' + GT.t("book.browse") + "</a></p>"; return; }
+          list.innerHTML = rows.map(function (r) {
+            const tr = tripById(r.trip_id);
+            const title = tr ? tr.title : (r.trip_title || "—");
+            const badge = r.status === "booked"
+              ? '<span class="tag tag--ok">' + GT.t("book.confirmed") + "</span>"
+              : '<span class="tag tag--warn">' + GT.t("book.awaiting") + "</span>";
+            return '<div class="booking-row"><div><strong>' + GT.escapeHtml(title) + "</strong><br>" +
+              '<span class="muted">' + GT.escapeHtml(r.label || "") + (r.ticket ? " · " + GT.escapeHtml(r.ticket) : "") + "</span></div>" +
+              "<div>" + badge + "</div></div>";
+          }).join("");
+        } catch (e) {
+          list.innerHTML = '<p class="form-error">' + GT.escapeHtml(e.message) + "</p>";
+        }
+      }
+
+      /* ---- init ---- */
       try {
         trips = await GT.fetchTrips();
-        select.innerHTML = '<option value="">ট্রিপ বেছে নিন…</option>' + trips.map((t) =>
-          '<option value="' + t.id + '">' + GT.escapeHtml(t.title) + ' — ' + GT.inr(t.price_per_person) + '</option>'
-        ).join("");
+        select.innerHTML = '<option value="">' + GT.t("book.choose") + "</option>" + trips.map(function (t) {
+          return '<option value="' + t.id + '">' + GT.escapeHtml(t.title) + " — " + GT.inr(t.price) + "</option>";
+        }).join("");
 
         if (wanted) {
-          const match = trips.find((t) => t.slug === wanted);
-          if (match) {
-            select.value = match.id;
-            document.getElementById("booking-sub").textContent = match.title + " · " + match.destination;
-            if (match.departure_date) dateInput.value = match.departure_date;
+          const m = trips.filter(function (t) { return t.id === wanted || t.slug === wanted; })[0];
+          if (m) {
+            select.value = m.id;
+            document.getElementById("booking-sub").textContent = m.title + (m.to_place ? " · " + m.to_place : "");
           }
         }
-        updateSummary();
       } catch (err) {
-        alertBox.innerHTML = '<div class="form-error">ট্রিপ লোড করা যায়নি: ' + GT.escapeHtml(err.message) + '</div>';
+        alertBox.innerHTML = '<div class="form-error">' + GT.t("trips.fail") + ": " + GT.escapeHtml(err.message) + "</div>";
       }
 
-      select.addEventListener("change", function () {
-        const trip = trips.find((t) => t.id === select.value);
-        if (trip && trip.departure_date) dateInput.value = trip.departure_date;
-        updateSummary();
-      });
-      travellersInput.addEventListener("input", updateSummary);
+      GT.applyBrand();
+      renderTerms();
+      await refreshAuth();
+      if (select.value) renderSeats();
 
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
+      select.addEventListener("change", function () { picked = []; heldPanel.classList.add("hidden"); renderSeats(); });
+
+      document.getElementById("google-signin").addEventListener("click", function () { GT.signInWithGoogle(); });
+      document.getElementById("signout-btn").addEventListener("click", function () { GT.signOut(); });
+      document.getElementById("my-bookings-btn").addEventListener("click", loadMyBookings);
+
+      holdBtn.addEventListener("click", async function () {
         alertBox.innerHTML = "";
+        if (!current) { alertBox.innerHTML = '<div class="form-error">' + GT.t("book.errTrip") + "</div>"; return; }
+        if (!picked.length) { alertBox.innerHTML = '<div class="form-error">' + GT.t("book.noSeats") + "</div>"; return; }
+        const name = document.getElementById("full_name").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        if (name.length < 2) { alertBox.innerHTML = '<div class="form-error">' + GT.t("book.errName") + "</div>"; return; }
+        if (phone.length < 6) { alertBox.innerHTML = '<div class="form-error">' + GT.t("book.errPhone") + "</div>"; return; }
+        const agree = document.getElementById("agree");
+        if (agree && !agree.checked) { alertBox.innerHTML = '<div class="form-error">' + GT.t("book.needAgree") + "</div>"; return; }
 
-        const payload = {
-          trip_id: select.value || null,
-          full_name: form.full_name.value.trim(),
-          phone: form.phone.value.trim(),
-          email: form.email.value.trim() || null,
-          travellers: Number(form.travellers.value) || 1,
-          travel_date: form.travel_date.value || null,
-          pickup_point: form.pickup_point.value.trim() || null,
-          notes: form.notes.value.trim() || null,
-          status: "pending",
-        };
-
-        if (!payload.trip_id) return (alertBox.innerHTML = '<div class="form-error">ট্রিপ বেছে নিন।</div>');
-        if (payload.full_name.length < 2) return (alertBox.innerHTML = '<div class="form-error">পুরো নাম লিখুন।</div>');
-        if (payload.phone.length < 6) return (alertBox.innerHTML = '<div class="form-error">সঠিক মোবাইল নম্বর দিন।</div>');
-
-        const trip = trips.find((t) => t.id === payload.trip_id);
-        if (trip) payload.total_amount = Number(trip.price_per_person) * payload.travellers;
-
-        if (!window.gtClient) {
-          alertBox.innerHTML =
-            '<div class="form-success"><strong>ডেমো মোড — বুকিং সেভ হয়নি।</strong><br>' +
-            'Supabase কনফিগার করা হলে এই বুকিংটি সত্যিই সেভ হতো এবং আপনি একটি বুকিং কোড পেতেন।<br>' +
-            '<code>js/config.js</code>-এ Project URL ও anon key বসালেই চালু হবে।</div>';
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          return;
+        holdBtn.disabled = true;
+        const old = holdBtn.textContent;
+        holdBtn.textContent = GT.t("book.holding");
+        try {
+          const res = await GT.holdSeats(current.id, picked, name, phone);
+          const code = typeof res === "string" && res !== "login" ? res : (res && res.code ? res.code : "");
+          const until = res && res.held_until ? res.held_until : "";
+          showHeld(code, until);
+        } catch (e) {
+          if (e.code === "login") {
+            alertBox.innerHTML = '<div class="form-error">' + GT.t("book.signInMsg") + "</div>";
+            GT.signInWithGoogle();
+          } else {
+            alertBox.innerHTML = '<div class="form-error">' + GT.t("book.errHold") + ": " + GT.escapeHtml(e.message) + "</div>";
+          }
         }
+        holdBtn.disabled = false;
+        holdBtn.textContent = old;
+      });
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = "পাঠানো হচ্ছে…";
-
-        const { data, error } = await window.gtClient
-          .from("bookings")
-          .insert(payload)
-          .select("booking_code")
-          .single();
-
-        submitBtn.disabled = false;
-        submitBtn.textContent = "বুকিং রিকোয়েস্ট পাঠান";
-
-        if (error) {
-          alertBox.innerHTML = '<div class="form-error">বুকিং পাঠানো যায়নি: ' + GT.escapeHtml(error.message) + '</div>';
-          return;
-        }
-
-        form.reset();
-        summary.textContent = "";
-        alertBox.innerHTML =
-          '<div class="form-success"><strong>ধন্যবাদ! বুকিং রিকোয়েস্ট পেয়েছি।</strong><br>' +
-          'আপনার বুকিং কোড: <strong>' + GT.escapeHtml(data.booking_code) + '</strong><br>' +
-          'আমরা ২ ঘণ্টার মধ্যে ' + GT.escapeHtml(payload.phone) + ' নম্বরে কল করব।</div>';
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      document.addEventListener("gt:langchange", function () {
+        renderSeats();
+        renderTerms();
+        if (!heldPanel.classList.contains("hidden")) { /* keep as is */ }
       });
     })();
   </script>
