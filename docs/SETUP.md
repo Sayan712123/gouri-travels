@@ -1,240 +1,161 @@
-# Gouri Travels — বিস্তারিত সেটআপ গাইড
+# Setup guide — Gouri Travels
 
-এই ডকুমেন্টে ধাপে ধাপে পুরো সিস্টেম চালু করার নির্দেশনা আছে।
-
----
-
-## ০. যা যা লাগবে
-
-- একটি [Supabase](https://supabase.com) অ্যাকাউন্ট (ফ্রি টিয়ার যথেষ্ট)
-- একটি স্ট্যাটিক হোস্টিং (Netlify / Vercel / GitHub Pages)
-- আধুনিক ব্রাউজার
-
-কোনো Node.js বিল্ড স্টেপ নেই — পুরো সাইট প্লেইন HTML/CSS/JS।
+This project runs against an **existing** Supabase project. Nothing needs to be created from
+scratch — the connection details are already in the code. This guide covers what to check,
+how to add an admin, and how to deploy.
 
 ---
 
-## ১. Supabase প্রজেক্ট
+## 1. Supabase connection
 
-1. [supabase.com/dashboard](https://supabase.com/dashboard) → **New project**
-2. Name: `gouri-travels`
-3. Database password: শক্ত পাসওয়ার্ড (সংরক্ষণ করুন)
-4. Region: `ap-south-1` (Mumbai) — ভারতের জন্য সবচেয়ে কম লেটেন্সি
-5. **Create new project** → ২ মিনিট অপেক্ষা
+Two files hold the credentials, and both are already filled in:
 
-### কী কী কপি করবেন
+```
+js/config.js          → SUPABASE_URL, SUPABASE_ANON_KEY
+admin/js/config.js    → SUPABASE_URL, SUPABASE_ANON_KEY
+```
 
-**Project Settings → API**
+Find the values in the Supabase Dashboard under **Project Settings → API**:
 
-| মান | কোথায় বসবে |
+- **Project URL** → `SUPABASE_URL`
+- **anon / public** key → `SUPABASE_ANON_KEY`
+
+> Use the **anon** key only. The `service_role` key bypasses Row Level Security and must never
+> appear in browser code.
+
+If you ever need to point the site at a different project, change the two values in **both** files
+and push. Nothing else needs editing.
+
+---
+
+## 2. Database schema
+
+The live database already contains:
+
+| Table | Purpose |
 |---|---|
-| Project URL | `public/js/config.js` → `SUPABASE_URL` এবং `admin/js/config.js` → `SUPABASE_URL` |
-| anon public key | একই দুই ফাইলে `SUPABASE_ANON_KEY` |
-| service_role key | **কোথাও বসাবেন না** — শুধু লোকাল স্ক্রিপ্টে |
+| `trips` | Trip packages |
+| `seats` | One row per taken seat — this is the booking record |
+| `settings` | Key/value site settings |
+| `admins` | Emails allowed into the admin panel |
 
----
+Plus the `seat_status` view and the `hold_seats`, `my_bookings`, `get_ticket`, `is_admin` functions.
 
-## ২. স্কিমা রান করা
+`supabase/schema.sql` in this repo is a **reference copy** of that schema, kept so the structure is
+documented in version control. You do **not** need to run it — the tables already exist. It is
+written to be idempotent, so running it again is harmless if you want to be sure.
 
-1. Supabase → **SQL Editor** → **New query**
-2. `supabase/schema.sql` এর পুরো কন্টেন্ট কপি-পেস্ট
-3. **Run** (Ctrl/Cmd + Enter)
+### `trips.details` — the sectioned text field
 
-### যা তৈরি হবে
+The trip editor and the public trip page both read and write this one column:
 
-- `trips` — ট্রিপ প্যাকেজ (৬টি ডেমো ডেটা সহ)
-- `bookings` — বুকিং রিকোয়েস্ট, অটো-জেনারেটেড `booking_code`
-- `enquiries` — কন্টাক্ট ফর্ম মেসেজ
-- `admins` — কে অ্যাডমিন
-- `is_admin()` — RLS-এর জন্য helper ফাংশন
-- `trip-images` — পাবলিক স্টোরেজ বাকেট
-- সব টেবিলে RLS পলিসি
-
-> স্ক্রিপ্টটি idempotent — ভুল হলে আবার চালাতে পারেন।
-
----
-
-## ৩. কনফিগ ফাইল
-
-### `public/js/config.js`
-
-```js
-window.GT_CONFIG = {
-  SUPABASE_URL: "https://abcdefgh.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
-  BRAND_NAME: "Gouri Travels",
-  PHONE: "+91 98765 43210",
-  WHATSAPP_NUMBER: "919876543210",   // কান্ট্রি কোড সহ, + ছাড়া
-  EMAIL: "hello@gouritravels.in",
-  ADDRESS: "Station Road, Kolkata 700001",
-  SITE_URL: "https://gouritravels.in",
-};
+```
+##ov      overview paragraph
+##hl      highlights, one per line
+##it      day-wise plan, one per line
+##inc     included, one per line
+##exc     not included, one per line
+##pol     cancellation / policy, one per line
+##meal    meal notes
+##cl      booking closes at (YYYY-MM-DD HH:MM)
+##days    JSON array of {day, title, detail}
 ```
 
-### `admin/js/config.js`
-
-```js
-window.GT_ADMIN_CONFIG = {
-  SUPABASE_URL: "https://abcdefgh.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
-  BRAND_NAME: "Gouri Travels",
-};
-```
-
-> দুটো ফাইলে **একই** URL ও key বসবে।
+You never have to type the markers by hand — the admin trip editor writes them for you.
 
 ---
 
-## ৪. অ্যাডমিন অ্যাকাউন্ট
+## 3. Create an admin user
 
-### ক) ইউজার তৈরি
-
-Supabase → **Authentication → Users → Add user → Create new user**
-
-- Email: `admin@gouritravels.in`
-- Password: শক্ত পাসওয়ার্ড
-- ✅ **Auto Confirm User** টিক দিন
-
-### খ) অ্যাডমিন হিসেবে রেজিস্টার
-
-SQL Editor-এ:
+1. Supabase Dashboard → **Authentication → Users → Add user**
+   Enter an email and a password (or use "Send invite").
+2. Supabase Dashboard → **SQL Editor**, run:
 
 ```sql
-insert into public.admins (user_id, email, full_name)
-select id, email, 'Gouri Travels Admin'
-from auth.users
-where email = 'admin@gouritravels.in'
-on conflict (user_id) do nothing;
+insert into admins (email) values ('you@example.com');
 ```
 
-### গ) লগইন টেস্ট
+3. Open `/admin/` and sign in with that email and password.
 
-`admin/index.html` খুলুন → ইমেইল/পাসওয়ার্ড দিন → ড্যাশবোর্ডে যাওয়া উচিত।
-
-যদি “এই অ্যাকাউন্টটি অ্যাডমিন নয়” দেখায়, তাহলে (খ) ধাপটি আবার চালান।
+`is_admin()` compares the signed-in user's email against the `admins` table, so the email must match
+exactly. If you sign in with Google instead, use the same email address.
 
 ---
 
-## ৫. লোকাল ডেভেলপমেন্ট
+## 4. Google sign-in
+
+Google is used in two places:
+
+- **Public booking page** — required before seats can be held (`hold_seats` returns `"login"`
+  for anonymous visitors, and RLS only allows signed-in writes to `seats`).
+- **Admin login** — an alternative to email + password.
+
+To enable it:
+
+1. Supabase Dashboard → **Authentication → Providers → Google** → enable, and paste your
+   Google OAuth **Client ID** and **Client Secret**.
+2. In the Google Cloud Console, add the Supabase callback URL as an authorised redirect URI:
+   `https://<your-project-ref>.supabase.co/auth/v1/callback`
+3. Supabase Dashboard → **Authentication → URL Configuration**:
+   - **Site URL**: `https://sayan712123.github.io/gouri-travels/`
+   - **Redirect URLs**: add
+     `https://sayan712123.github.io/gouri-travels/**`
+     and `http://localhost:5173/**` for local testing.
+
+Without step 3 the Google button will bounce back to the wrong page.
+
+---
+
+## 5. Run locally
 
 ```bash
-# রিপো ক্লোন
-git clone https://github.com/Sayan712123/gouri-travels.git
-cd gouri-travels
-
-# স্ট্যাটিক সার্ভার (Python)
 python3 -m http.server 5173
-
-# অথবা Node
-npx serve -l 5173 .
 ```
 
-- পাবলিক সাইট: <http://localhost:5173/public/>
-- অ্যাডমিন: <http://localhost:5173/admin/>
-
-> ⚠️ `file://` দিয়ে খুললে Supabase API কল ব্লক হবে — সার্ভার ব্যবহার করতেই হবে।
+Open <http://localhost:5173>. There is no build step and no dependencies to install.
 
 ---
 
-## ৬. ডিপ্লয়
+## 6. Deploy to GitHub Pages
 
-### Netlify (সুপারিশকৃত)
+1. Push to the `main` branch.
+2. Repo → **Settings → Pages**
+3. **Source:** Deploy from a branch · **Branch:** `main` · **Folder:** `/ (root)`
+4. Save. The site goes live at `https://<user>.github.io/gouri-travels/`.
 
-**পাবলিক সাইট:**
-1. [app.netlify.com](https://app.netlify.com) → **Add new site → Import an existing project**
-2. GitHub → `gouri-travels` সিলেক্ট
-3. Build command: *(ফাঁকা)*
-4. Publish directory: `public`
-5. **Deploy site**
+The repo already contains `.nojekyll` and uses relative links throughout, so the site works
+correctly under the `/gouri-travels/` sub-path.
 
-**অ্যাডমিন প্যানেল:**
-1. আবার **Add new site** → একই রিপো
-2. Publish directory: `admin`
-3. সাইটের নাম দিন যেমন `gouri-admin`
+---
 
-### Vercel
+## 7. Language toggle
 
-```bash
-npm i -g vercel
-vercel --prod
-# Framework: Other, Output: public
+- Default language is **English** (`DEFAULT_LANG` in `js/config.js`).
+- The **EN / বাংলা** switch is in the header of every page and in the admin panel.
+- The choice is stored in `localStorage` (`gt_lang`) and persists across pages and visits.
+- All strings live in `js/i18n.js` under the `en` and `bn` blocks.
+
+To add a string:
+
+```html
+<span data-i18n="my.key"></span>
+<input data-i18n-ph="my.placeholder" />
+<div data-i18n-html="my.markup"></div>
+<button data-i18n-aria="my.label"></button>
 ```
 
-### GitHub Pages (শুধু পাবলিক সাইট)
-
-Settings → Pages → Source: **Deploy from a branch** → `main` / `/public`
-
-লাইভ URL: `https://Sayan712123.github.io/gouri-travels/`
+Then add `"my.key"` to both language blocks.
 
 ---
 
-## ৭. ডিপ্লয়ের পর
+## 8. Troubleshooting
 
-1. Supabase → **Authentication → URL Configuration**
-   - Site URL: `https://your-site.netlify.app`
-   - Redirect URLs: `https://your-site.netlify.app/**`
-2. `public/js/config.js` এ `SITE_URL` আপডেট করুন
-3. কাস্টম ডোমেইন যোগ করুন (Netlify → Domain settings)
-4. Supabase → **Authentication → Providers → Email** এ Email confirmation চালু রাখুন
-
----
-
-## ৮. দৈনন্দিন ব্যবহার
-
-### নতুন বুকিং এলে
-
-1. অ্যাডমিন → **বুকিং** ট্যাব
-2. যাত্রীকে কল করে ডিটেইলস কনফার্ম করুন
-3. **Confirm** চাপুন
-4. প্রয়োজনে ট্রিপের `seats_booked` ম্যানুয়ালি বাড়ান (ট্রিপ এডিট থেকে)
-
-### নতুন ট্রিপ যোগ করা
-
-1. **+ নতুন ট্রিপ**
-2. টাইটেল, স্লাগ (ইংরেজি, হাইফেন দিয়ে), গন্তব্য, দাম, সিট, তারিখ দিন
-3. হাইলাইটস কমা দিয়ে লিখুন: `Tiger Hill, Tea garden, Toy train`
-4. **সেভ করুন**
-
-### ট্রিপ লুকানো
-
-ট্রিপ লিস্টে **Hide** চাপুন — পাবলিক সাইট থেকে সরে যাবে, ডেটা থাকবে।
-
----
-
-## ৯. সমস্যা সমাধান
-
-| সমস্যা | কারণ | সমাধান |
-|---|---|---|
-| “Supabase কনফিগার করা হয়নি” | config.js এ placeholder আছে | আসল URL/key বসান |
-| ট্রিপ লিস্ট খালি | RLS বা `is_active = false` | SQL Editor-এ `select * from trips;` দেখুন |
-| বুকিং সেভ হয় না | RLS পলিসি মিসিং | `schema.sql` আবার রান করুন |
-| অ্যাডমিন লগইনে “Invalid login” | ইউজার কনফার্ম হয়নি | Authentication → Users → Confirm |
-| “এই অ্যাকাউন্টটি অ্যাডমিন নয়” | `admins` টেবিলে নেই | ধাপ ৪(খ) রান করুন |
-| ছবি আপলোড হয় না | স্টোরেজ পলিসি | `schema.sql` এর storage অংশ রান করুন |
-
----
-
-## ১০. ফাইল ম্যাপ
-
-```
-public/
-  index.html      হোম পেজ
-  trips.html      ট্রিপ লিস্ট + ফিল্টার
-  trip.html       ট্রিপ ডিটেইল (?slug=)
-  booking.html    বুকিং ফর্ম (?trip=)
-  contact.html    কন্টাক্ট ফর্ম
-  css/styles.css
-  js/config.js          ← আপনার মান এখানে
-  js/supabase-client.js
-  js/site.js
-
-admin/
-  index.html      লগইন
-  dashboard.html  বুকিং / ট্রিপ / মেসেজ
-  css/admin.css
-  js/config.js          ← আপনার মান এখানে
-  js/admin.js
-
-supabase/
-  schema.sql      পুরো ডেটাবেস
-```
+| Symptom | Cause / fix |
+|---|---|
+| Trips don't load | Wrong `SUPABASE_URL` or `SUPABASE_ANON_KEY` in `js/config.js` |
+| Google button does nothing | Redirect URL missing in Supabase → Authentication → URL Configuration |
+| "This account is not an admin" | The signed-in email is not in the `admins` table |
+| Seats won't hold | Visitor is not signed in — `hold_seats` needs a session |
+| Booking confirm fails | The signed-in admin's email is not in `admins` (RLS blocks the update) |
+| Bangla renders in a fallback font | Google Fonts blocked — check the network tab |
+| 404 on a sub-page | Links must stay relative; the site is served from a sub-path |
