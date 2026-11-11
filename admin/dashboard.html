@@ -6,14 +6,20 @@
   <title data-i18n="page.dashTitle">Dashboard — Gouri Travels Admin</title>
   <meta name="robots" content="noindex, nofollow" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
+  <link rel="shortcut icon" href="../assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0a090b" />
   <link rel="stylesheet" href="css/admin.css" />
+  <script src="../js/theme.js"></script>
 </head>
 <body>
 
   <div class="admin-shell" id="dashboard-root">
 
     <aside class="sidebar">
-      <div class="sidebar__brand"><span class="mark">GT</span><span>Gouri Admin</span></div>
+      <div class="sidebar__brand"><img class="brand__logo--on-dark" src="../assets/logo-full-dark.png" alt="Gouri Travels" width="150" height="34" /></div>
       <a href="#" data-tab="bookings" class="is-active">📋 <span data-i18n="adm.tabBookings">Bookings</span></a>
       <a href="#" data-tab="trips">🗺️ <span data-i18n="adm.tabTrips">Trips</span></a>
       <a href="#" data-tab="settings">⚙️ <span data-i18n="adm.tabSettings">Settings</span></a>
@@ -36,7 +42,11 @@
           <h1 data-i18n="adm.dash">Dashboard</h1>
           <p data-i18n="adm.dashSub">Bookings, trips and settings in one place.</p>
         </div>
-        <div class="toolbar">
+        <div class="toolbar topbar-actions">
+          <button class="theme-switch" data-theme-toggle type="button" aria-label="Toggle theme" aria-pressed="true">
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+        </button>
           <button class="btn btn--ghost btn--sm" id="refresh-btn" data-i18n="adm.refresh">↻ Refresh</button>
           <button class="btn btn--sm" id="new-trip-btn" data-i18n="adm.newTrip">+ New trip</button>
         </div>
@@ -65,6 +75,7 @@
                 <option value="held" data-i18n="adm.held">Held</option>
                 <option value="booked" data-i18n="adm.booked">Booked</option>
               </select>
+              <button class="btn btn--ghost btn--sm" id="export-btn" type="button" data-i18n="adm.exportCsv">↓ Export CSV</button>
             </div>
           </div>
           <div class="panel__body panel__body--flush">

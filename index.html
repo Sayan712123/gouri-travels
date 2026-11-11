@@ -8,16 +8,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+  <link rel="shortcut icon" href="assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0a090b" />
   <link rel="stylesheet" href="css/styles.css" />
+  <script src="js/theme.js"></script>
 </head>
 <body>
 
   <header class="site-header">
     <div class="wrap site-header__inner">
-      <a class="brand" href="index.html">
-        <span class="brand__mark">GT</span>
-        <span data-brand>Gouri Travels</span>
-      </a>
+      <a class="brand" href="index.html" aria-label="Gouri Travels - home"><img class="brand__logo brand__logo--on-light" src="assets/logo-full-light.png" alt="Gouri Travels" width="140" height="36" /><img class="brand__logo brand__logo--on-dark" src="assets/logo-full-dark.png" alt="Gouri Travels" width="140" height="36" /></a>
       <nav class="nav" data-nav>
         <a href="index.html" data-i18n="nav.home">Home</a>
         <a href="trips.html" data-i18n="nav.trips">All Trips</a>
@@ -25,6 +28,10 @@
         <a href="admin/index.html" data-i18n="nav.admin">Admin</a>
       </nav>
       <div class="header-actions">
+        <button class="theme-switch" data-theme-toggle type="button" aria-label="Toggle theme" aria-pressed="true">
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+        </button>
         <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
           <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
         </button>
@@ -45,9 +52,9 @@
         <a class="btn btn--ghost" style="color:#fff;border-color:rgba(255,255,255,.35)" href="contact.html" data-i18n="hero.talk">Talk to Us</a>
       </div>
       <div class="hero__stats">
-        <div class="hero__stat"><strong data-i18n="hero.s1">4,000+</strong><span data-i18n="hero.s1l">Happy travellers</span></div>
-        <div class="hero__stat"><strong data-i18n="hero.s2">35+</strong><span data-i18n="hero.s2l">Destinations</span></div>
-        <div class="hero__stat"><strong data-i18n="hero.s3">4.8/5</strong><span data-i18n="hero.s3l">Average rating</span></div>
+        <div class="hero__stat"><strong class="grad-text" data-i18n="hero.s1">4,000+</strong><span data-i18n="hero.s1l">Happy travellers</span></div>
+        <div class="hero__stat"><strong class="grad-text" data-i18n="hero.s2">35+</strong><span data-i18n="hero.s2l">Destinations</span></div>
+        <div class="hero__stat"><strong class="grad-text" data-i18n="hero.s3">4.8/5</strong><span data-i18n="hero.s3l">Average rating</span></div>
       </div>
     </div>
   </section>
@@ -71,8 +78,18 @@
           <option value="6" data-i18n="search.p6">6+ people</option>
         </select>
       </div>
-      <button class="btn" type="submit" data-i18n="search.go">Search</button>
+      <button class="btn btn--grad" type="submit" data-i18n="search.go">Search</button>
     </form>
+  </div>
+
+  <div class="wrap">
+    <div class="trust-row">
+      <span>🛡️ <b data-i18n="trust.verified">Verified operator</b></span>
+      <span>📅 <span data-i18n="trust.since">Travelling since 2013</span></span>
+      <span>☎️ <span data-i18n="trust.support">24x7 trip support</span></span>
+      <span>💳 <span data-i18n="trust.pay">Pay after confirmation</span></span>
+      <span>📜 <span data-i18n="trust.govt">Govt. registered</span></span>
+    </div>
   </div>
 
   <section class="section">
@@ -89,7 +106,7 @@
     </div>
   </section>
 
-  <section class="section section--tight" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <section class="section section--tight section--tint" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
     <div class="wrap">
       <div class="section-head">
         <div>
@@ -134,6 +151,68 @@
     </div>
   </section>
 
+  <section class="section section--tint">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-i18n="home.how">How it works</p>
+          <h2 data-i18n="home.howTitle">Booked in three steps</h2>
+          <p data-i18n="home.howSub">No phone tag, no waiting for a callback. Pick a trip, hold your seats, and we confirm.</p>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__num">1</div>
+          <h3 data-i18n="home.step1t">Choose your trip</h3>
+          <p data-i18n="home.step1d">Browse the packages, check the date and the seats still open, and pick the one that fits.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">2</div>
+          <h3 data-i18n="home.step2t">Hold your seats</h3>
+          <p data-i18n="home.step2d">Fill in the passenger details and pick your seats. They are held for you while we check.</p>
+        </div>
+        <div class="step">
+          <div class="step__num">3</div>
+          <h3 data-i18n="home.step3t">Get confirmed</h3>
+          <p data-i18n="home.step3d">We confirm within 2 hours and send your ticket. Pay only after the booking is confirmed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow" data-i18n="home.faq">Questions</p>
+          <h2 data-i18n="home.faqTitle">Before you book</h2>
+        </div>
+      </div>
+      <div class="faq">
+        <details class="faq__item">
+          <summary data-i18n="faq.q1">When do I have to pay?</summary>
+          <p data-i18n="faq.a1">Only after we confirm your seats. Nothing is charged when you submit the booking form.</p>
+        </details>
+        <details class="faq__item">
+          <summary data-i18n="faq.q2">Can I cancel a booking?</summary>
+          <p data-i18n="faq.a2">Yes. Cancel more than 7 days before departure for a full refund; 3-7 days gets 50% back. Inside 3 days the advance is not refundable.</p>
+        </details>
+        <details class="faq__item">
+          <summary data-i18n="faq.q3">Are children allowed?</summary>
+          <p data-i18n="faq.a3">Children above 5 travel at the child rate. Below 5 they travel free if they share a seat with a parent.</p>
+        </details>
+        <details class="faq__item">
+          <summary data-i18n="faq.q4">What is included in the price?</summary>
+          <p data-i18n="faq.a4">Transport, stay, and the local guide are included on every package. Meals and entry tickets are listed per trip.</p>
+        </details>
+        <details class="faq__item">
+          <summary data-i18n="faq.q5">Do you run private or group trips?</summary>
+          <p data-i18n="faq.a5">Both. Group departures are on the trips page; for a private trip tell us your dates and we will quote you.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
   <section class="section section--tight">
     <div class="wrap">
       <div class="cta">
@@ -150,7 +229,7 @@
     <div class="wrap">
       <div class="footer-grid">
         <div>
-          <div class="footer-brand"><span class="brand__mark">GT</span><span data-brand>Gouri Travels</span></div>
+          <div class="footer-brand"><img class="brand__logo brand__logo--on-light" src="assets/logo-full-light.png" alt="Gouri Travels" /><img class="brand__logo brand__logo--on-dark" src="assets/logo-full-dark.png" alt="Gouri Travels" /></div>
           <p data-i18n="foot.about">A trusted trip partner for West Bengal and North-East India. With travellers since 2013.</p>
         </div>
         <div>

@@ -11,20 +11,23 @@ an admin panel (manage bookings, trips and site settings), and a Supabase backen
 ## What's inside
 
 ```
-index.html            Home — hero slider, search, featured trips, reviews
+index.html            Home — hero slider, search, featured trips, how-it-works, FAQ, reviews
 trips.html            All trips with filters (duration / budget) and search
 trip.html             Trip detail — overview, highlights, day-wise plan, seat count
 booking.html          Booking — Google sign-in, seat picker, hold seats, ticket
 contact.html          Contact — message opens in WhatsApp
-css/styles.css        Public site styles (responsive, Hind Siliguri for Bangla)
+css/styles.css        Public site styles (light + dark theme, responsive, Hind Siliguri)
+
+assets/               Brand logos (light/dark), favicons, app icons
 
 admin/index.html      Admin login (email+password or Google)
-admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings
-admin/css/admin.css   Admin styles
+admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings, CSV export
+admin/css/admin.css   Admin styles (light + dark theme)
 admin/js/admin.js     Admin logic
 
 js/config.js          Supabase Project URL + anon key  ← edit this
 js/i18n.js            English / বাংলা dictionary + language toggle engine
+js/theme.js           Light/dark theme switch + first-visit intro animation
 js/supabase-client.js Shared Supabase client
 js/site.js            Public data layer (schema adapter)
 
@@ -32,6 +35,28 @@ supabase/schema.sql   Reference copy of the live database schema
 docs/SETUP.md         Detailed setup + troubleshooting
 .env.example          Environment variable template
 ```
+
+---
+
+## Brand, theme and language
+
+**Colours** — the whole site uses the logo's own gradient: magenta `#EC1C5A` → orange `#FF7A3D`
+on a near-black (`#0A090B`) brand background. Every colour lives in one place, the CSS
+variables at the top of `css/styles.css` and `admin/css/admin.css`.
+
+**Themes** — the header has a sun/moon toggle on every public page and in the admin panel.
+Dark is the default; the visitor's choice is stored in `localStorage` under `gt_theme` and is
+re-applied before the first paint, so there is no flash of the wrong theme. The logo swaps
+automatically: the white wordmark (`logo-full-dark.png`) on dark, the dark wordmark
+(`logo-full-light.png`) on light.
+
+**Intro animation** — the first time a visitor opens the site in a session, a splash screen
+fades and scales the logo in over a magenta/orange glow, then lifts the curtain. It is shown
+once per session (`sessionStorage: gt_intro_seen`), can be skipped by clicking or pressing Esc,
+and is skipped entirely for visitors with `prefers-reduced-motion`.
+
+**Language** — English is the default; the EN / বাংলা toggle in the header switches every page
+and the choice is stored in `localStorage` under `gt_lang`.
 
 ---
 
@@ -99,7 +124,7 @@ The `details` column is a sectioned text field:
 ## Bilingual site (English / বাংলা)
 
 - The site **opens in English** by default (`DEFAULT_LANG: "en"` in `js/config.js`).
-- A **EN / বাংলা** toggle sits in the header of every public page and in the admin panel.
+- A **EN / বাং** toggle sits in the header of every public page and in the admin panel.
 - The choice is saved in `localStorage` under `gt_lang`, so it follows the visitor from page to page.
 - All copy lives in `js/i18n.js`. To add a string, add the same key to both the `en` and `bn` blocks
   and put `data-i18n="your.key"` on the element (or `data-i18n-ph` for placeholders,

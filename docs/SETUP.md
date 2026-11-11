@@ -131,7 +131,7 @@ correctly under the `/gouri-travels/` sub-path.
 ## 7. Language toggle
 
 - Default language is **English** (`DEFAULT_LANG` in `js/config.js`).
-- The **EN / বাংলা** switch is in the header of every page and in the admin panel.
+- The **EN / বাং** switch is in the header of every page and in the admin panel.
 - The choice is stored in `localStorage` (`gt_lang`) and persists across pages and visits.
 - All strings live in `js/i18n.js` under the `en` and `bn` blocks.
 

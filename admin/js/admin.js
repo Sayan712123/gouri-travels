@@ -174,6 +174,9 @@
     $("booking-search").addEventListener("input", renderBookings);
     $("booking-status").addEventListener("change", renderBookings);
 
+    var expBtn = $("export-btn");
+    if (expBtn) expBtn.addEventListener("click", exportBookingsCsv);
+
     document.querySelectorAll("[data-modal-close]").forEach(function (b) {
       b.addEventListener("click", function () { closeModal(); });
     });
@@ -300,6 +303,62 @@
         else cancelSeat(id);
       });
     });
+  }
+
+  /* export the currently filtered booking list as a CSV file */
+  function exportBookingsCsv() {
+    var q = ($("booking-search").value || "").toLowerCase();
+    var st = $("booking-status").value;
+
+    var rows = S.seats.slice().sort(function (a, b) {
+      return String(b.created_at || "").localeCompare(String(a.created_at || ""));
+    });
+    if (st !== "all") rows = rows.filter(function (r) { return r.status === st; });
+    if (q) {
+      rows = rows.filter(function (r) {
+        return (
+          String(r.ticket || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.name || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.phone || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.label || "").toLowerCase().indexOf(q) !== -1
+        );
+      });
+    }
+
+    if (!rows.length) { toast(t("adm.noBookings"), "error"); return; }
+
+    function cell(v) {
+      var s = String(v == null ? "" : v).replace(/"/g, '""');
+      return '"' + s + '"';
+    }
+
+    var head = ["Ticket", "Name", "Phone", "Trip", "Seat", "Status", "Amount", "Booked at"];
+    var out = [head.map(cell).join(",")];
+
+    rows.forEach(function (r) {
+      var tr = tripById(r.trip_id);
+      out.push([
+        cell(r.ticket || ""),
+        cell(r.name || ""),
+        cell(r.phone || ""),
+        cell(tr ? tr.title : ""),
+        cell(r.label || ""),
+        cell(r.status === "booked" ? "Confirmed" : "Pending"),
+        cell(tr ? Number(tr.price || 0) : 0),
+        cell(r.created_at || "")
+      ].join(","));
+    });
+
+    // BOM so Excel opens the Bangla text correctly
+    var blob = new Blob(["\ufeff" + out.join("\r\n")], { type: "text/csv;charset=utf-8;" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "gouri-bookings-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1500);
+    toast(t("adm.exported"));
   }
 
   async function confirmSeat(id) {
