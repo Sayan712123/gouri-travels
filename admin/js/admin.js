@@ -60,14 +60,43 @@
     }, 3600);
   }
 
+  /* ================= demo mode =================
+   * Supabase কনফিগার করা না থাকলে অ্যাডমিন প্যানেল নমুনা ডেটা দিয়ে
+   * ড্যাশবোর্ড দেখায় (শুধু প্রিভিউ — কোনো ডেটা বদলায় না)।
+   * ============================================ */
+  const DEMO = {
+    trips: [
+      { id: "demo-1", title: "Darjeeling & Gangtok", slug: "darjeeling-gangtok-5d", destination: "West Bengal, Sikkim", duration_days: 5, price_per_person: 12500, seats_total: 24, seats_booked: 19, departure_date: "2026-12-01", is_active: true },
+      { id: "demo-2", title: "Digha & Shankarpur Beach Break", slug: "digha-shankarpur-3d", destination: "Digha, West Bengal", duration_days: 3, price_per_person: 5400, seats_total: 30, seats_booked: 22, departure_date: "2026-11-23", is_active: true },
+      { id: "demo-3", title: "Puri & Konark Heritage", slug: "puri-konark-4d", destination: "Puri, Odisha", duration_days: 4, price_per_person: 8900, seats_total: 26, seats_booked: 14, departure_date: "2026-12-11", is_active: true },
+      { id: "demo-4", title: "Meghalaya — Abode of Clouds", slug: "meghalaya-6d", destination: "Shillong, Cherrapunji, Dawki", duration_days: 6, price_per_person: 21500, seats_total: 18, seats_booked: 11, departure_date: "2026-12-21", is_active: true },
+      { id: "demo-5", title: "Kashmir Valley Grand Tour", slug: "kashmir-7d", destination: "Srinagar, Gulmarg, Pahalgam", duration_days: 7, price_per_person: 32500, seats_total: 16, seats_booked: 9, departure_date: "2027-01-05", is_active: true },
+      { id: "demo-6", title: "Andaman Islands Escape", slug: "andaman-6d", destination: "Port Blair, Havelock", duration_days: 6, price_per_person: 28900, seats_total: 20, seats_booked: 13, departure_date: "2027-01-15", is_active: true },
+    ],
+    bookings: [
+      { id: "b1", booking_code: "GT-2401", full_name: "Suman Mondal", phone: "+91 98300 11223", email: "suman@example.com", travellers: 4, travel_date: "2026-12-01", pickup_point: "Shiyalda Station", total_amount: 50000, status: "confirmed", created_at: "2026-11-09T10:20:00Z", trips: { title: "Darjeeling & Gangtok", slug: "darjeeling-gangtok-5d" } },
+      { id: "b2", booking_code: "GT-2402", full_name: "Priya Das", phone: "+91 90070 44556", email: "priya@example.com", travellers: 2, travel_date: "2026-11-23", pickup_point: "Bandel", total_amount: 10800, status: "pending", created_at: "2026-11-10T14:05:00Z", trips: { title: "Digha & Shankarpur Beach Break", slug: "digha-shankarpur-3d" } },
+      { id: "b3", booking_code: "GT-2403", full_name: "Arindam Bose", phone: "+91 98311 77889", email: null, travellers: 6, travel_date: "2026-12-21", pickup_point: "Howrah", total_amount: 129000, status: "pending", created_at: "2026-11-11T06:40:00Z", trips: { title: "Meghalaya — Abode of Clouds", slug: "meghalaya-6d" } },
+      { id: "b4", booking_code: "GT-2404", full_name: "Rina Ghosh", phone: "+91 90730 22110", email: "rina@example.com", travellers: 3, travel_date: "2026-12-11", pickup_point: "Bandel", total_amount: 26700, status: "completed", created_at: "2026-11-05T09:15:00Z", trips: { title: "Puri & Konark Heritage", slug: "puri-konark-4d" } },
+    ],
+    enquiries: [
+      { id: "e1", name: "Sayan Ghosh", phone: "+91 90000 12345", email: "sayan@example.com", message: "কাশ্মীর ট্রিপে ডিসেম্বরের শেষে সিট আছে কি? ৪ জনের জন্য খরচ জানতে চাই।", is_read: false, created_at: "2026-11-11T05:30:00Z" },
+      { id: "e2", name: "Moumita Sen", phone: "+91 98300 99887", email: null, message: "আন্দামান প্যাকেজে স্কুবা ডাইভিং কি অন্তর্ভুক্ত?", is_read: true, created_at: "2026-11-10T11:00:00Z" },
+    ],
+  };
+
+  function demoBanner() {
+    return (
+      '<div class="alert alert--warn"><strong>🔧 ডেমো মোড — শুধু প্রিভিউ।</strong><br>' +
+      "Supabase কনফিগার করা হয়নি, তাই নমুনা ডেটা দেখানো হচ্ছে এবং কোনো পরিবর্তন সেভ হবে না। " +
+      "<code>admin/js/config.js</code>-এ Project URL ও anon key বসালেই আসল ডেটা চালু হবে।</div>"
+    );
+  }
+
   /* ================= auth ================= */
   async function requireSession() {
     if (!client) {
-      document.body.innerHTML =
-        '<div style="max-width:560px;margin:80px auto;padding:28px;font-family:Inter,sans-serif;border:1px solid #e3e9e6;border-radius:14px;background:#fff">' +
-        '<h2 style="margin:0 0 10px">Supabase কনফিগার করা হয়নি</h2>' +
-        '<p style="color:#4a5a54;font-size:.92rem"><code>admin/js/config.js</code> ফাইলে আপনার Project URL ও anon key বসান, তারপর পেজ রিফ্রেশ করুন।</p></div>';
-      throw new Error("not configured");
+      return { demo: true, user: { email: "demo@gouritravels.in" } };
     }
     const { data } = await client.auth.getSession();
     if (!data.session) {
@@ -84,7 +113,7 @@
   }
 
   async function logout() {
-    await client.auth.signOut();
+    if (client) await client.auth.signOut();
     location.replace("index.html");
   }
 
@@ -96,8 +125,12 @@
     const btn = $("#login-btn");
 
     if (!client) {
-      alertBox.innerHTML = '<div class="alert alert--error">Supabase কনফিগার করা হয়নি — <code>admin/js/config.js</code> দেখুন।</div>';
-      btn.disabled = true;
+      alertBox.innerHTML = demoBanner();
+      btn.textContent = "ডেমো ড্যাশবোর্ড দেখুন";
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        location.href = "dashboard.html";
+      });
       return;
     }
 
@@ -131,6 +164,12 @@
   const state = { bookings: [], trips: [], enquiries: [], tab: "bookings" };
 
   async function loadAll() {
+    if (!client) {
+      state.bookings = DEMO.bookings.slice();
+      state.trips = DEMO.trips.slice();
+      state.enquiries = DEMO.enquiries.slice();
+      return;
+    }
     const [b, t, e] = await Promise.all([
       client.from("bookings").select("*, trips(title, slug)").order("created_at", { ascending: false }),
       client.from("trips").select("*").order("created_at", { ascending: false }),
@@ -252,6 +291,7 @@
 
   /* ---------- booking actions ---------- */
   async function setBookingStatus(id, status) {
+    if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
     const { error } = await client.from("bookings").update({ status }).eq("id", id);
     if (error) return toast(error.message, "error");
     const row = state.bookings.find((b) => b.id === id);
@@ -323,6 +363,7 @@
     $("#modal").classList.add("is-open");
 
     $("#trip-save").addEventListener("click", async () => {
+      if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
       const f = $("#trip-form");
       if (!f.reportValidity()) return;
       const btn = $("#trip-save");
@@ -368,9 +409,15 @@
   /* ---------- dashboard init ---------- */
   async function initDashboard() {
     const session = await requireSession();
-    const admin = await isAdmin();
 
     $("#admin-email").textContent = session.user.email || "admin";
+
+    if (session.demo) {
+      $("#admin-warning").innerHTML = demoBanner();
+      $("#admin-warning").classList.remove("hidden");
+    }
+
+    const admin = session.demo ? true : await isAdmin();
 
     if (!admin) {
       $("#admin-warning").innerHTML =
@@ -420,6 +467,7 @@
         return openTripForm(trip);
       }
       if (t.dataset.tripToggle) {
+        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
         const trip = state.trips.find((x) => x.id === t.dataset.tripToggle);
         const { error } = await client.from("trips").update({ is_active: !trip.is_active }).eq("id", trip.id);
         if (error) return toast(error.message, "error");
@@ -427,6 +475,7 @@
         return toast(trip.is_active ? "ট্রিপ হাইড করা হয়েছে" : "ট্রিপ পাবলিশ হয়েছে", "ok");
       }
       if (t.dataset.tripDel) {
+        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
         if (!confirm("এই ট্রিপটি ডিলিট করবেন? এটি ফেরানো যাবে না।")) return;
         const { error } = await client.from("trips").delete().eq("id", t.dataset.tripDel);
         if (error) return toast(error.message, "error");
@@ -434,6 +483,7 @@
         return toast("ট্রিপ ডিলিট হয়েছে", "ok");
       }
       if (t.dataset.enqRead) {
+        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
         const enq = state.enquiries.find((x) => x.id === t.dataset.enqRead);
         const { error } = await client.from("enquiries").update({ is_read: !enq.is_read }).eq("id", enq.id);
         if (error) return toast(error.message, "error");
