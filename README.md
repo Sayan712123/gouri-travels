@@ -1,158 +1,166 @@
 # Gouri Travels — ট্রিপ বুকিং ওয়েবসাইট
 
-পাবলিক ট্রিপ বুকিং সাইট + অ্যাডমিন প্যানেল + Supabase ডেটাবেস স্কিমা — সব একসাথে।
+পাবলিক সাইট + অ্যাডমিন প্যানেল + Supabase স্কিমা — সব একসাথে।
 
-- **পাবলিক সাইট** — ট্রিপ লিস্টিং, ট্রিপ ডিটেইল, বুকিং ফর্ম, কন্টাক্ট ফর্ম
-- **অ্যাডমিন প্যানেল** — Supabase Auth লগইন, বুকিং ম্যানেজমেন্ট, ট্রিপ CRUD, এনকোয়ারি ইনবক্স
-- **ডেটাবেস** — `supabase/schema.sql` (টেবিল, RLS পলিসি, স্টোরেজ বাকেট, সিড ডেটা)
+🌐 **লাইভ সাইট:** https://sayan712123.github.io/gouri-travels/
+🔐 **অ্যাডমিন প্যানেল:** https://sayan712123.github.io/gouri-travels/admin/
 
 ---
 
-## ফোল্ডার স্ট্রাকচার
+## 📁 ফোল্ডার স্ট্রাকচার
+
+GitHub Pages সরাসরি **রিপোর রুট** থেকে সাইট চালায়, তাই পাবলিক সাইটের ফাইলগুলো রুটে রাখা হয়েছে:
 
 ```
 gouri-travels/
-├── public/                 # পাবলিক সাইট (স্ট্যাটিক HTML/CSS/JS)
-│   ├── index.html          # হোম — হিরো, ফিচার্ড ট্রিপ, রিভিউ
-│   ├── trips.html          # সব ট্রিপ + ফিল্টার
-│   ├── trip.html           # একক ট্রিপ ডিটেইল (?slug=...)
-│   ├── booking.html        # বুকিং ফর্ম (?trip=...)
-│   ├── contact.html        # কন্টাক্ট / এনকোয়ারি
-│   ├── css/styles.css
-│   └── js/
-│       ├── config.js       # Supabase URL + anon key এখানে বসান
-│       ├── supabase-client.js
-│       └── site.js
-├── admin/                  # অ্যাডমিন প্যানেল
-│   ├── index.html          # লগইন
-│   ├── dashboard.html      # বুকিং / ট্রিপ / এনকোয়ারি
+├── index.html              ← হোমপেজ
+├── trips.html              ← সব ট্রিপ + ফিল্টার
+├── trip.html               ← ট্রিপ ডিটেইল (?slug=...)
+├── booking.html            ← বুকিং ফর্ম
+├── contact.html            ← যোগাযোগ / এনকোয়ারি
+├── css/styles.css          ← পাবলিক সাইটের স্টাইল
+├── js/
+│   ├── config.js           ← ⚠️ আপনার Supabase URL + anon key এখানে
+│   ├── supabase-client.js  ← Supabase ক্লায়েন্ট
+│   └── site.js             ← শেয়ার্ড হেল্পার + ডেমো ডেটা
+├── admin/
+│   ├── index.html          ← অ্যাডমিন লগইন
+│   ├── dashboard.html      ← ড্যাশবোর্ড
 │   ├── css/admin.css
-│   └── js/admin.js
-├── supabase/
-│   └── schema.sql          # পুরো ডেটাবেস স্কিমা
-├── docs/
-│   └── SETUP.md            # বিস্তারিত সেটআপ গাইড
-├── .env.example
-└── README.md
+│   └── js/
+│       ├── config.js       ← ⚠️ একই Supabase URL + anon key
+│       └── admin.js
+├── supabase/schema.sql     ← টেবিল + RLS + স্টোরেজ + ডেমো ট্রিপ
+├── docs/SETUP.md           ← বিস্তারিত সেটআপ গাইড
+├── .nojekyll               ← GitHub Pages-এ Jekyll বন্ধ রাখে
+└── .env.example
 ```
 
 ---
 
-## ১. Supabase প্রজেক্ট তৈরি
+## 🚀 ধাপ ১ — Supabase কনফিগার করুন
 
-1. [supabase.com](https://supabase.com) এ লগইন করে **New project** ক্লিক করুন।
-2. নাম দিন (যেমন `gouri-travels`), ডেটাবেস পাসওয়ার্ড সেট করুন, রিজিয়ন বেছে নিন (India এর জন্য `ap-south-1` ভালো)।
-3. প্রজেক্ট তৈরি হওয়ার পর **Project Settings → API** থেকে দুটো মান কপি করুন:
-   - **Project URL** → `SUPABASE_URL`
-   - **anon public** key → `SUPABASE_ANON_KEY`
+আপনার Supabase প্রজেক্ট **অলরেডি আছে** ধরে নিয়ে:
 
-> ⚠️ `service_role` key কখনো ব্রাউজারে বা Git-এ রাখবেন না।
+1. **Supabase Dashboard → Project Settings → API** খুলুন।
+2. দুটি মান কপি করুন:
+   - **Project URL** → যেমন `https://abcdefgh.supabase.co`
+   - **anon / public** key → `eyJhbGciOi...` দিয়ে শুরু হওয়া লম্বা স্ট্রিং
 
-## ২. ডেটাবেস স্কিমা চালান
+3. এই দুটি মান **দুটি ফাইলে** বসান (একই মান, দুই জায়গায়):
 
-1. Supabase ড্যাশবোর্ডে **SQL Editor → New query** খুলুন।
-2. `supabase/schema.sql` ফাইলের **পুরো** কন্টেন্ট পেস্ট করে **Run** করুন।
-3. এতে তৈরি হবে: `trips`, `bookings`, `enquiries`, `admins` টেবিল, RLS পলিসি, `trip-images` স্টোরেজ বাকেট এবং ৬টি ডেমো ট্রিপ।
+   **`js/config.js`**
+   ```js
+   window.GT_CONFIG = {
+     SUPABASE_URL: "https://abcdefgh.supabase.co",
+     SUPABASE_ANON_KEY: "eyJhbGciOi...",
+     ...
+   };
+   ```
 
-## ৩. সাইটে কনফিগ বসান
+   **`admin/js/config.js`**
+   ```js
+   window.GT_ADMIN_CONFIG = {
+     SUPABASE_URL: "https://abcdefgh.supabase.co",
+     SUPABASE_ANON_KEY: "eyJhbGciOi...",
+     BRAND_NAME: "Gouri Travels",
+   };
+   ```
 
-`public/js/config.js` খুলে মান দুটো বসান:
+4. **স্কিমা চালান** (একবারই লাগে): Supabase Dashboard → **SQL Editor** → New query → `supabase/schema.sql` ফাইলের পুরো কনটেন্ট পেস্ট করে **Run**।
+   এটি তৈরি করবে: `trips`, `bookings`, `enquiries`, `admins` টেবিল, `is_admin()` হেল্পার, সম্পূর্ণ RLS পলিসি, `trip-images` স্টোরেজ বাকেট এবং ৬টি ডেমো ট্রিপ। স্ক্রিপ্টটি **idempotent** — বারবার চালালেও সমস্যা নেই।
 
-```js
-window.GT_CONFIG = {
-  SUPABASE_URL: "https://your-project-ref.supabase.co",
-  SUPABASE_ANON_KEY: "your-anon-public-key",
-  BRAND_NAME: "Gouri Travels",
-  WHATSAPP_NUMBER: "919000000000",
-};
-```
+> ⚠️ **`service_role` key কখনোই `config.js`-এ বসাবেন না।** শুধু `anon` key — এটাই ব্রাউজারে থাকার জন্য নিরাপদ, কারণ RLS ডেটা সুরক্ষিত রাখে।
 
-`admin/js/admin.js` এর উপরের দিকেও একই দুটো মান বসাতে হবে (অথবা `public/js/config.js` কে `../public/js/config.js` হিসেবে লোড করুন)।
+> 💡 **ডেমো মোড:** উপরের দুটি মান বসানো না থাকলে সাইটটি নমুনা ট্রিপ দিয়ে চলবে (বুকিং সেভ হবে না) — শুধু প্রিভিউয়ের জন্য। মান বসালেই আসল ডেটা চালু হবে।
 
-## ৪. অ্যাডমিন ইউজার তৈরি
+---
 
-1. সাইট চালু করে `admin/index.html` খুলুন।
-2. Supabase ড্যাশবোর্ড → **Authentication → Users → Add user** দিয়ে ইমেইল + পাসওয়ার্ড দিয়ে ইউজার বানান (Auto Confirm User টিক দিন)।
-3. সেই ইউজারকে অ্যাডমিন বানাতে SQL Editor-এ চালান:
+## 🔐 ধাপ ২ — অ্যাডমিন ইউজার তৈরি করুন
+
+1. Supabase Dashboard → **Authentication → Users → Add user** → ইমেইল ও পাসওয়ার্ড দিন (Auto Confirm User চালু রাখুন)।
+2. সেই ইউজারের **UID** কপি করুন।
+3. **SQL Editor**-এ চালান:
 
 ```sql
-insert into public.admins (user_id, email, full_name)
-select id, email, 'Gouri Travels Admin'
-from auth.users
-where email = 'you@example.com'
-on conflict (user_id) do nothing;
+insert into public.admins (user_id, email)
+values ('এখানে-ইউজারের-UID-পেস্ট-করুন', 'admin@example.com');
 ```
 
-4. এখন `admin/index.html` এ ওই ইমেইল/পাসওয়ার্ড দিয়ে লগইন করুন।
-
-## ৫. লোকালি চালানো
-
-কোনো বিল্ড স্টেপ নেই — শুধু একটা স্ট্যাটিক সার্ভার দরকার (ফাইল:// দিয়ে খুললে Supabase কল কাজ করবে না)।
-
-```bash
-# Python দিয়ে
-python3 -m http.server 5173
-
-# অথবা Node দিয়ে
-npx serve -l 5173 .
-```
-
-তারপর খুলুন:
-
-- পাবলিক সাইট → <http://localhost:5173/public/>
-- অ্যাডমিন → <http://localhost:5173/admin/>
-
-## ৬. পাবলিশ করার ধাপ
-
-### অপশন A — Netlify (সবচেয়ে সহজ)
-
-1. [netlify.com](https://netlify.com) → **Add new site → Import an existing project** → GitHub → এই রিপো সিলেক্ট করুন।
-2. Build command: *(খালি রাখুন)*, Publish directory: `public`
-3. **Deploy** চাপুন। সাইট লাইভ হবে `https://<name>.netlify.app` এ।
-4. অ্যাডমিন প্যানেল আলাদা সাইট হিসেবে: আবার একই রিপো ইমপোর্ট করে Publish directory `admin` দিন (যেমন `gouri-admin.netlify.app`)।
-
-### অপশন B — Vercel
-
-```bash
-npm i -g vercel
-vercel --prod
-```
-
-Framework preset: **Other**, Output directory: `public`।
-
-### অপশন C — GitHub Pages
-
-1. রিপো → **Settings → Pages**
-2. Source: **Deploy from a branch** → Branch `main`, folder `/public`
-3. সাইট লাইভ হবে `https://Sayan712123.github.io/gouri-travels/`
-
-> GitHub Pages-এ `/admin` আলাদা ফোল্ডার হিসেবে সার্ভ হয় না — অ্যাডমিনের জন্য Netlify/Vercel ব্যবহার করা ভালো।
-
-### পাবলিশের পর করণীয়
-
-- Supabase → **Authentication → URL Configuration** এ `Site URL` ও `Redirect URLs`-এ লাইভ ডোমেইন যোগ করুন।
-- `public/js/config.js` এ `SITE_URL` লাইভ ডোমেইনে বদলান।
-- কাস্টম ডোমেইন (যেমন `gouritravels.in`) যোগ করতে Netlify/Vercel এর Domain settings ব্যবহার করুন।
+4. এখন https://sayan712123.github.io/gouri-travels/admin/ এ গিয়ে ওই ইমেইল/পাসওয়ার্ড দিয়ে লগইন করুন।
 
 ---
 
-## ডেটাবেস টেবিল সংক্ষেপে
+## 🌐 ধাপ ৩ — GitHub Pages (অলরেডি চালু)
 
-| টেবিল | কাজ | পাবলিক অ্যাক্সেস |
-|---|---|---|
-| `trips` | ট্রিপ প্যাকেজ | শুধু `is_active = true` পড়তে পারে |
-| `bookings` | বুকিং রিকোয়েস্ট | শুধু insert (status `pending`) |
-| `enquiries` | কন্টাক্ট ফর্ম | শুধু insert |
-| `admins` | অ্যাডমিন লিস্ট | কেউ পড়তে পারে না (শুধু is_admin) |
+সাইটটি ইতিমধ্যে লাইভ:
 
-সব রাইট/রিড অ্যাডমিনের জন্য `public.is_admin()` ফাংশন দিয়ে RLS-এ নিয়ন্ত্রিত।
+- **Settings → Pages → Source:** `Deploy from a branch` → Branch: **`main`** → Folder: **`/ (root)`**
+- রুটে `.nojekyll` ফাইল থাকায় GitHub Pages Jekyll প্রসেসিং বাদ দিয়ে ফাইলগুলো হুবহু সার্ভ করে।
+- সব লিংক **রিলেটিভ** (`css/styles.css`, `js/config.js`, `admin/index.html`) — তাই সাব-পাথে (`/gouri-travels/`) সব ঠিকঠাক লোড হয়।
 
-## নিরাপত্তা নোট
+**আপডেট করার পর:** `main` ব্রাঞ্চে পুশ করলেই ১–২ মিনিটে সাইট নিজে থেকে আপডেট হয়।
 
-- `anon` key পাবলিক, কিন্তু RLS সব ডেটা রক্ষা করে — পলিসি বদলাবেন না।
-- বুকিং ফর্মে `status` সবসময় `pending` হিসেবে যায়; কনফার্ম করা যায় শুধু অ্যাডমিন প্যানেল থেকে।
-- প্রোডাকশনে যাওয়ার আগে Supabase-এ **Email confirmation** চালু রাখুন।
+### নিজের ডোমেইন (যেমন gouritravels.in) লাগলে
+1. **Settings → Pages → Custom domain**-এ ডোমেইন লিখুন।
+2. আপনার DNS প্রোভাইডারে একটি `CNAME` রেকর্ড যোগ করুন: `www` → `sayan712123.github.io`
+3. **Enforce HTTPS** টিক দিন।
 
-## লাইসেন্স
+---
 
-MIT — Gouri Travels এর জন্য তৈরি।
+## 💻 লোকালি চালানো
+
+```bash
+# রিপো ক্লোন করুন
+git clone https://github.com/Sayan712123/gouri-travels.git
+cd gouri-travels
+
+# যেকোনো স্ট্যাটিক সার্ভার চালান
+python3 -m http.server 5173
+```
+
+তারপর ব্রাউজারে খুলুন: http://localhost:5173/ (অ্যাডমিন: http://localhost:5173/admin/)
+
+> `file://` দিয়ে সরাসরি HTML খুললে Supabase লোড নাও হতে পারে — তাই ছোট একটি সার্ভার ব্যবহার করুন।
+
+---
+
+## 🧩 ফিচার
+
+**পাবলিক সাইট**
+- হোমপেজ: হিরো, সার্চ বার, ফিচার্ড ট্রিপ, রিভিউ, CTA
+- সব ট্রিপ: দিন/বাজেট ফিল্টার + সার্চ
+- ট্রিপ ডিটেইল: হাইলাইটস, দিন-ভিত্তিক itinerary, স্টিকি বুকিং কার্ড
+- বুকিং ফর্ম: লাইভ প্রাইস ক্যালকুলেশন, অটো-জেনারেটেড বুকিং কোড
+- যোগাযোগ ফর্ম → অ্যাডমিন ইনবক্সে যায়
+- মোবাইল-ফার্স্ট, বাংলা ফন্ট (Hind Siliguri), হোয়াইট + ব্লু থিম
+
+**অ্যাডমিন প্যানেল**
+- Supabase Auth লগইন + `is_admin()` চেক
+- ৬টি স্ট্যাট কার্ড (মোট বুকিং, পেন্ডিং, কনফার্মড, আনুমানিক আয়, অ্যাক্টিভ ট্রিপ, অপঠিত মেসেজ)
+- বুকিং লিস্ট: সার্চ, স্টেটাস ফিল্টার, Confirm / Cancel / View
+- ট্রিপ CRUD: মোডাল ফর্ম, Hide / Show, Delete
+- মেসেজ ইনবক্স: read / unread
+
+---
+
+## 🛠 সমস্যা হলে
+
+| সমস্যা | সমাধান |
+|---|---|
+| সাইটে "ডেমো মোড" লেখা দেখাচ্ছে | `js/config.js`-এ Project URL ও anon key বসান, তারপর হার্ড রিফ্রেশ (Ctrl+Shift+R) |
+| ট্রিপ লোড হচ্ছে না | `supabase/schema.sql` চালানো হয়েছে কিনা দেখুন; RLS পলিসি ঠিক আছে কিনা যাচাই করুন |
+| অ্যাডমিনে "এই অ্যাকাউন্টটি অ্যাডমিন নয়" | `admins` টেবিলে আপনার UID insert করুন (ধাপ ২) |
+| CSS/JS লোড হচ্ছে না | ফাইল পাথ রিলেটিভ আছে কিনা দেখুন; `.nojekyll` ফাইলটি রিপোতে আছে কিনা নিশ্চিত করুন |
+| পেজ ৪০৪ দেখাচ্ছে | GitHub Pages বিল্ড শেষ হতে ১–২ মিনিট দিন; Settings → Pages-এ সোর্স `main` / `root` কিনা দেখুন |
+
+আরও বিস্তারিত: [`docs/SETUP.md`](docs/SETUP.md)
+
+---
+
+## 🔒 নিরাপত্তা
+
+- `service_role` key কোথাও কমিট করা হয়নি — শুধু `anon` key-এর প্লেসহোল্ডার আছে।
+- সব টেবিলে **Row Level Security** চালু; পাবলিক শুধু অ্যাক্টিভ ট্রিপ পড়তে পারে ও বুকিং/এনকোয়ারি লিখতে পারে।
+- অ্যাডমিন-শুধু অপারেশন `is_admin()` security-definer ফাংশন দিয়ে সুরক্ষিত।
+- `.gitignore`-এ `.env` আছে — আসল সিক্রেট কখনো কমিট হবে না।
