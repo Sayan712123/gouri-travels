@@ -1,310 +1,274 @@
--- ===============================================================
--- Gouri Travels — Supabase schema
--- Run this whole file in Supabase Dashboard -> SQL Editor -> New query
--- It is idempotent: safe to run more than once.
--- ===============================================================
+-- ============================================================================
+-- Gouri Travels — database schema REFERENCE
+-- ============================================================================
+-- This file documents the schema of the EXISTING Supabase project that the
+-- site is connected to. The tables already exist in that project, so you do
+-- NOT need to run this file to get the site working.
+--
+-- It is kept in version control so the structure is documented, and it is
+-- written to be idempotent — running it against the live project is harmless
+-- and will not drop or duplicate anything.
+--
+-- Verified against the live project on 2026-11-11:
+--   tables : trips, seats, settings, admins
+--   view   : seat_status
+--   rpc    : hold_seats, my_bookings, get_ticket, is_admin
+--   bucket : trip-photos (public)
+-- ============================================================================
 
 create extension if not exists "pgcrypto";
 
--- ---------------------------------------------------------------
--- 1. Helper: updated_at trigger
--- ---------------------------------------------------------------
-create or replace function public.set_updated_at()
-returns trigger
-language plpgsql
-as $$
-begin
-  new.updated_at = now();
-  return new;
-end;
-$$;
-
--- ---------------------------------------------------------------
--- 2. Admins
---    A user is an admin only if their auth.users id is in this table.
---    Add yourself after signing up (see README step 2).
--- ---------------------------------------------------------------
-create table if not exists public.admins (
-  user_id    uuid primary key references auth.users (id) on delete cascade,
-  email      text,
-  full_name  text,
-  created_at timestamptz not null default now()
+-- ----------------------------------------------------------------------------
+-- trips — one row per trip package
+-- ----------------------------------------------------------------------------
+create table if not exists public.trips (
+  id            uuid primary key default gen_random_uuid(),
+  title         text        not null,
+  from_place    text,
+  to_place      text,
+  trip_date     date,
+  trip_time     text,
+  price         numeric     default 0,
+  boarding      text,
+  details       text,                 -- sectioned text, see below
+  thumb         text,                 -- cover image URL
+  photos        text[]      default '{}',
+  seats         integer     default 0,
+  open          boolean     default true,
+  created_at    timestamptz default now(),
+  kind          text        default 'bus',   -- bus | train | scorpio
+  vehicle_name  text,
+  cars          integer,
+  per_car       integer
 );
 
--- Security-definer helper so RLS policies can check admin status
--- without recursing into the admins table policies.
+-- The `details` column is a sectioned text field. Sections are introduced by a
+-- line that is exactly "##<key>":
+--
+--   ##ov     overview paragraph
+--   ##hl     highlights, one per line
+--   ##it     day-wise plan, one per line
+--   ##inc    included, one per line
+--   ##exc    not included, one per line
+--   ##pol    cancellation / policy, one per line
+--   ##meal   meal notes
+--   ##cl     booking closes at (YYYY-MM-DD HH:MM)
+--   ##days   JSON array of {day, title, detail}
+--
+-- The admin trip editor writes these markers automatically.
+
+-- ----------------------------------------------------------------------------
+-- seats — one row per taken seat. This IS the booking record.
+--   status = 'held'   → pending, waiting for the admin to confirm
+--   status = 'booked' → confirmed, `ticket` holds the ticket code
+-- ----------------------------------------------------------------------------
+create table if not exists public.seats (
+  trip_id     uuid references public.trips(id) on delete cascade,
+  label       text not null,          -- A1, B3, T7, C1S4 …
+  status      text not null default 'held',
+  name        text,
+  phone       text,
+  held_until  timestamptz,
+  ticket      text,
+  note        text,
+  created_at  timestamptz default now()
+);
+
+create index if not exists seats_trip_idx   on public.seats (trip_id);
+create index if not exists seats_status_idx on public.seats (status);
+
+-- ----------------------------------------------------------------------------
+-- settings — key/value site settings, edited from the admin panel
+--   brand, wa, phone, upi, upi_name, tag, notice, why,
+--   terms, slabs, reviews, faq, hero
+-- ----------------------------------------------------------------------------
+create table if not exists public.settings (
+  key   text primary key,
+  value text
+);
+
+-- ----------------------------------------------------------------------------
+-- admins — emails allowed into the admin panel
+-- ----------------------------------------------------------------------------
+create table if not exists public.admins (
+  email text primary key
+);
+
+-- ----------------------------------------------------------------------------
+-- seat_status — the public, privacy-safe view of taken seats.
+-- It exposes only which seats are taken, never the traveller's name or phone.
+-- ----------------------------------------------------------------------------
+create or replace view public.seat_status as
+  select trip_id, label, status
+  from public.seats
+  where status = 'booked'
+     or (status = 'held' and (held_until is null or held_until > now()));
+
+-- ----------------------------------------------------------------------------
+-- is_admin() — true when the signed-in user's email is in the admins table
+-- ----------------------------------------------------------------------------
 create or replace function public.is_admin()
 returns boolean
 language sql
-stable
 security definer
 set search_path = public
 as $$
   select exists (
-    select 1 from public.admins a where a.user_id = auth.uid()
+    select 1 from public.admins a
+    where lower(a.email) = lower(coalesce(auth.jwt() ->> 'email', ''))
   );
 $$;
 
--- ---------------------------------------------------------------
--- 3. Trips
--- ---------------------------------------------------------------
-create table if not exists public.trips (
-  id              uuid primary key default gen_random_uuid(),
-  slug            text not null unique,
-  title           text not null,
-  destination     text not null,
-  summary         text,
-  description     text,
-  duration_days   integer not null default 1 check (duration_days > 0),
-  price_per_person numeric(10, 2) not null default 0 check (price_per_person >= 0),
-  seats_total     integer not null default 20 check (seats_total >= 0),
-  seats_booked    integer not null default 0 check (seats_booked >= 0),
-  departure_date  date,
-  return_date     date,
-  cover_image_url text,
-  highlights      text[] not null default '{}',
-  itinerary       jsonb  not null default '[]'::jsonb,
-  is_active       boolean not null default true,
-  created_at      timestamptz not null default now(),
-  updated_at      timestamptz not null default now()
-);
+-- ----------------------------------------------------------------------------
+-- hold_seats() — hold a set of seats for the signed-in user.
+-- Returns the booking code, or the text 'login' when there is no session.
+-- ----------------------------------------------------------------------------
+create or replace function public.hold_seats(
+  p_trip   uuid,
+  p_labels text[],
+  p_name   text,
+  p_phone  text
+)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_code  text;
+  v_label text;
+begin
+  if auth.uid() is null then
+    return 'login';
+  end if;
 
-create index if not exists trips_active_idx on public.trips (is_active, departure_date);
+  v_code := 'GT-' || upper(substr(md5(random()::text), 1, 8));
 
--- ---------------------------------------------------------------
--- 4. Bookings
--- ---------------------------------------------------------------
-create table if not exists public.bookings (
-  id            uuid primary key default gen_random_uuid(),
-  booking_code  text not null unique
-                default ('GT-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 8))),
-  trip_id       uuid references public.trips (id) on delete set null,
-  full_name     text not null,
-  phone         text not null,
-  email         text,
-  travellers    integer not null default 1 check (travellers between 1 and 20),
-  travel_date   date,
-  pickup_point  text,
-  notes         text,
-  total_amount  numeric(10, 2),
-  status        text not null default 'pending'
-                check (status in ('pending', 'confirmed', 'cancelled', 'completed')),
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now()
-);
+  foreach v_label in array p_labels loop
+    -- skip a seat that is already taken
+    if exists (
+      select 1 from public.seats s
+      where s.trip_id = p_trip
+        and s.label = v_label
+        and (s.status = 'booked'
+             or (s.status = 'held' and s.held_until is not null and s.held_until > now()))
+    ) then
+      continue;
+    end if;
 
-create index if not exists bookings_status_idx  on public.bookings (status, created_at desc);
-create index if not exists bookings_trip_idx    on public.bookings (trip_id);
+    insert into public.seats (trip_id, label, status, name, phone, held_until, ticket, note)
+    values (p_trip, v_label, 'held', p_name, p_phone, now() + interval '15 minutes', v_code, null)
+    on conflict do nothing;
+  end loop;
 
--- ---------------------------------------------------------------
--- 5. Enquiries (contact form)
--- ---------------------------------------------------------------
-create table if not exists public.enquiries (
-  id         uuid primary key default gen_random_uuid(),
-  name       text not null,
-  phone      text not null,
-  email      text,
-  message    text not null,
-  is_read    boolean not null default false,
-  created_at timestamptz not null default now()
-);
+  return v_code;
+end;
+$$;
 
--- ---------------------------------------------------------------
--- 6. updated_at triggers
--- ---------------------------------------------------------------
- drop trigger if exists trips_set_updated_at on public.trips;
-create trigger trips_set_updated_at
-  before update on public.trips
-  for each row execute function public.set_updated_at();
+-- ----------------------------------------------------------------------------
+-- my_bookings() — the signed-in user's own bookings
+-- ----------------------------------------------------------------------------
+create or replace function public.my_bookings()
+returns table (
+  trip_id    uuid,
+  label      text,
+  status     text,
+  ticket     text,
+  held_until timestamptz,
+  created_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select s.trip_id, s.label, s.status, s.ticket, s.held_until, s.created_at
+  from public.seats s
+  where s.name = (select u.email from auth.users u where u.id = auth.uid())
+     or s.phone = (select u.phone from auth.users u where u.id = auth.uid())
+  order by s.created_at desc;
+$$;
 
- drop trigger if exists bookings_set_updated_at on public.bookings;
-create trigger bookings_set_updated_at
-  before update on public.bookings
-  for each row execute function public.set_updated_at();
+-- ----------------------------------------------------------------------------
+-- get_ticket() — look up a ticket by its code
+-- ----------------------------------------------------------------------------
+create or replace function public.get_ticket(p_code text)
+returns table (
+  trip_id    uuid,
+  label      text,
+  status     text,
+  ticket     text,
+  name       text,
+  created_at timestamptz
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select s.trip_id, s.label, s.status, s.ticket, s.name, s.created_at
+  from public.seats s
+  where s.ticket = p_code
+  limit 1;
+$$;
 
--- ---------------------------------------------------------------
--- 7. Row Level Security
--- ---------------------------------------------------------------
-alter table public.admins    enable row level security;
-alter table public.trips     enable row level security;
-alter table public.bookings  enable row level security;
-alter table public.enquiries enable row level security;
+-- ----------------------------------------------------------------------------
+-- Row Level Security
+-- ----------------------------------------------------------------------------
+alter table public.trips    enable row level security;
+alter table public.seats    enable row level security;
+alter table public.settings enable row level security;
+alter table public.admins   enable row level security;
 
--- admins: an admin can read the admin list; nobody can self-promote.
-drop policy if exists "admins read for admins" on public.admins;
-create policy "admins read for admins"
-  on public.admins for select
-  to authenticated
-  using (public.is_admin());
+-- trips: everyone may read; only admins may write
+drop policy if exists trips_read  on public.trips;
+drop policy if exists trips_write on public.trips;
+create policy trips_read  on public.trips for select using (true);
+create policy trips_write on public.trips for all
+  using (public.is_admin()) with check (public.is_admin());
 
--- trips: public can read active trips; admins manage everything.
-drop policy if exists "trips public read" on public.trips;
-create policy "trips public read"
-  on public.trips for select
-  to anon, authenticated
-  using (is_active = true or public.is_admin());
+-- settings: everyone may read; only admins may write
+drop policy if exists settings_read  on public.settings;
+drop policy if exists settings_write on public.settings;
+create policy settings_read  on public.settings for select using (true);
+create policy settings_write on public.settings for all
+  using (public.is_admin()) with check (public.is_admin());
 
-drop policy if exists "trips admin insert" on public.trips;
-create policy "trips admin insert"
-  on public.trips for insert
-  to authenticated
-  with check (public.is_admin());
+-- seats: a signed-in user may read and create their own holds;
+--        only admins may update or delete
+drop policy if exists seats_read   on public.seats;
+drop policy if exists seats_insert on public.seats;
+drop policy if exists seats_admin  on public.seats;
+create policy seats_read   on public.seats for select using (auth.uid() is not null);
+create policy seats_insert on public.seats for insert with check (auth.uid() is not null);
+create policy seats_admin  on public.seats for all
+  using (public.is_admin()) with check (public.is_admin());
 
-drop policy if exists "trips admin update" on public.trips;
-create policy "trips admin update"
-  on public.trips for update
-  to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
+-- admins: only admins may read the list
+drop policy if exists admins_read on public.admins;
+create policy admins_read on public.admins for select using (public.is_admin());
 
-drop policy if exists "trips admin delete" on public.trips;
-create policy "trips admin delete"
-  on public.trips for delete
-  to authenticated
-  using (public.is_admin());
-
--- bookings: anyone may create a booking; only admins may read/update/delete.
-drop policy if exists "bookings public insert" on public.bookings;
-create policy "bookings public insert"
-  on public.bookings for insert
-  to anon, authenticated
-  with check (
-    status = 'pending'
-    and length(trim(full_name)) > 1
-    and length(trim(phone)) >= 6
-  );
-
-drop policy if exists "bookings admin read" on public.bookings;
-create policy "bookings admin read"
-  on public.bookings for select
-  to authenticated
-  using (public.is_admin());
-
-drop policy if exists "bookings admin update" on public.bookings;
-create policy "bookings admin update"
-  on public.bookings for update
-  to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
-
-drop policy if exists "bookings admin delete" on public.bookings;
-create policy "bookings admin delete"
-  on public.bookings for delete
-  to authenticated
-  using (public.is_admin());
-
--- enquiries: anyone may submit; only admins may read/update.
-drop policy if exists "enquiries public insert" on public.enquiries;
-create policy "enquiries public insert"
-  on public.enquiries for insert
-  to anon, authenticated
-  with check (length(trim(name)) > 1 and length(trim(message)) > 2);
-
-drop policy if exists "enquiries admin read" on public.enquiries;
-create policy "enquiries admin read"
-  on public.enquiries for select
-  to authenticated
-  using (public.is_admin());
-
-drop policy if exists "enquiries admin update" on public.enquiries;
-create policy "enquiries admin update"
-  on public.enquiries for update
-  to authenticated
-  using (public.is_admin())
-  with check (public.is_admin());
-
--- ---------------------------------------------------------------
--- 8. Storage bucket for trip cover images
--- ---------------------------------------------------------------
+-- ----------------------------------------------------------------------------
+-- Storage — public bucket for trip photos
+-- ----------------------------------------------------------------------------
 insert into storage.buckets (id, name, public)
-values ('trip-images', 'trip-images', true)
+values ('trip-photos', 'trip-photos', true)
 on conflict (id) do nothing;
 
-drop policy if exists "trip images public read" on storage.objects;
-create policy "trip images public read"
-  on storage.objects for select
-  to anon, authenticated
-  using (bucket_id = 'trip-images');
+drop policy if exists trip_photos_read  on storage.objects;
+drop policy if exists trip_photos_write on storage.objects;
+create policy trip_photos_read on storage.objects for select
+  using (bucket_id = 'trip-photos');
+create policy trip_photos_write on storage.objects for all
+  using (bucket_id = 'trip-photos' and public.is_admin())
+  with check (bucket_id = 'trip-photos' and public.is_admin());
 
-drop policy if exists "trip images admin write" on storage.objects;
-create policy "trip images admin write"
-  on storage.objects for insert
-  to authenticated
-  with check (bucket_id = 'trip-images' and public.is_admin());
-
-drop policy if exists "trip images admin update" on storage.objects;
-create policy "trip images admin update"
-  on storage.objects for update
-  to authenticated
-  using (bucket_id = 'trip-images' and public.is_admin());
-
-drop policy if exists "trip images admin delete" on storage.objects;
-create policy "trip images admin delete"
-  on storage.objects for delete
-  to authenticated
-  using (bucket_id = 'trip-images' and public.is_admin());
-
--- ---------------------------------------------------------------
--- 9. Seed data (safe to re-run)
--- ---------------------------------------------------------------
-insert into public.trips
-  (slug, title, destination, summary, description, duration_days, price_per_person,
-   seats_total, departure_date, return_date, cover_image_url, highlights, itinerary)
-values
-  ('darjeeling-gangtok-5d', 'Darjeeling & Gangtok', 'West Bengal, Sikkim',
-   'Tea gardens, toy train and Kanchenjunga sunrise in one relaxed 5-day trip.',
-   'A classic Himalayan escape covering Darjeeling, Tiger Hill, Batasia Loop and the monasteries of Gangtok. Comfortable hotels, private vehicle and a local guide throughout.',
-   5, 12500, 24, current_date + 20, current_date + 24,
-   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=70',
-   array['Tiger Hill sunrise', 'Darjeeling Himalayan Railway', 'Tsomgo Lake', 'MG Marg, Gangtok'],
-   '[{"day":1,"title":"Arrival in Darjeeling","detail":"Pickup from NJP / Bagdogra and transfer to hotel."},{"day":2,"title":"Darjeeling sightseeing","detail":"Tiger Hill, Batasia Loop, Himalayan Zoo and tea estate."},{"day":3,"title":"Transfer to Gangtok","detail":"Scenic drive along the Teesta, evening at MG Marg."},{"day":4,"title":"Tsomgo Lake & Baba Mandir","detail":"Full-day excursion with permit assistance."},{"day":5,"title":"Departure","detail":"Drop at NJP / Bagdogra."}]'::jsonb),
-
-  ('digha-shankarpur-3d', 'Digha & Shankarpur Beach Break', 'Digha, West Bengal',
-   'Sea breeze, fresh seafood and a quiet beach weekend — perfect for families.',
-   'Three easy days on the Bay of Bengal coast with a sea-facing hotel, beach time at Digha and the quieter Shankarpur fishing harbour.',
-   3, 5400, 30, current_date + 12, current_date + 14,
-   'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=70',
-   array['Sea-facing stay', 'Shankarpur beach', 'Marine Aquarium', 'Local seafood'],
-   '[{"day":1,"title":"Arrival & beach evening","detail":"Check-in and sunset at New Digha beach."},{"day":2,"title":"Shankarpur & Talsari","detail":"Boat ride and red crab beach visit."},{"day":3,"title":"Departure","detail":"Breakfast and return transfer."}]'::jsonb),
-
-  ('puri-konark-4d', 'Puri & Konark Heritage', 'Puri, Odisha',
-   'Jagannath temple, Chandrabhaga beach and the Sun Temple of Konark.',
-   'A devotional and heritage circuit around Puri with comfortable stay, temple darshan assistance and a guided Konark visit.',
-   4, 8900, 26, current_date + 30, current_date + 33,
-   'https://images.unsplash.com/photo-1620766165457-a8025baa82e0?auto=format&fit=crop&w=1200&q=70',
-   array['Jagannath Temple darshan', 'Konark Sun Temple', 'Chandrabhaga beach', 'Chilika lagoon stop'],
-   '[{"day":1,"title":"Arrival in Puri","detail":"Check-in and evening aarti."},{"day":2,"title":"Puri & Chilika","detail":"Temple darshan and Chilika dolphin point."},{"day":3,"title":"Konark day trip","detail":"Sun Temple, Chandrabhaga and Ramachandi."},{"day":4,"title":"Departure","detail":"Return transfer to Bhubaneswar."}]'::jsonb),
-
-  ('meghalaya-6d', 'Meghalaya — Abode of Clouds', 'Shillong, Cherrapunji, Dawki',
-   'Living root bridges, crystal-clear Dawki river and the wettest place on earth.',
-   'Six days across Shillong, Cherrapunji and Dawki with waterfall stops, a root-bridge trek and a boat ride on the Umngot river.',
-   6, 21500, 18, current_date + 40, current_date + 45,
-   'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1200&q=70',
-   array['Double-decker root bridge', 'Dawki boat ride', 'Nohkalikai Falls', 'Mawlynnong village'],
-   '[{"day":1,"title":"Guwahati to Shillong","detail":"Umiam Lake stop and evening walk at Police Bazar."},{"day":2,"title":"Shillong local","detail":"Elephant Falls, Shillong Peak and Don Bosco museum."},{"day":3,"title":"Shillong to Cherrapunji","detail":"Nohkalikai and Seven Sisters falls."},{"day":4,"title":"Root bridge trek","detail":"Nongriat double-decker bridge trek."},{"day":5,"title":"Dawki & Mawlynnong","detail":"Umngot river boat ride and cleanest village."},{"day":6,"title":"Departure","detail":"Drive back to Guwahati."}]'::jsonb),
-
-  ('kashmir-7d', 'Kashmir Valley Grand Tour', 'Srinagar, Gulmarg, Pahalgam',
-   'Dal Lake houseboat, Gulmarg gondola and the meadows of Pahalgam.',
-   'A seven-day Kashmir itinerary with a Dal Lake shikara ride, one night on a houseboat, Gulmarg gondola and the Betaab valley in Pahalgam.',
-   7, 32500, 16, current_date + 55, current_date + 61,
-   'https://images.unsplash.com/photo-1566837945700-30057527ade0?auto=format&fit=crop&w=1200&q=70',
-   array['Dal Lake houseboat', 'Gulmarg gondola', 'Betaab Valley', 'Mughal gardens'],
-   '[{"day":1,"title":"Arrival in Srinagar","detail":"Airport pickup and houseboat check-in."},{"day":2,"title":"Srinagar local","detail":"Shikara ride, Nishat and Shalimar gardens."},{"day":3,"title":"Gulmarg","detail":"Gondola ride and meadow walk."},{"day":4,"title":"Gulmarg to Pahalgam","detail":"Drive via Awantipora."},{"day":5,"title":"Pahalgam valleys","detail":"Betaab, Aru and Chandanwari."},{"day":6,"title":"Pahalgam to Srinagar","detail":"Shopping and free evening."},{"day":7,"title":"Departure","detail":"Airport drop."}]'::jsonb),
-
-  ('andaman-6d', 'Andaman Islands Escape', 'Port Blair, Havelock, Neil Island',
-   'Turquoise water, Radhanagar beach and coral reefs — island hopping done right.',
-   'Six days across Port Blair, Havelock and Neil Island with ferry transfers, Cellular Jail light-and-sound show and snorkelling at Elephant Beach.',
-   6, 28900, 20, current_date + 65, current_date + 70,
-   'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=70',
-   array['Radhanagar Beach', 'Elephant Beach snorkelling', 'Cellular Jail show', 'Neil Island natural bridge'],
-   '[{"day":1,"title":"Arrival in Port Blair","detail":"Corbyn Cove and Cellular Jail show."},{"day":2,"title":"Ferry to Havelock","detail":"Radhanagar beach sunset."},{"day":3,"title":"Elephant Beach","detail":"Snorkelling and water sports."},{"day":4,"title":"Neil Island","detail":"Bharatpur beach and natural rock bridge."},{"day":5,"title":"Return to Port Blair","detail":"Ross Island and North Bay."},{"day":6,"title":"Departure","detail":"Airport drop."}]'::jsonb)
-on conflict (slug) do nothing;
-
--- ---------------------------------------------------------------
--- 10. Promote yourself to admin (run AFTER creating your auth user)
--- ---------------------------------------------------------------
--- insert into public.admins (user_id, email, full_name)
--- select id, email, 'Gouri Travels Admin'
--- from auth.users
--- where email = 'you@example.com'
--- on conflict (user_id) do nothing;
+-- ============================================================================
+-- Adding an admin
+-- ============================================================================
+-- 1. Supabase Dashboard → Authentication → Users → Add user (email + password)
+-- 2. Then run:
+--
+--      insert into admins (email) values ('you@example.com')
+--        on conflict (email) do nothing;
+--
+-- 3. Sign in at /admin/ with that email.
+-- ============================================================================
