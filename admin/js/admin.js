@@ -1,506 +1,525 @@
 /* ---------------------------------------------------------------
  * Gouri Travels — admin panel logic
- * Requires: @supabase/supabase-js v2, admin/js/config.js
+ *
+ * বিদ্যমান Supabase স্কিমা অনুযায়ী:
+ *   trips    : id, title, from_place, to_place, trip_date, trip_time,
+ *              price, boarding, details, thumb, photos[], seats, open,
+ *              created_at, kind, vehicle_name, cars, per_car
+ *   seats    : trip_id, label, status, name, phone, held_until, ticket, note
+ *   settings : key, value
+ *   admins   : email
+ *   rpc      : is_admin, hold_seats
+ *
+ * বুকিং = seats টেবিলের সারি (status: held / booked)
  * ------------------------------------------------------------- */
 (function () {
-  const cfg = window.GT_ADMIN_CONFIG || {};
-  const configured =
-    cfg.SUPABASE_URL &&
-    cfg.SUPABASE_ANON_KEY &&
-    !cfg.SUPABASE_URL.includes("your-project-ref") &&
-    !cfg.SUPABASE_ANON_KEY.includes("your-anon-public-key");
+  var cfg = window.GT_ADMIN_CONFIG || {};
+  var sb = null;
+  var S = { trips: [], seats: [], settings: {}, user: null, admin: false };
+  var currentTab = "bookings";
 
-  const client = configured
-    ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY)
-    : null;
-
-  /* ================= helpers ================= */
-  const $ = (sel, root) => (root || document).querySelector(sel);
-  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  function t(key, fallback) {
+    if (window.GT_I18N) return window.GT_I18N.t(key, fallback);
+    return fallback !== undefined ? fallback : key;
+  }
 
   function esc(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
   }
-  function inr(v) {
-    return "₹" + Number(v || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 });
+
+  function inr(n) {
+    return "\u20b9" + Number(n || 0).toLocaleString("en-IN");
   }
-  function dt(v) {
-    if (!v) return "—";
-    const d = new Date(v);
-    if (isNaN(d)) return v;
-    return d.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  function prettyDate(d) {
+    if (!d) return "\u2014";
+    var dt = new Date(d);
+    if (isNaN(dt.getTime())) return String(d);
+    return dt.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   }
-  function dOnly(v) {
-    if (!v) return "—";
-    const d = new Date(v + (String(v).length === 10 ? "T00:00:00" : ""));
-    if (isNaN(d)) return v;
-    return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+
+  function lines(s) {
+    return String(s == null ? "" : s).split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
   }
+
+  var KEYS = ["ov", "hl", "it", "inc", "exc", "pol", "meal", "cl", "days"];
+
+  function parseDetails(d) {
+    var o = { ov: "", hl: "", it: "", inc: "", exc: "", pol: "", meal: "", cl: "", days: "" };
+    if (!d) return o;
+    var p = String(d).split(/^##(ov|hl|it|inc|exc|pol|meal|cl|days)\s*$/m);
+    o.ov = (p[0] || "").trim();
+    for (var i = 1; i < p.length; i += 2) o[p[i]] = (p[i + 1] || "").trim();
+    return o;
+  }
+
+  function packDetails(o) {
+    return KEYS.map(function (k) { return "##" + k + "\n" + (o[k] || ""); }).join("\n");
+  }
+
   function toast(msg, type) {
-    let el = $("#admin-toast");
-    if (!el) {
-      el = document.createElement("div");
-      el.id = "admin-toast";
-      el.style.cssText =
-        "position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:#14201c;color:#fff;" +
-        "padding:12px 20px;border-radius:999px;font-size:.87rem;font-weight:550;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);" +
-        "opacity:0;pointer-events:none;transition:all .25s;z-index:300;max-width:calc(100vw - 40px);text-align:center";
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    el.style.background = type === "error" ? "#b23b3b" : type === "ok" ? "#0a4d3b" : "#14201c";
-    el.style.opacity = "1";
-    el.style.transform = "translate(-50%,0)";
-    clearTimeout(el._t);
-    el._t = setTimeout(() => {
-      el.style.opacity = "0";
-      el.style.transform = "translate(-50%,16px)";
-    }, 3600);
+    var d = document.createElement("div");
+    d.className = "gt-toast" + (type === "error" ? " gt-toast--err" : "");
+    d.textContent = msg;
+    document.body.appendChild(d);
+    setTimeout(function () { d.remove(); }, 2800);
   }
 
-  /* ================= demo mode =================
-   * Supabase কনফিগার করা না থাকলে অ্যাডমিন প্যানেল নমুনা ডেটা দিয়ে
-   * ড্যাশবোর্ড দেখায় (শুধু প্রিভিউ — কোনো ডেটা বদলায় না)।
-   * ============================================ */
-  const DEMO = {
-    trips: [
-      { id: "demo-1", title: "Darjeeling & Gangtok", slug: "darjeeling-gangtok-5d", destination: "West Bengal, Sikkim", duration_days: 5, price_per_person: 12500, seats_total: 24, seats_booked: 19, departure_date: "2026-12-01", is_active: true },
-      { id: "demo-2", title: "Digha & Shankarpur Beach Break", slug: "digha-shankarpur-3d", destination: "Digha, West Bengal", duration_days: 3, price_per_person: 5400, seats_total: 30, seats_booked: 22, departure_date: "2026-11-23", is_active: true },
-      { id: "demo-3", title: "Puri & Konark Heritage", slug: "puri-konark-4d", destination: "Puri, Odisha", duration_days: 4, price_per_person: 8900, seats_total: 26, seats_booked: 14, departure_date: "2026-12-11", is_active: true },
-      { id: "demo-4", title: "Meghalaya — Abode of Clouds", slug: "meghalaya-6d", destination: "Shillong, Cherrapunji, Dawki", duration_days: 6, price_per_person: 21500, seats_total: 18, seats_booked: 11, departure_date: "2026-12-21", is_active: true },
-      { id: "demo-5", title: "Kashmir Valley Grand Tour", slug: "kashmir-7d", destination: "Srinagar, Gulmarg, Pahalgam", duration_days: 7, price_per_person: 32500, seats_total: 16, seats_booked: 9, departure_date: "2027-01-05", is_active: true },
-      { id: "demo-6", title: "Andaman Islands Escape", slug: "andaman-6d", destination: "Port Blair, Havelock", duration_days: 6, price_per_person: 28900, seats_total: 20, seats_booked: 13, departure_date: "2027-01-15", is_active: true },
-    ],
-    bookings: [
-      { id: "b1", booking_code: "GT-2401", full_name: "Suman Mondal", phone: "+91 98300 11223", email: "suman@example.com", travellers: 4, travel_date: "2026-12-01", pickup_point: "Shiyalda Station", total_amount: 50000, status: "confirmed", created_at: "2026-11-09T10:20:00Z", trips: { title: "Darjeeling & Gangtok", slug: "darjeeling-gangtok-5d" } },
-      { id: "b2", booking_code: "GT-2402", full_name: "Priya Das", phone: "+91 90070 44556", email: "priya@example.com", travellers: 2, travel_date: "2026-11-23", pickup_point: "Bandel", total_amount: 10800, status: "pending", created_at: "2026-11-10T14:05:00Z", trips: { title: "Digha & Shankarpur Beach Break", slug: "digha-shankarpur-3d" } },
-      { id: "b3", booking_code: "GT-2403", full_name: "Arindam Bose", phone: "+91 98311 77889", email: null, travellers: 6, travel_date: "2026-12-21", pickup_point: "Howrah", total_amount: 129000, status: "pending", created_at: "2026-11-11T06:40:00Z", trips: { title: "Meghalaya — Abode of Clouds", slug: "meghalaya-6d" } },
-      { id: "b4", booking_code: "GT-2404", full_name: "Rina Ghosh", phone: "+91 90730 22110", email: "rina@example.com", travellers: 3, travel_date: "2026-12-11", pickup_point: "Bandel", total_amount: 26700, status: "completed", created_at: "2026-11-05T09:15:00Z", trips: { title: "Puri & Konark Heritage", slug: "puri-konark-4d" } },
-    ],
-    enquiries: [
-      { id: "e1", name: "Sayan Ghosh", phone: "+91 90000 12345", email: "sayan@example.com", message: "কাশ্মীর ট্রিপে ডিসেম্বরের শেষে সিট আছে কি? ৪ জনের জন্য খরচ জানতে চাই।", is_read: false, created_at: "2026-11-11T05:30:00Z" },
-      { id: "e2", name: "Moumita Sen", phone: "+91 98300 99887", email: null, message: "আন্দামান প্যাকেজে স্কুবা ডাইভিং কি অন্তর্ভুক্ত?", is_read: true, created_at: "2026-11-10T11:00:00Z" },
-    ],
-  };
+  function $(id) { return document.getElementById(id); }
 
-  function demoBanner() {
-    return (
-      '<div class="alert alert--warn"><strong>🔧 ডেমো মোড — শুধু প্রিভিউ।</strong><br>' +
-      "Supabase কনফিগার করা হয়নি, তাই নমুনা ডেটা দেখানো হচ্ছে এবং কোনো পরিবর্তন সেভ হবে না। " +
-      "<code>admin/js/config.js</code>-এ Project URL ও anon key বসালেই আসল ডেটা চালু হবে।</div>"
-    );
-  }
-
-  /* ================= auth ================= */
-  async function requireSession() {
-    if (!client) {
-      return { demo: true, user: { email: "demo@gouritravels.in" } };
-    }
-    const { data } = await client.auth.getSession();
-    if (!data.session) {
-      location.replace("index.html");
-      throw new Error("no session");
-    }
-    return data.session;
+  /* ---------------- auth ---------------- */
+  async function initClient() {
+    if (!window.supabase) throw new Error("supabase-js not loaded");
+    sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+    });
+    window.gtAdminClient = sb;
   }
 
   async function isAdmin() {
-    const { data, error } = await client.rpc("is_admin");
-    if (error) return false;
-    return data === true;
+    if (!sb) return false;
+    try {
+      var r = await sb.rpc("is_admin");
+      return r.data === true;
+    } catch (e) {
+      return false;
+    }
   }
 
-  async function logout() {
-    if (client) await client.auth.signOut();
-    location.replace("index.html");
-  }
+  /* ---------------- login page ---------------- */
+  async function bootLogin() {
+    await initClient();
+    var form = $("login-form");
+    var alertBox = $("login-alert");
+    var btn = $("login-btn");
+    var gbtn = $("google-btn");
 
-  /* ================= login page ================= */
-  function initLogin() {
-    const form = $("#login-form");
-    if (!form) return;
-    const alertBox = $("#login-alert");
-    const btn = $("#login-btn");
-
-    if (!client) {
-      alertBox.innerHTML = demoBanner();
-      btn.textContent = "ডেমো ড্যাশবোর্ড দেখুন";
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        location.href = "dashboard.html";
-      });
-      return;
+    var ses = (await sb.auth.getSession()).data.session;
+    if (ses && ses.user) {
+      if (await isAdmin()) { location.href = "dashboard.html"; return; }
+      alertBox.innerHTML =
+        '<div class="alert alert--warn"><strong>' + t("adm.notAdmin") + "</strong>" + t("adm.notAdminMsg") + "</div>";
     }
 
-    client.auth.getSession().then(({ data }) => {
-      if (data.session) location.replace("dashboard.html");
-    });
+    if (gbtn) {
+      gbtn.addEventListener("click", async function () {
+        var r = await sb.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+            redirectTo: location.origin + location.pathname.replace(/index\.html$/, "") + "dashboard.html",
+          },
+        });
+        if (r.error) alertBox.innerHTML = '<div class="alert alert--err">' + esc(r.error.message) + "</div>";
+      });
+    }
 
-    form.addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
       alertBox.innerHTML = "";
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> লগইন হচ্ছে…';
-
-      const { error } = await client.auth.signInWithPassword({
+      var old = btn.textContent;
+      btn.textContent = t("adm.loading");
+      var r = await sb.auth.signInWithPassword({
         email: form.email.value.trim(),
         password: form.password.value,
       });
-
       btn.disabled = false;
-      btn.textContent = "লগইন";
-
-      if (error) {
-        alertBox.innerHTML = '<div class="alert alert--error">' + esc(error.message) + '</div>';
+      btn.textContent = old;
+      if (r.error) {
+        alertBox.innerHTML = '<div class="alert alert--err">' + esc(r.error.message) + "</div>";
         return;
       }
-      location.replace("dashboard.html");
+      if (!(await isAdmin())) {
+        alertBox.innerHTML =
+          '<div class="alert alert--warn"><strong>' + t("adm.notAdmin") + "</strong>" + t("adm.notAdminMsg") + "</div>";
+        await sb.auth.signOut();
+        return;
+      }
+      location.href = "dashboard.html";
     });
   }
 
-  /* ================= dashboard ================= */
-  const state = { bookings: [], trips: [], enquiries: [], tab: "bookings" };
-
-  async function loadAll() {
-    if (!client) {
-      state.bookings = DEMO.bookings.slice();
-      state.trips = DEMO.trips.slice();
-      state.enquiries = DEMO.enquiries.slice();
-      return;
-    }
-    const [b, t, e] = await Promise.all([
-      client.from("bookings").select("*, trips(title, slug)").order("created_at", { ascending: false }),
-      client.from("trips").select("*").order("created_at", { ascending: false }),
-      client.from("enquiries").select("*").order("created_at", { ascending: false }),
-    ]);
-    if (b.error) throw b.error;
-    if (t.error) throw t.error;
-    if (e.error) throw e.error;
-    state.bookings = b.data || [];
-    state.trips = t.data || [];
-    state.enquiries = e.data || [];
-  }
-
-  function renderStats() {
-    const pending = state.bookings.filter((x) => x.status === "pending").length;
-    const confirmed = state.bookings.filter((x) => x.status === "confirmed").length;
-    const revenue = state.bookings
-      .filter((x) => x.status === "confirmed" || x.status === "completed")
-      .reduce((s, x) => s + Number(x.total_amount || 0), 0);
-    const unread = state.enquiries.filter((x) => !x.is_read).length;
-
-    $("#stat-bookings").textContent = state.bookings.length;
-    $("#stat-pending").textContent = pending;
-    $("#stat-confirmed").textContent = confirmed;
-    $("#stat-revenue").textContent = inr(revenue);
-    $("#stat-trips").textContent = state.trips.length;
-    $("#stat-enquiries").textContent = unread;
-  }
-
-  function statusBadge(s) {
-    return '<span class="badge badge--' + esc(s) + '">' + esc(s) + "</span>";
-  }
-
-  function renderBookings() {
-    const q = ($("#booking-search") || {}).value || "";
-    const filter = ($("#booking-status") || {}).value || "all";
-    let rows = state.bookings.slice();
-    if (filter !== "all") rows = rows.filter((r) => r.status === filter);
-    if (q) {
-      const s = q.toLowerCase();
-      rows = rows.filter((r) =>
-        [r.booking_code, r.full_name, r.phone, r.email, r.trips && r.trips.title]
-          .filter(Boolean).join(" ").toLowerCase().includes(s)
-      );
-    }
-
-    const body = $("#bookings-body");
-    if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="7"><div class="empty"><strong>কোনো বুকিং নেই</strong>নতুন বুকিং এলে এখানে দেখাবে।</div></td></tr>';
+  /* ---------------- dashboard ---------------- */
+  async function bootDashboard() {
+    await initClient();
+    var ses = (await sb.auth.getSession()).data.session;
+    if (!ses || !ses.user) { location.href = "index.html"; return; }
+    S.user = ses.user;
+    S.admin = await isAdmin();
+    if (!S.admin) {
+      var w = $("admin-warning");
+      w.className = "alert alert--warn";
+      w.innerHTML = "<strong>" + t("adm.needAdmin") + "</strong>" + t("adm.needAdminMsg");
       return;
     }
 
-    body.innerHTML = rows.map((r) => `
-      <tr>
-        <td><span class="code">${esc(r.booking_code)}</span><span class="sub">${dt(r.created_at)}</span></td>
-        <td><strong>${esc(r.full_name)}</strong><span class="sub">${esc(r.phone)}${r.email ? " · " + esc(r.email) : ""}</span></td>
-        <td>${esc((r.trips && r.trips.title) || "—")}<span class="sub">${dOnly(r.travel_date)}</span></td>
-        <td>${r.travellers}<span class="sub">${r.pickup_point ? esc(r.pickup_point) : "—"}</span></td>
-        <td>${r.total_amount != null ? inr(r.total_amount) : "—"}</td>
-        <td>${statusBadge(r.status)}</td>
-        <td>
-          <div class="btn-row">
-            ${r.status !== "confirmed" ? `<button class="btn btn--sm" data-act="confirm" data-id="${r.id}">Confirm</button>` : ""}
-            ${r.status !== "cancelled" ? `<button class="btn btn--sm btn--ghost" data-act="cancel" data-id="${r.id}">Cancel</button>` : ""}
-            <button class="btn btn--sm btn--ghost" data-act="view" data-id="${r.id}">View</button>
-          </div>
-        </td>
-      </tr>`).join("");
-  }
+    $("admin-email").textContent = S.user.email || "";
 
-  function renderTrips() {
-    const body = $("#trips-body");
-    if (!state.trips.length) {
-      body.innerHTML = '<tr><td colspan="6"><div class="empty"><strong>কোনো ট্রিপ নেই</strong>“নতুন ট্রিপ” বাটনে ক্লিক করে যোগ করুন।</div></td></tr>';
-      return;
-    }
-    body.innerHTML = state.trips.map((t) => `
-      <tr>
-        <td><strong>${esc(t.title)}</strong><span class="sub">${esc(t.slug)}</span></td>
-        <td>${esc(t.destination)}</td>
-        <td>${t.duration_days} দিন</td>
-        <td>${inr(t.price_per_person)}</td>
-        <td>${t.seats_booked}/${t.seats_total}<span class="sub">${dOnly(t.departure_date)}</span></td>
-        <td><span class="badge badge--${t.is_active ? "active" : "inactive"}">${t.is_active ? "active" : "hidden"}</span></td>
-        <td>
-          <div class="btn-row">
-            <button class="btn btn--sm btn--ghost" data-trip-edit="${t.id}">Edit</button>
-            <button class="btn btn--sm btn--ghost" data-trip-toggle="${t.id}">${t.is_active ? "Hide" : "Show"}</button>
-            <button class="btn btn--sm btn--danger" data-trip-del="${t.id}">Delete</button>
-          </div>
-        </td>
-      </tr>`).join("");
-  }
+    $("logout-btn").addEventListener("click", async function () {
+      await sb.auth.signOut();
+      location.href = "index.html";
+    });
+    $("refresh-btn").addEventListener("click", function () { reload(); });
+    $("new-trip-btn").addEventListener("click", function () { openTripModal(null); });
 
-  function renderEnquiries() {
-    const body = $("#enquiries-body");
-    if (!state.enquiries.length) {
-      body.innerHTML = '<tr><td colspan="5"><div class="empty"><strong>কোনো মেসেজ নেই</strong>কন্টাক্ট ফর্ম থেকে আসা মেসেজ এখানে দেখাবে।</div></td></tr>';
-      return;
-    }
-    body.innerHTML = state.enquiries.map((e) => `
-      <tr style="${e.is_read ? "" : "background:#fbfdfc"}">
-        <td><strong>${esc(e.name)}</strong>${e.is_read ? "" : ' <span class="badge badge--pending">new</span>'}<span class="sub">${dt(e.created_at)}</span></td>
-        <td>${esc(e.phone)}<span class="sub">${e.email ? esc(e.email) : "—"}</span></td>
-        <td style="max-width:380px">${esc(e.message)}</td>
-        <td>${e.is_read ? '<span class="badge badge--inactive">read</span>' : '<span class="badge badge--pending">unread</span>'}</td>
-        <td><button class="btn btn--sm btn--ghost" data-enq-read="${e.id}">${e.is_read ? "Mark unread" : "Mark read"}</button></td>
-      </tr>`).join("");
+    document.querySelectorAll("[data-tab]").forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        switchTab(a.getAttribute("data-tab"));
+      });
+    });
+
+    $("booking-search").addEventListener("input", renderBookings);
+    $("booking-status").addEventListener("change", renderBookings);
+
+    document.querySelectorAll("[data-modal-close]").forEach(function (b) {
+      b.addEventListener("click", function () { closeModal(); });
+    });
+    $("modal").addEventListener("click", function (e) {
+      if (e.target === $("modal")) closeModal();
+    });
+
+    document.addEventListener("gt:langchange", function () { renderAll(); });
+
+    await reload();
   }
 
   function switchTab(tab) {
-    state.tab = tab;
-    $$("[data-tab]").forEach((a) => a.classList.toggle("is-active", a.dataset.tab === tab));
-    $$("[data-pane]").forEach((p) => p.classList.toggle("hidden", p.dataset.pane !== tab));
-    if (tab === "bookings") renderBookings();
-    if (tab === "trips") renderTrips();
-    if (tab === "enquiries") renderEnquiries();
+    currentTab = tab;
+    document.querySelectorAll("[data-tab]").forEach(function (a) {
+      a.classList.toggle("is-active", a.getAttribute("data-tab") === tab);
+    });
+    document.querySelectorAll("[data-pane]").forEach(function (p) {
+      p.classList.toggle("hidden", p.getAttribute("data-pane") !== tab);
+    });
   }
 
-  /* ---------- booking actions ---------- */
-  async function setBookingStatus(id, status) {
-    if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
-    const { error } = await client.from("bookings").update({ status }).eq("id", id);
-    if (error) return toast(error.message, "error");
-    const row = state.bookings.find((b) => b.id === id);
-    if (row) row.status = status;
+  async function reload() {
+    try {
+      var res = await Promise.all([
+        sb.from("trips").select("*").order("created_at", { ascending: false }),
+        sb.from("seats").select("*"),
+        sb.from("settings").select("*"),
+      ]);
+      var err = res[0].error || res[1].error || res[2].error;
+      if (err) throw err;
+      S.trips = res[0].data || [];
+      S.seats = res[1].data || [];
+      S.settings = {};
+      (res[2].data || []).forEach(function (r) { S.settings[r.key] = r.value; });
+      renderAll();
+    } catch (e) {
+      toast(t("adm.errLoad") + ": " + e.message, "error");
+    }
+  }
+
+  function renderAll() {
     renderStats();
     renderBookings();
-    toast("বুকিং " + status, "ok");
+    renderTrips();
+    renderSettings();
   }
 
-  function viewBooking(id) {
-    const r = state.bookings.find((b) => b.id === id);
-    if (!r) return;
-    const rows = [
-      ["বুকিং কোড", r.booking_code],
-      ["নাম", r.full_name],
-      ["ফোন", r.phone],
-      ["ইমেইল", r.email || "—"],
-      ["ট্রিপ", (r.trips && r.trips.title) || "—"],
-      ["যাত্রার তারিখ", dOnly(r.travel_date)],
-      ["যাত্রী", r.travellers],
-      ["পিকআপ", r.pickup_point || "—"],
-      ["মোট", r.total_amount != null ? inr(r.total_amount) : "—"],
-      ["স্টেটাস", r.status],
-      ["নোট", r.notes || "—"],
-      ["তৈরি", dt(r.created_at)],
-    ];
-    $("#modal-title").textContent = "বুকিং " + r.booking_code;
-    $("#modal-body").innerHTML =
-      '<table style="font-size:.9rem">' +
-      rows.map(([k, v]) => '<tr><th style="width:38%;background:none;text-transform:none;font-size:.82rem;letter-spacing:0;color:#7b8a84">' + esc(k) + '</th><td>' + esc(v) + '</td></tr>').join("") +
-      "</table>";
-    $("#modal-foot").innerHTML = '<button class="btn btn--ghost" data-modal-close>বন্ধ করুন</button>';
-    $("#modal").classList.add("is-open");
+  function tripById(id) {
+    return S.trips.filter(function (x) { return x.id === id; })[0] || null;
   }
 
-  /* ---------- trip form ---------- */
-  function openTripForm(trip) {
-    const t = trip || {};
-    $("#modal-title").textContent = trip ? "ট্রিপ এডিট" : "নতুন ট্রিপ";
-    $("#modal-body").innerHTML = `
-      <form id="trip-form">
-        <input type="hidden" name="id" value="${esc(t.id || "")}" />
-        <div class="field-row">
-          <div class="field"><label>টাইটেল *</label><input name="title" required value="${esc(t.title || "")}" /></div>
-          <div class="field"><label>স্লাগ *</label><input name="slug" required value="${esc(t.slug || "")}" placeholder="darjeeling-5d" /></div>
-        </div>
-        <div class="field-row">
-          <div class="field"><label>গন্তব্য *</label><input name="destination" required value="${esc(t.destination || "")}" /></div>
-          <div class="field"><label>কভার ইমেজ URL</label><input name="cover_image_url" value="${esc(t.cover_image_url || "")}" placeholder="https://…" /></div>
-        </div>
-        <div class="field"><label>সংক্ষিপ্ত বর্ণনা</label><input name="summary" value="${esc(t.summary || "")}" /></div>
-        <div class="field"><label>বিস্তারিত</label><textarea name="description">${esc(t.description || "")}</textarea></div>
-        <div class="field-row field-row--3">
-          <div class="field"><label>দিন *</label><input name="duration_days" type="number" min="1" required value="${t.duration_days || 1}" /></div>
-          <div class="field"><label>দাম / জন *</label><input name="price_per_person" type="number" min="0" step="1" required value="${t.price_per_person || 0}" /></div>
-          <div class="field"><label>মোট সিট *</label><input name="seats_total" type="number" min="0" required value="${t.seats_total || 20}" /></div>
-        </div>
-        <div class="field-row field-row--3">
-          <div class="field"><label>ডিপার্চার</label><input name="departure_date" type="date" value="${esc(t.departure_date || "")}" /></div>
-          <div class="field"><label>রিটার্ন</label><input name="return_date" type="date" value="${esc(t.return_date || "")}" /></div>
-          <div class="field"><label>বুকড সিট</label><input name="seats_booked" type="number" min="0" value="${t.seats_booked || 0}" /></div>
-        </div>
-        <div class="field"><label>হাইলাইটস (কমা দিয়ে আলাদা)</label><input name="highlights" value="${esc((t.highlights || []).join(", "))}" /></div>
-        <div class="field"><label>অ্যাক্টিভ</label><select name="is_active"><option value="true"${t.is_active !== false ? " selected" : ""}>হ্যাঁ</option><option value="false"${t.is_active === false ? " selected" : ""}>না</option></select></div>
-      </form>`;
-    $("#modal-foot").innerHTML =
-      '<button class="btn btn--ghost" data-modal-close>বাতিল</button>' +
-      '<button class="btn" id="trip-save">সেভ করুন</button>';
-    $("#modal").classList.add("is-open");
-
-    $("#trip-save").addEventListener("click", async () => {
-      if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
-      const f = $("#trip-form");
-      if (!f.reportValidity()) return;
-      const btn = $("#trip-save");
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> সেভ হচ্ছে…';
-
-      const payload = {
-        title: f.title.value.trim(),
-        slug: f.slug.value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, ""),
-        destination: f.destination.value.trim(),
-        summary: f.summary.value.trim() || null,
-        description: f.description.value.trim() || null,
-        duration_days: Number(f.duration_days.value) || 1,
-        price_per_person: Number(f.price_per_person.value) || 0,
-        seats_total: Number(f.seats_total.value) || 0,
-        seats_booked: Number(f.seats_booked.value) || 0,
-        departure_date: f.departure_date.value || null,
-        return_date: f.return_date.value || null,
-        cover_image_url: f.cover_image_url.value.trim() || null,
-        highlights: f.highlights.value.split(",").map((s) => s.trim()).filter(Boolean),
-        is_active: f.is_active.value === "true",
-      };
-
-      const id = f.id.value;
-      const res = id
-        ? await client.from("trips").update(payload).eq("id", id)
-        : await client.from("trips").insert(payload);
-
-      btn.disabled = false;
-      btn.textContent = "সেভ করুন";
-
-      if (res.error) return toast(res.error.message, "error");
-      closeModal();
-      await refresh();
-      toast("ট্রিপ সেভ হয়েছে", "ok");
+  function renderStats() {
+    var held = S.seats.filter(function (s) { return s.status === "held"; });
+    var booked = S.seats.filter(function (s) { return s.status === "booked"; });
+    var revenue = 0;
+    booked.forEach(function (s) {
+      var tr = tripById(s.trip_id);
+      if (tr) revenue += Number(tr.price || 0);
     });
+    $("stat-bookings").textContent = S.seats.length;
+    $("stat-pending").textContent = held.length;
+    $("stat-confirmed").textContent = booked.length;
+    $("stat-revenue").textContent = inr(revenue);
+    $("stat-trips").textContent = S.trips.filter(function (x) { return x.open; }).length;
+    $("stat-total-trips").textContent = S.trips.length;
+  }
+
+  function renderBookings() {
+    var body = $("bookings-body");
+    if (!body) return;
+    var q = ($("booking-search").value || "").toLowerCase();
+    var st = $("booking-status").value;
+
+    var rows = S.seats.slice().sort(function (a, b) {
+      return String(b.created_at || "").localeCompare(String(a.created_at || ""));
+    });
+
+    if (st !== "all") rows = rows.filter(function (r) { return r.status === st; });
+    if (q) {
+      rows = rows.filter(function (r) {
+        return (
+          String(r.ticket || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.name || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.phone || "").toLowerCase().indexOf(q) !== -1 ||
+          String(r.label || "").toLowerCase().indexOf(q) !== -1
+        );
+      });
+    }
+
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="7" class="muted">' + t("adm.noBookings") + "</td></tr>";
+      return;
+    }
+
+    body.innerHTML = rows.map(function (r) {
+      var tr = tripById(r.trip_id);
+      var title = tr ? tr.title : "\u2014";
+      var price = tr ? Number(tr.price || 0) : 0;
+      var badge = r.status === "booked"
+        ? '<span class="tag tag--ok">' + t("adm.booked") + "</span>"
+        : '<span class="tag tag--warn">' + t("adm.held") + "</span>";
+      var actions = r.status === "booked"
+        ? '<button class="btn btn--ghost btn--xs" data-act="cancel" data-id="' + r.id + '">' + t("adm.cancel") + "</button>"
+        : '<button class="btn btn--xs" data-act="confirm" data-id="' + r.id + '">' + t("adm.confirm") + "</button>" +
+          ' <button class="btn btn--ghost btn--xs" data-act="cancel" data-id="' + r.id + '">' + t("adm.cancel") + "</button>";
+      return (
+        "<tr>" +
+        "<td><code>" + esc(r.ticket || "\u2014") + "</code></td>" +
+        "<td>" + esc(r.name || "\u2014") + '<br><span class="muted">' + esc(r.phone || "") + "</span></td>" +
+        "<td>" + esc(title) + '<br><span class="muted">' + esc(r.label || "") + "</span></td>" +
+        "<td>1</td>" +
+        "<td>" + inr(price) + "</td>" +
+        "<td>" + badge + "</td>" +
+        "<td>" + actions + "</td>" +
+        "</tr>"
+      );
+    }).join("");
+
+    body.querySelectorAll("[data-act]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-id");
+        if (b.getAttribute("data-act") === "confirm") confirmSeat(id);
+        else cancelSeat(id);
+      });
+    });
+  }
+
+  async function confirmSeat(id) {
+    var code = "GT-" + Math.random().toString(36).slice(2, 10).toUpperCase();
+    var r = await sb.from("seats").update({ status: "booked", ticket: code, held_until: null }).eq("id", id);
+    if (r.error) { toast(t("adm.errSave") + ": " + r.error.message, "error"); return; }
+    toast(t("adm.confirmedOk"));
+    await reload();
+  }
+
+  async function cancelSeat(id) {
+    var r = await sb.from("seats").delete().eq("id", id);
+    if (r.error) { toast(t("adm.errDel") + ": " + r.error.message, "error"); return; }
+    toast(t("adm.cancelledOk"));
+    await reload();
+  }
+
+  function renderTrips() {
+    var body = $("trips-body");
+    if (!body) return;
+    if (!S.trips.length) {
+      body.innerHTML = '<tr><td colspan="7" class="muted">' + t("adm.noTrips") + "</td></tr>";
+      return;
+    }
+    body.innerHTML = S.trips.map(function (tr) {
+      var booked = S.seats.filter(function (s) { return s.trip_id === tr.id && s.status === "booked"; }).length;
+      var held = S.seats.filter(function (s) { return s.trip_id === tr.id && s.status === "held"; }).length;
+      return (
+        "<tr>" +
+        "<td><strong>" + esc(tr.title) + '</strong><br><span class="muted">' + esc(tr.from_place || "") + " \u2192 " + esc(tr.to_place || "") + "</span></td>" +
+        "<td>" + esc(tr.to_place || "\u2014") + "</td>" +
+        "<td>" + prettyDate(tr.trip_date) + "</td>" +
+        "<td>" + inr(tr.price) + "</td>" +
+        "<td>" + booked + " / " + (tr.seats || 0) + (held ? ' <span class="tag tag--warn">+' + held + "</span>" : "") + "</td>" +
+        "<td>" + (tr.open ? '<span class="tag tag--ok">' + t("trip.open") + "</span>" : '<span class="tag">' + t("trip.soon") + "</span>") + "</td>" +
+        "<td>" +
+        '<button class="btn btn--ghost btn--xs" data-trip-edit="' + tr.id + '">' + t("adm.edit") + "</button> " +
+        '<button class="btn btn--ghost btn--xs" data-trip-toggle="' + tr.id + '">' + (tr.open ? t("adm.hide") : t("adm.show")) + "</button> " +
+        '<button class="btn btn--ghost btn--xs" data-trip-del="' + tr.id + '">' + t("adm.delete") + "</button>" +
+        "</td></tr>"
+      );
+    }).join("");
+
+    body.querySelectorAll("[data-trip-edit]").forEach(function (b) {
+      b.addEventListener("click", function () { openTripModal(b.getAttribute("data-trip-edit")); });
+    });
+    body.querySelectorAll("[data-trip-toggle]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        var tr = tripById(b.getAttribute("data-trip-toggle"));
+        if (!tr) return;
+        var r = await sb.from("trips").update({ open: !tr.open }).eq("id", tr.id);
+        if (r.error) { toast(t("adm.errSave"), "error"); return; }
+        await reload();
+      });
+    });
+    body.querySelectorAll("[data-trip-del]").forEach(function (b) {
+      b.addEventListener("click", async function () {
+        if (!confirm(t("adm.delConfirm") + " " + t("adm.areYouSure"))) return;
+        var r = await sb.from("trips").delete().eq("id", b.getAttribute("data-trip-del"));
+        if (r.error) { toast(t("adm.errDel") + ": " + r.error.message, "error"); return; }
+        toast(t("adm.tripDeleted"));
+        await reload();
+      });
+    });
+  }
+
+  /* ---------------- trip modal ---------------- */
+  function openTripModal(id) {
+    var tr = id ? tripById(id) : null;
+    var d = parseDetails(tr ? tr.details : "");
+    $("modal-title").textContent = tr ? t("adm.editTripTitle") : t("adm.newTripTitle");
+
+    $("modal-body").innerHTML =
+      '<div class="form-grid">' +
+      field("f-title", t("adm.title"), tr ? tr.title : "", "text", true) +
+      field("f-from", t("adm.from"), tr ? tr.from_place : "", "text") +
+      field("f-to", t("adm.to"), tr ? tr.to_place : "", "text") +
+      field("f-date", t("adm.date"), tr ? tr.trip_date : "", "date") +
+      field("f-time", t("adm.time"), tr ? tr.trip_time : "", "text") +
+      field("f-price", t("adm.price"), tr ? tr.price : "", "number") +
+      field("f-seats", t("adm.seats"), tr ? tr.seats : 40, "number") +
+      field("f-boarding", t("adm.boarding"), tr ? tr.boarding : "", "text") +
+      '<div class="field"><label>' + t("adm.kind") + "</label><select id=\"f-kind\">" +
+      ["bus", "train", "scorpio"].map(function (k) {
+        return '<option value="' + k + '"' + ((tr && tr.kind === k) || (!tr && k === "bus") ? " selected" : "") + ">" + t("adm." + k) + "</option>";
+      }).join("") +
+      "</select></div>" +
+      field("f-vehicle", t("adm.vehicle"), tr ? tr.vehicle_name : "", "text") +
+      field("f-cars", t("adm.cars"), tr && tr.cars ? tr.cars : 1, "number") +
+      field("f-percar", t("adm.perCar"), tr && tr.per_car ? tr.per_car : 7, "number") +
+      field("f-thumb", t("adm.cover"), tr ? tr.thumb : "", "text") +
+      '<div class="field field--full"><label>' + t("adm.gallery") + '</label><textarea id="f-photos" rows="3">' + esc(tr && tr.photos ? tr.photos.join("\n") : "") + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.overview") + '</label><textarea id="f-ov" rows="3">' + esc(d.ov) + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.highlights") + '</label><textarea id="f-hl" rows="4">' + esc(d.hl) + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.included") + '</label><textarea id="f-inc" rows="3">' + esc(d.inc) + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.excluded") + '</label><textarea id="f-exc" rows="3">' + esc(d.exc) + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.policy") + '</label><textarea id="f-pol" rows="3">' + esc(d.pol) + "</textarea></div>" +
+      '<div class="field field--full"><label>' + t("adm.bookingCloses") + '</label><input id="f-cl" type="text" value="' + esc(d.cl) + '" placeholder="2026-11-25 18:00" /></div>' +
+      "</div>";
+
+    $("modal-foot").innerHTML =
+      '<button class="btn btn--ghost" data-modal-close>' + t("adm.close") + "</button>" +
+      '<button class="btn" id="save-trip">' + t("adm.save") + "</button>";
+
+    $("modal").classList.add("is-open");
+    $("modal-foot").querySelectorAll("[data-modal-close]").forEach(function (b) {
+      b.addEventListener("click", closeModal);
+    });
+    $("save-trip").addEventListener("click", function () { saveTrip(tr); });
+  }
+
+  function field(id, label, value, type, required) {
+    return (
+      '<div class="field"><label for="' + id + '">' + label + (required ? " *" : "") + "</label>" +
+      '<input id="' + id + '" type="' + type + '" value="' + esc(value == null ? "" : value) + '" /></div>'
+    );
   }
 
   function closeModal() {
-    $("#modal").classList.remove("is-open");
+    $("modal").classList.remove("is-open");
   }
 
-  /* ---------- dashboard init ---------- */
-  async function initDashboard() {
-    const session = await requireSession();
+  async function saveTrip(existing) {
+    var title = $("f-title").value.trim();
+    if (!title) { toast(t("adm.errTitle"), "error"); return; }
 
-    $("#admin-email").textContent = session.user.email || "admin";
+    var prev = existing ? parseDetails(existing.details) : { it: "", meal: "", days: "[]" };
 
-    if (session.demo) {
-      $("#admin-warning").innerHTML = demoBanner();
-      $("#admin-warning").classList.remove("hidden");
-    }
-
-    const admin = session.demo ? true : await isAdmin();
-
-    if (!admin) {
-      $("#admin-warning").innerHTML =
-        '<div class="alert alert--warn"><strong>এই অ্যাকাউন্টটি অ্যাডমিন নয়।</strong><br>' +
-        "Supabase SQL Editor-এ চালান:<br><code>insert into public.admins (user_id, email) values ('" +
-        esc(session.user.id) + "', '" + esc(session.user.email || "") + "');</code></div>";
-      $("#admin-warning").classList.remove("hidden");
-    }
-
-    async function refresh() {
-      try {
-        await loadAll();
-        renderStats();
-        switchTab(state.tab);
-      } catch (err) {
-        toast(err.message, "error");
-      }
-    }
-
-    await refresh();
-
-    $$("[data-tab]").forEach((a) =>
-      a.addEventListener("click", (e) => { e.preventDefault(); switchTab(a.dataset.tab); })
-    );
-    $("#logout-btn").addEventListener("click", logout);
-    $("#refresh-btn").addEventListener("click", refresh);
-    $("#new-trip-btn").addEventListener("click", () => openTripForm(null));
-
-    const bs = $("#booking-search");
-    const bf = $("#booking-status");
-    if (bs) bs.addEventListener("input", renderBookings);
-    if (bf) bf.addEventListener("change", renderBookings);
-
-    document.addEventListener("click", async (e) => {
-      const t = e.target.closest("button");
-      if (!t) return;
-
-      if (t.hasAttribute("data-modal-close")) return closeModal();
-      if (t.id === "modal") return closeModal();
-
-      if (t.dataset.act === "confirm") return setBookingStatus(t.dataset.id, "confirmed");
-      if (t.dataset.act === "cancel") return setBookingStatus(t.dataset.id, "cancelled");
-      if (t.dataset.act === "view") return viewBooking(t.dataset.id);
-
-      if (t.dataset.tripEdit) {
-        const trip = state.trips.find((x) => x.id === t.dataset.tripEdit);
-        return openTripForm(trip);
-      }
-      if (t.dataset.tripToggle) {
-        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
-        const trip = state.trips.find((x) => x.id === t.dataset.tripToggle);
-        const { error } = await client.from("trips").update({ is_active: !trip.is_active }).eq("id", trip.id);
-        if (error) return toast(error.message, "error");
-        await refresh();
-        return toast(trip.is_active ? "ট্রিপ হাইড করা হয়েছে" : "ট্রিপ পাবলিশ হয়েছে", "ok");
-      }
-      if (t.dataset.tripDel) {
-        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
-        if (!confirm("এই ট্রিপটি ডিলিট করবেন? এটি ফেরানো যাবে না।")) return;
-        const { error } = await client.from("trips").delete().eq("id", t.dataset.tripDel);
-        if (error) return toast(error.message, "error");
-        await refresh();
-        return toast("ট্রিপ ডিলিট হয়েছে", "ok");
-      }
-      if (t.dataset.enqRead) {
-        if (!client) return toast("ডেমো মোড — পরিবর্তন সেভ হয় না।", "error");
-        const enq = state.enquiries.find((x) => x.id === t.dataset.enqRead);
-        const { error } = await client.from("enquiries").update({ is_read: !enq.is_read }).eq("id", enq.id);
-        if (error) return toast(error.message, "error");
-        await refresh();
-      }
+    var details = packDetails({
+      ov: $("f-ov").value.trim(),
+      hl: $("f-hl").value.trim(),
+      it: prev.it,
+      inc: $("f-inc").value.trim(),
+      exc: $("f-exc").value.trim(),
+      pol: $("f-pol").value.trim(),
+      meal: prev.meal,
+      cl: $("f-cl").value.trim(),
+      days: prev.days,
     });
 
-    $("#modal").addEventListener("click", (e) => {
-      if (e.target.id === "modal") closeModal();
-    });
+    var payload = {
+      title: title,
+      from_place: $("f-from").value.trim(),
+      to_place: $("f-to").value.trim(),
+      trip_date: $("f-date").value || null,
+      trip_time: $("f-time").value.trim(),
+      price: Number($("f-price").value) || 0,
+      seats: Number($("f-seats").value) || 0,
+      boarding: $("f-boarding").value.trim(),
+      kind: $("f-kind").value,
+      vehicle_name: $("f-vehicle").value.trim(),
+      cars: Number($("f-cars").value) || 1,
+      per_car: Number($("f-percar").value) || 7,
+      thumb: $("f-thumb").value.trim(),
+      photos: lines($("f-photos").value),
+      details: details,
+      open: existing ? existing.open : true,
+    };
+
+    var r = existing
+      ? await sb.from("trips").update(payload).eq("id", existing.id)
+      : await sb.from("trips").insert(payload);
+
+    if (r.error) { toast(t("adm.errSave") + ": " + r.error.message, "error"); return; }
+    toast(t("adm.tripSaved"));
+    closeModal();
+    await reload();
   }
 
-  /* ================= boot ================= */
-  document.addEventListener("DOMContentLoaded", () => {
-    if ($("#login-form")) initLogin();
-    else if ($("#dashboard-root")) initDashboard();
+  /* ---------------- settings ---------------- */
+  var SETTING_FIELDS = [
+    ["brand", "adm.settings"],
+    ["wa", "adm.wa"],
+    ["phone", "adm.phone"],
+    ["upi", "adm.upi"],
+    ["upi_name", "adm.upiName"],
+    ["tag", "adm.tag"],
+    ["notice", "adm.notice"],
+    ["why", "adm.why"],
+    ["terms", "adm.terms"],
+    ["slabs", "adm.slabs"],
+    ["reviews", "adm.reviews"],
+    ["faq", "adm.faq"],
+    ["hero", "adm.hero"],
+  ];
+
+  function renderSettings() {
+    var host = $("settings-form");
+    if (!host) return;
+    host.innerHTML = SETTING_FIELDS.map(function (f) {
+      var v = S.settings[f[0]] || "";
+      var big = v.length > 60 || v.indexOf("\n") !== -1;
+      return (
+        '<div class="field field--full"><label>' + t(f[1]) + "</label>" +
+        (big
+          ? '<textarea data-setting="' + f[0] + '" rows="4">' + esc(v) + "</textarea>"
+          : '<input data-setting="' + f[0] + '" type="text" value="' + esc(v) + '" />') +
+        "</div>"
+      );
+    }).join("") + '<button class="btn" id="save-settings">' + t("adm.saveSettings") + "</button>";
+
+    $("save-settings").addEventListener("click", saveSettings);
+  }
+
+  async function saveSettings() {
+    var rows = [];
+    document.querySelectorAll("[data-setting]").forEach(function (el) {
+      rows.push({ key: el.getAttribute("data-setting"), value: el.value });
+    });
+    var r = await sb.from("settings").upsert(rows, { onConflict: "key" });
+    if (r.error) { toast(t("adm.errSave") + ": " + r.error.message, "error"); return; }
+    toast(t("adm.settingsSaved"));
+    await reload();
+  }
+
+  /* ---------------- boot ---------------- */
+  window.GT_ADMIN = { bootLogin: bootLogin, bootDashboard: bootDashboard, reload: reload };
+
+  document.addEventListener("DOMContentLoaded", function () {
+    if (document.getElementById("login-form")) bootLogin();
+    else if (document.getElementById("dashboard-root")) bootDashboard();
   });
-
-  window.GTAdmin = { client, logout };
 })();
