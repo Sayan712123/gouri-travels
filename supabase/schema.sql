@@ -22,7 +22,7 @@ $$;
 -- ---------------------------------------------------------------
 -- 2. Admins
 --    A user is an admin only if their auth.users id is in this table.
---    Add yourself after signing up (see README step 5).
+--    Add yourself after signing up (see README step 2).
 -- ---------------------------------------------------------------
 create table if not exists public.admins (
   user_id    uuid primary key references auth.users (id) on delete cascade,
@@ -255,7 +255,7 @@ values
    'Tea gardens, toy train and Kanchenjunga sunrise in one relaxed 5-day trip.',
    'A classic Himalayan escape covering Darjeeling, Tiger Hill, Batasia Loop and the monasteries of Gangtok. Comfortable hotels, private vehicle and a local guide throughout.',
    5, 12500, 24, current_date + 20, current_date + 24,
-   'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=1200&q=70',
+   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=70',
    array['Tiger Hill sunrise', 'Darjeeling Himalayan Railway', 'Tsomgo Lake', 'MG Marg, Gangtok'],
    '[{"day":1,"title":"Arrival in Darjeeling","detail":"Pickup from NJP / Bagdogra and transfer to hotel."},{"day":2,"title":"Darjeeling sightseeing","detail":"Tiger Hill, Batasia Loop, Himalayan Zoo and tea estate."},{"day":3,"title":"Transfer to Gangtok","detail":"Scenic drive along the Teesta, evening at MG Marg."},{"day":4,"title":"Tsomgo Lake & Baba Mandir","detail":"Full-day excursion with permit assistance."},{"day":5,"title":"Departure","detail":"Drop at NJP / Bagdogra."}]'::jsonb),
 
