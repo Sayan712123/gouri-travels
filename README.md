@@ -1,166 +1,193 @@
-# Gouri Travels — ট্রিপ বুকিং ওয়েবসাইট
+# Gouri Travels — Trip Booking Website
 
-পাবলিক সাইট + অ্যাডমিন প্যানেল + Supabase স্কিমা — সব একসাথে।
+A complete trip-booking website for **Gouri Travels**: a public site (browse trips, pick seats, book),
+an admin panel (manage bookings, trips and site settings), and a Supabase backend.
 
-🌐 **লাইভ সাইট:** https://sayan712123.github.io/gouri-travels/
-🔐 **অ্যাডমিন প্যানেল:** https://sayan712123.github.io/gouri-travels/admin/
+**Live site:** https://sayan712123.github.io/gouri-travels/
+**Admin panel:** https://sayan712123.github.io/gouri-travels/admin/
 
 ---
 
-## 📁 ফোল্ডার স্ট্রাকচার
-
-GitHub Pages সরাসরি **রিপোর রুট** থেকে সাইট চালায়, তাই পাবলিক সাইটের ফাইলগুলো রুটে রাখা হয়েছে:
+## What's inside
 
 ```
-gouri-travels/
-├── index.html              ← হোমপেজ
-├── trips.html              ← সব ট্রিপ + ফিল্টার
-├── trip.html               ← ট্রিপ ডিটেইল (?slug=...)
-├── booking.html            ← বুকিং ফর্ম
-├── contact.html            ← যোগাযোগ / এনকোয়ারি
-├── css/styles.css          ← পাবলিক সাইটের স্টাইল
-├── js/
-│   ├── config.js           ← ⚠️ আপনার Supabase URL + anon key এখানে
-│   ├── supabase-client.js  ← Supabase ক্লায়েন্ট
-│   └── site.js             ← শেয়ার্ড হেল্পার + ডেমো ডেটা
-├── admin/
-│   ├── index.html          ← অ্যাডমিন লগইন
-│   ├── dashboard.html      ← ড্যাশবোর্ড
-│   ├── css/admin.css
-│   └── js/
-│       ├── config.js       ← ⚠️ একই Supabase URL + anon key
-│       └── admin.js
-├── supabase/schema.sql     ← টেবিল + RLS + স্টোরেজ + ডেমো ট্রিপ
-├── docs/SETUP.md           ← বিস্তারিত সেটআপ গাইড
-├── .nojekyll               ← GitHub Pages-এ Jekyll বন্ধ রাখে
-└── .env.example
+index.html            Home — hero slider, search, featured trips, reviews
+trips.html            All trips with filters (duration / budget) and search
+trip.html             Trip detail — overview, highlights, day-wise plan, seat count
+booking.html          Booking — Google sign-in, seat picker, hold seats, ticket
+contact.html          Contact — message opens in WhatsApp
+css/styles.css        Public site styles (responsive, Hind Siliguri for Bangla)
+
+admin/index.html      Admin login (email+password or Google)
+admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings
+admin/css/admin.css   Admin styles
+admin/js/admin.js     Admin logic
+
+js/config.js          Supabase Project URL + anon key  ← edit this
+js/i18n.js            English / বাংলা dictionary + language toggle engine
+js/supabase-client.js Shared Supabase client
+js/site.js            Public data layer (schema adapter)
+
+supabase/schema.sql   Reference copy of the live database schema
+docs/SETUP.md         Detailed setup + troubleshooting
+.env.example          Environment variable template
 ```
 
 ---
 
-## 🚀 ধাপ ১ — Supabase কনফিগার করুন
+## Backend — the existing Supabase project
 
-আপনার Supabase প্রজেক্ট **অলরেডি আছে** ধরে নিয়ে:
+This site is wired to the **existing** Supabase project (the same one the earlier site used).
+The connection details live in two files and are already filled in:
 
-1. **Supabase Dashboard → Project Settings → API** খুলুন।
-2. দুটি মান কপি করুন:
-   - **Project URL** → যেমন `https://abcdefgh.supabase.co`
-   - **anon / public** key → `eyJhbGciOi...` দিয়ে শুরু হওয়া লম্বা স্ট্রিং
+| File | Keys |
+|---|---|
+| `js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
+| `admin/js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
 
-3. এই দুটি মান **দুটি ফাইলে** বসান (একই মান, দুই জায়গায়):
+> The **anon / public** key is meant to be in browser code — Row Level Security protects the data.
+> Never put the `service_role` key in these files.
 
-   **`js/config.js`**
-   ```js
-   window.GT_CONFIG = {
-     SUPABASE_URL: "https://abcdefgh.supabase.co",
-     SUPABASE_ANON_KEY: "eyJhbGciOi...",
-     ...
-   };
-   ```
+### Database schema (as it exists today)
 
-   **`admin/js/config.js`**
-   ```js
-   window.GT_ADMIN_CONFIG = {
-     SUPABASE_URL: "https://abcdefgh.supabase.co",
-     SUPABASE_ANON_KEY: "eyJhbGciOi...",
-     BRAND_NAME: "Gouri Travels",
-   };
-   ```
+| Table | Columns |
+|---|---|
+| `trips` | `id`, `title`, `from_place`, `to_place`, `trip_date`, `trip_time`, `price`, `boarding`, `details`, `thumb`, `photos[]`, `seats`, `open`, `created_at`, `kind`, `vehicle_name`, `cars`, `per_car` |
+| `seats` | `trip_id`, `label`, `status` (`held` / `booked`), `name`, `phone`, `held_until`, `ticket`, `note`, `created_at` |
+| `settings` | `key`, `value` |
+| `admins` | `email` |
 
-4. **স্কিমা চালান** (একবারই লাগে): Supabase Dashboard → **SQL Editor** → New query → `supabase/schema.sql` ফাইলের পুরো কনটেন্ট পেস্ট করে **Run**।
-   এটি তৈরি করবে: `trips`, `bookings`, `enquiries`, `admins` টেবিল, `is_admin()` হেল্পার, সম্পূর্ণ RLS পলিসি, `trip-images` স্টোরেজ বাকেট এবং ৬টি ডেমো ট্রিপ। স্ক্রিপ্টটি **idempotent** — বারবার চালালেও সমস্যা নেই।
+**View:** `seat_status` (`trip_id`, `label`, `status`) — the public, privacy-safe view of taken seats.
+**RPC:** `hold_seats(p_trip, p_labels, p_name, p_phone)`, `my_bookings()`, `get_ticket(p_code)`, `is_admin()`.
+**Storage:** `trip-photos` (public bucket) — trip covers, galleries and hero images.
 
-> ⚠️ **`service_role` key কখনোই `config.js`-এ বসাবেন না।** শুধু `anon` key — এটাই ব্রাউজারে থাকার জন্য নিরাপদ, কারণ RLS ডেটা সুরক্ষিত রাখে।
+### How the code maps onto that schema
 
-> 💡 **ডেমো মোড:** উপরের দুটি মান বসানো না থাকলে সাইটটি নমুনা ট্রিপ দিয়ে চলবে (বুকিং সেভ হবে না) — শুধু প্রিভিউয়ের জন্য। মান বসালেই আসল ডেটা চালু হবে।
+The original code expected `bookings`, `enquiries`, `slug`, `price_per_person`, `duration_days`,
+`cover_image_url`, `itinerary[]` and `highlights[]` — **none of which exist** in the live database.
+`js/site.js` and `admin/js/admin.js` are now schema adapters that translate:
+
+| Old (non-existent) | Now uses |
+|---|---|
+| `bookings` table | `seats` rows (`status: held` → pending, `booked` → confirmed) |
+| `enquiries` table | Contact form opens WhatsApp (no table exists) |
+| `slug` | `id` (URL is `trip.html?id=…`; a title-slug fallback also works) |
+| `price_per_person` | `price` |
+| `cover_image_url` | `thumb` |
+| `highlights[]` | `details` → `##hl` section |
+| `itinerary[]` | `details` → `##days` (JSON) or `##it` (lines) |
+| `description` / `summary` | `details` → `##ov` section |
+| `seats_total` | `seats` |
+| `departure_date` | `trip_date` |
+
+The `details` column is a sectioned text field:
+
+```
+##ov      overview paragraph
+##hl      highlights, one per line
+##it      day-wise plan, one per line
+##inc     included, one per line
+##exc     not included, one per line
+##pol     cancellation / policy, one per line
+##meal    meal notes
+##cl      booking closes at (YYYY-MM-DD HH:MM)
+##days    JSON array of {day, title, detail}
+```
 
 ---
 
-## 🔐 ধাপ ২ — অ্যাডমিন ইউজার তৈরি করুন
+## Bilingual site (English / বাংলা)
 
-1. Supabase Dashboard → **Authentication → Users → Add user** → ইমেইল ও পাসওয়ার্ড দিন (Auto Confirm User চালু রাখুন)।
-2. সেই ইউজারের **UID** কপি করুন।
-3. **SQL Editor**-এ চালান:
+- The site **opens in English** by default (`DEFAULT_LANG: "en"` in `js/config.js`).
+- A **EN / বাংলা** toggle sits in the header of every public page and in the admin panel.
+- The choice is saved in `localStorage` under `gt_lang`, so it follows the visitor from page to page.
+- All copy lives in `js/i18n.js`. To add a string, add the same key to both the `en` and `bn` blocks
+  and put `data-i18n="your.key"` on the element (or `data-i18n-ph` for placeholders,
+  `data-i18n-html` for markup, `data-i18n-aria` for aria-labels).
+
+---
+
+## Booking flow
+
+1. Visitor opens `booking.html`, picks a trip.
+2. **Google sign-in is required** — the `hold_seats` RPC returns `"login"` for anonymous users,
+   and RLS only lets a signed-in user write to `seats`.
+3. They pick seats from the live seat map (free / your pick / on hold / booked).
+4. `hold_seats` holds the seats for 15 minutes and returns a booking code.
+5. The visitor sends the booking on WhatsApp; the admin confirms it in the dashboard,
+   which flips the seat to `booked` and issues a ticket code.
+
+---
+
+## Admin panel
+
+Sign in at `/admin/` with an email that exists in the `admins` table.
+
+- **Bookings** — every `seats` row, with search and status filter. Confirm (issues a ticket code)
+  or cancel (deletes the hold).
+- **Trips** — create / edit / hide / delete trips. The editor writes the `details` sections for you.
+- **Settings** — brand name, WhatsApp number, phone, UPI id, notice banner, terms, deduction slabs,
+  reviews, FAQ and hero slider images. These drive the public site live.
+
+### Adding an admin
+
+1. Supabase Dashboard → **Authentication → Users → Add user** (set an email + password).
+2. Then in the SQL editor:
 
 ```sql
-insert into public.admins (user_id, email)
-values ('এখানে-ইউজারের-UID-পেস্ট-করুন', 'admin@example.com');
+insert into admins (email) values ('you@example.com');
 ```
 
-4. এখন https://sayan712123.github.io/gouri-travels/admin/ এ গিয়ে ওই ইমেইল/পাসওয়ার্ড দিয়ে লগইন করুন।
+3. Sign in at `/admin/`. `is_admin()` checks the signed-in email against this table.
 
 ---
 
-## 🌐 ধাপ ৩ — GitHub Pages (অলরেডি চালু)
-
-সাইটটি ইতিমধ্যে লাইভ:
-
-- **Settings → Pages → Source:** `Deploy from a branch` → Branch: **`main`** → Folder: **`/ (root)`**
-- রুটে `.nojekyll` ফাইল থাকায় GitHub Pages Jekyll প্রসেসিং বাদ দিয়ে ফাইলগুলো হুবহু সার্ভ করে।
-- সব লিংক **রিলেটিভ** (`css/styles.css`, `js/config.js`, `admin/index.html`) — তাই সাব-পাথে (`/gouri-travels/`) সব ঠিকঠাক লোড হয়।
-
-**আপডেট করার পর:** `main` ব্রাঞ্চে পুশ করলেই ১–২ মিনিটে সাইট নিজে থেকে আপডেট হয়।
-
-### নিজের ডোমেইন (যেমন gouritravels.in) লাগলে
-1. **Settings → Pages → Custom domain**-এ ডোমেইন লিখুন।
-2. আপনার DNS প্রোভাইডারে একটি `CNAME` রেকর্ড যোগ করুন: `www` → `sayan712123.github.io`
-3. **Enforce HTTPS** টিক দিন।
-
----
-
-## 💻 লোকালি চালানো
+## Run locally
 
 ```bash
-# রিপো ক্লোন করুন
-git clone https://github.com/Sayan712123/gouri-travels.git
-cd gouri-travels
-
-# যেকোনো স্ট্যাটিক সার্ভার চালান
 python3 -m http.server 5173
+# open http://localhost:5173
 ```
 
-তারপর ব্রাউজারে খুলুন: http://localhost:5173/ (অ্যাডমিন: http://localhost:5173/admin/)
-
-> `file://` দিয়ে সরাসরি HTML খুললে Supabase লোড নাও হতে পারে — তাই ছোট একটি সার্ভার ব্যবহার করুন।
+Any static server works. There is no build step.
 
 ---
 
-## 🧩 ফিচার
+## Deploy
 
-**পাবলিক সাইট**
-- হোমপেজ: হিরো, সার্চ বার, ফিচার্ড ট্রিপ, রিভিউ, CTA
-- সব ট্রিপ: দিন/বাজেট ফিল্টার + সার্চ
-- ট্রিপ ডিটেইল: হাইলাইটস, দিন-ভিত্তিক itinerary, স্টিকি বুকিং কার্ড
-- বুকিং ফর্ম: লাইভ প্রাইস ক্যালকুলেশন, অটো-জেনারেটেড বুকিং কোড
-- যোগাযোগ ফর্ম → অ্যাডমিন ইনবক্সে যায়
-- মোবাইল-ফার্স্ট, বাংলা ফন্ট (Hind Siliguri), হোয়াইট + ব্লু থিম
+### GitHub Pages (current setup)
 
-**অ্যাডমিন প্যানেল**
-- Supabase Auth লগইন + `is_admin()` চেক
-- ৬টি স্ট্যাট কার্ড (মোট বুকিং, পেন্ডিং, কনফার্মড, আনুমানিক আয়, অ্যাক্টিভ ট্রিপ, অপঠিত মেসেজ)
-- বুকিং লিস্ট: সার্চ, স্টেটাস ফিল্টার, Confirm / Cancel / View
-- ট্রিপ CRUD: মোডাল ফর্ম, Hide / Show, Delete
-- মেসেজ ইনবক্স: read / unread
+The site is served from the repository root on the `main` branch.
+
+1. Repo → **Settings → Pages**
+2. Source: **Deploy from a branch** · Branch: **main** · Folder: **/ (root)**
+3. Save. The site appears at `https://<user>.github.io/gouri-travels/`.
+
+`.nojekyll` is committed so folders starting with `_` are served, and every link is relative,
+so the site works correctly under the `/gouri-travels/` sub-path.
+
+### Netlify / Vercel
+
+- Publish directory: `.` (repository root)
+- No build command
 
 ---
 
-## 🛠 সমস্যা হলে
+## Troubleshooting
 
-| সমস্যা | সমাধান |
+| Symptom | Fix |
 |---|---|
-| সাইটে "ডেমো মোড" লেখা দেখাচ্ছে | `js/config.js`-এ Project URL ও anon key বসান, তারপর হার্ড রিফ্রেশ (Ctrl+Shift+R) |
-| ট্রিপ লোড হচ্ছে না | `supabase/schema.sql` চালানো হয়েছে কিনা দেখুন; RLS পলিসি ঠিক আছে কিনা যাচাই করুন |
-| অ্যাডমিনে "এই অ্যাকাউন্টটি অ্যাডমিন নয়" | `admins` টেবিলে আপনার UID insert করুন (ধাপ ২) |
-| CSS/JS লোড হচ্ছে না | ফাইল পাথ রিলেটিভ আছে কিনা দেখুন; `.nojekyll` ফাইলটি রিপোতে আছে কিনা নিশ্চিত করুন |
-| পেজ ৪০৪ দেখাচ্ছে | GitHub Pages বিল্ড শেষ হতে ১–২ মিনিট দিন; Settings → Pages-এ সোর্স `main` / `root` কিনা দেখুন |
-
-আরও বিস্তারিত: [`docs/SETUP.md`](docs/SETUP.md)
+| Trips don't load | Check `SUPABASE_URL` / `SUPABASE_ANON_KEY` in `js/config.js` |
+| "Sign in with Google" does nothing | Add your Pages URL to Supabase → Authentication → URL Configuration → Redirect URLs |
+| Admin login says "not an admin" | The signed-in email is missing from the `admins` table |
+| Seats won't hold | The visitor is not signed in — `hold_seats` requires a session |
+| Bangla text looks wrong | The Hind Siliguri font is loaded from Google Fonts; check the network tab |
 
 ---
 
-## 🔒 নিরাপত্তা
+## Security notes
 
-- `service_role` key কোথাও কমিট করা হয়নি — শুধু `anon` key-এর প্লেসহোল্ডার আছে।
-- সব টেবিলে **Row Level Security** চালু; পাবলিক শুধু অ্যাক্টিভ ট্রিপ পড়তে পারে ও বুকিং/এনকোয়ারি লিখতে পারে।
-- অ্যাডমিন-শুধু অপারেশন `is_admin()` security-definer ফাংশন দিয়ে সুরক্ষিত।
-- `.gitignore`-এ `.env` আছে — আসল সিক্রেট কখনো কমিট হবে না।
+- Only the **anon** key is committed. The `service_role` key is never used in the browser.
+- RLS protects every table: the public can read `trips`, `settings` and the `seat_status` view,
+  but only signed-in users can hold seats, and only admins can write trips and settings.
+- `admin/` is marked `noindex, nofollow`.
