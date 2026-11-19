@@ -193,10 +193,9 @@
       '<div class="form-row"><label for="f-message">Message</label>' +
       '<textarea id="f-message" name="message" rows="3" placeholder="Tell us where you would like to go"></textarea></div>' +
       '<button type="submit" class="btn-submit">Submit</button>' +
-      '<p class="form-note">Submitting opens your own email app with the details filled in, addressed to ' +
-      mail + ".</p>" +
-      '<div class="form-msg" id="formMsg">Your email app should now be open with your enquiry. ' +
-      'If nothing happened, please write to <a href="mailto:' + mail + '">' + mail + "</a> or call " +
+      '<p class="form-note">Your enquiry goes straight to our team — we reply within one working day.</p>' +
+      '<div class="form-msg" id="formMsg">Your enquiry has been received. ' +
+      'You can also write to <a href="mailto:' + mail + '">' + mail + "</a> or call " +
       phone + ".</div></form></div></div></div></section>"
     );
   }
@@ -496,15 +495,62 @@
       form.onsubmit = function (e) {
         e.preventDefault();
         var g = function (n) { var el = form.elements[n]; return el ? el.value.trim() : ""; };
+        var msg = document.getElementById("formMsg");
+        var btn = form.querySelector("button[type=submit]");
+        var addr = (CONTENT && CONTENT.enquiryEmail) || "gouritravels146@gmail.com";
+
         var body = "Name: " + g("name") + "\nAddress: " + g("address") +
           "\nContact No.: " + g("phone") + "\nEmail: " + g("email") +
           "\n\nMessage:\n" + g("message");
-        var addr = (CONTENT && CONTENT.enquiryEmail) || "gouritravels146@gmail.com";
-        window.location.href = "mailto:" + addr +
-          "?subject=" + encodeURIComponent("Website enquiry from " + g("name")) +
-          "&body=" + encodeURIComponent(body);
-        var msg = document.getElementById("formMsg");
-        if (msg) msg.classList.add("on");
+
+        function mailtoFallback() {
+          window.location.href = "mailto:" + addr +
+            "?subject=" + encodeURIComponent("Website enquiry from " + g("name")) +
+            "&body=" + encodeURIComponent(body);
+          if (msg) msg.classList.add("on");
+        }
+
+        /* Save the enquiry to Supabase so it shows up in the admin panel.
+         * If that is not possible (offline, table missing) fall back to the
+         * visitor's own email app, so the message is never lost. */
+        var cfg = window.GT_CONFIG || {};
+        if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) { mailtoFallback(); return; }
+
+        if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+
+        fetch(cfg.SUPABASE_URL.replace(/\/+$/, "") + "/rest/v1/enquiries", {
+          method: "POST",
+          headers: {
+            apikey: cfg.SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + cfg.SUPABASE_ANON_KEY,
+            "Content-Type": "application/json",
+            Prefer: "return=minimal",
+          },
+          body: JSON.stringify({
+            name: g("name"),
+            phone: g("phone"),
+            email: g("email"),
+            address: g("address"),
+            message: g("message"),
+            status: "new",
+          }),
+        })
+          .then(function (r) {
+            if (!r.ok) throw new Error("HTTP " + r.status);
+            form.reset();
+            if (msg) {
+              msg.innerHTML = "<strong>Thank you — your enquiry has been received.</strong> " +
+                "We will get back to you shortly. You can also write to " +
+                '<a href="mailto:' + esc(addr) + '">' + esc(addr) + "</a>.";
+              msg.classList.add("on");
+            }
+          })
+          .catch(function () {
+            mailtoFallback();
+          })
+          .then(function () {
+            if (btn) { btn.disabled = false; btn.textContent = "Submit"; }
+          });
       };
     }
   }

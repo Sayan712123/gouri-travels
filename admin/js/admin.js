@@ -242,11 +242,37 @@
     el.innerHTML =
       "<strong>Supabase refused the save.</strong> " + esc(msg) + "<br><br>" +
       "The <code>settings</code> table only accepts writes from an admin, and your email is not in " +
-      "the <code>admins</code> table yet. Run this once in the Supabase SQL editor, then press " +
-      "Save again:<br>" +
-      "<pre>insert into public.admins (email) values ('" +
-      esc((user && user.email) || "you@example.com") + "');</pre>" +
-      '<button class="btn btn--ghost btn--sm" id="dl-content" type="button">⬇ Download content.json</button>';
+      "the <code>admins</code> table yet." +
+      '<div class="toolbar" style="margin-top:12px">' +
+      '<button class="btn btn--sm" id="claim-admin" type="button">Make me an admin</button>' +
+      '<button class="btn btn--ghost btn--sm" id="dl-content" type="button">Download content.json</button>' +
+      "</div>" +
+      '<p class="muted" style="margin:10px 0 0">If that is refused, the admins table already has rows — ' +
+      "open the <strong>Supabase</strong> tab and add your email there, or run " +
+      "<code>npm run supabase:setup</code>.</p>";
+
+    var claim = $("#claim-admin");
+    if (claim) {
+      claim.addEventListener("click", function () {
+        var email = (user && user.email) || "";
+        if (!email) return;
+        claim.disabled = true;
+        claim.textContent = "Adding…";
+        sb.from("admins")
+          .insert({ email: email })
+          .then(function (r) {
+            claim.disabled = false;
+            claim.textContent = "Make me an admin";
+            if (r.error) {
+              note("Could not add you: " + r.error.message, "err");
+              return;
+            }
+            note("You are now an admin. Press Save changes again.", "ok");
+            el.classList.add("hidden");
+          });
+      });
+    }
+
     var dl = $("#dl-content");
     if (dl) {
       dl.addEventListener("click", function () {
@@ -501,16 +527,8 @@
           noteEl.innerHTML =
             "<strong>The enquiries table is not available yet.</strong><br>" +
             "Supabase answered: <code>" + esc(r.error.message) + "</code><br><br>" +
-            "Run this once in the Supabase SQL editor to create it, then press Refresh:<br>" +
-            "<pre>create table if not exists public.enquiries (\n" +
-            "  id uuid primary key default gen_random_uuid(),\n" +
-            "  name text, phone text, email text, message text,\n" +
-            "  status text default 'new',\n" +
-            "  created_at timestamptz default now()\n" +
-            ");\n" +
-            "alter table public.enquiries enable row level security;\n" +
-            "create policy enquiries_admin on public.enquiries for all\n" +
-            "  using (public.is_admin()) with check (public.is_admin());</pre>";
+            "Open the <strong>Supabase</strong> tab and press <strong>Check tables</strong> — " +
+            "it shows what is missing and gives you the one command that creates it.";
           noteEl.classList.remove("hidden");
           return;
         }
@@ -532,6 +550,303 @@
       });
   }
 
+  /* ---------------- supabase tab ---------------- */
+  function sbCfg() {
+    return {
+      url: (cfg.SUPABASE_URL || "").replace(/\/+$/, ""),
+      key: cfg.SUPABASE_ANON_KEY || "",
+    };
+  }
+
+  function sbResult(html, kind) {
+    var el = $("#sb-result");
+    if (!el) return;
+    el.innerHTML = html ? '<div class="alert alert--' + (kind || "ok") + '">' + html + "</div>" : "";
+  }
+
+  function sbState(text, kind) {
+    var el = $("#sb-state");
+    if (!el) return;
+    el.textContent = text;
+    el.className = "tag" + (kind ? " tag--" + kind : "");
+  }
+
+  function fillSupabaseForm() {
+    var c = sbCfg();
+    if ($("#sb-url")) $("#sb-url").value = c.url;
+    if ($("#sb-key")) $("#sb-key").value = c.key;
+    if ($("#sb-admin-email") && user && user.email) $("#sb-admin-email").value = user.email;
+  }
+
+  /* Probe a project with a plain REST call — no client needed, so it also
+   * works for a project the panel is not currently connected to. */
+  function probe(url, key) {
+    var base = String(url || "").replace(/\/+$/, "");
+    if (!/^https?:\/\//.test(base)) {
+      return Promise.reject(new Error("The project URL must start with https://"));
+    }
+    if (!key) return Promise.reject(new Error("The anon key is empty."));
+
+    var h = { apikey: key, Authorization: "Bearer " + key };
+    return fetch(base + "/rest/v1/settings?select=key&limit=1", { headers: h, cache: "no-store" })
+      .then(function (r) {
+        if (r.status === 401 || r.status === 403) {
+          throw new Error("The key was rejected (HTTP " + r.status + "). Check the anon key.");
+        }
+        if (r.status === 404) {
+          throw new Error("Reached the project, but the settings table is missing. Run the database setup below.");
+        }
+        if (!r.ok) throw new Error("HTTP " + r.status + " from " + base);
+        return r.json();
+      })
+      .then(function (rows) {
+        return fetch(base + "/rest/v1/rpc/is_admin", {
+          method: "POST",
+          headers: Object.assign({ "Content-Type": "application/json" }, h),
+          body: "{}",
+        }).then(function (r2) {
+          return { rows: rows, hasHelper: r2.ok };
+        });
+      });
+  }
+
+  function testConnection() {
+    var url = $("#sb-url").value.trim();
+    var key = $("#sb-key").value.trim();
+    var btn = $("#sb-test");
+    btn.disabled = true;
+    btn.textContent = "Testing…";
+    sbState("checking…");
+    sbResult("");
+
+    probe(url, key)
+      .then(function (res) {
+        sbState("connected", "ok");
+        sbResult(
+          "<strong>Connection successful.</strong><br>" +
+            "Project: <code>" + esc(url) + "</code><br>" +
+            "<code>settings</code> table: reachable · " +
+            (res.hasHelper
+              ? "<code>is_admin()</code>: present"
+              : "<code>is_admin()</code>: <strong>missing</strong> — run the database setup below") +
+            "<br><br>Press <strong>Save connection</strong> to use this project.",
+          "ok"
+        );
+      })
+      .catch(function (e) {
+        sbState("failed", "warn");
+        sbResult("<strong>Could not connect.</strong> " + esc(e.message), "error");
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "⚡ Test connection";
+      });
+  }
+
+  function saveConnection() {
+    var url = $("#sb-url").value.trim().replace(/\/+$/, "");
+    var key = $("#sb-key").value.trim();
+    if (!url || !key) { sbResult("Both the project URL and the anon key are required.", "error"); return; }
+
+    var btn = $("#sb-save");
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+
+    probe(url, key)
+      .then(function () {
+        try {
+          localStorage.setItem("gt_sb_config", JSON.stringify({ SUPABASE_URL: url, SUPABASE_ANON_KEY: key }));
+        } catch (e) {}
+        cfg.SUPABASE_URL = url;
+        cfg.SUPABASE_ANON_KEY = key;
+        sb = window.supabase.createClient(url, key);
+        sbState("connected", "ok");
+        sbResult(
+          "<strong>Saved.</strong> This browser now uses <code>" + esc(url) + "</code> for both the " +
+            "admin panel and the public site. Reloading…",
+          "ok"
+        );
+        setTimeout(function () { location.reload(); }, 1200);
+      })
+      .catch(function (e) {
+        sbResult("<strong>Not saved.</strong> " + esc(e.message), "error");
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "💾 Save connection";
+      });
+  }
+
+  function resetConnection() {
+    if (!confirm("Forget the saved connection and go back to the built-in project?")) return;
+    try { localStorage.removeItem("gt_sb_config"); } catch (e) {}
+    location.reload();
+  }
+
+  function checkSchema() {
+    var host = $("#sb-schema");
+    if (!host) return;
+    var c = sbCfg();
+    host.innerHTML = '<p class="muted">Checking…</p>';
+    var h = { apikey: c.key, Authorization: "Bearer " + c.key };
+    var tables = ["settings", "admins", "enquiries"];
+
+    Promise.all(
+      tables.map(function (t) {
+        return fetch(c.url + "/rest/v1/" + t + "?select=*&limit=1", { headers: h, cache: "no-store" })
+          .then(function (r) { return { t: t, ok: r.ok, status: r.status }; })
+          .catch(function () { return { t: t, ok: false, status: 0 }; });
+      })
+    ).then(function (rows) {
+      var missing = rows.filter(function (r) { return !r.ok; });
+      host.innerHTML =
+        '<div class="repeat">' +
+        rows
+          .map(function (r) {
+            return (
+              '<div class="rep-row" style="grid-template-columns:1fr auto;align-items:center">' +
+              "<div><strong>" + esc(r.t) + "</strong> <span class=\"muted\">table</span></div>" +
+              '<span class="tag ' + (r.ok ? "tag--ok" : "tag--warn") + '">' +
+              (r.ok ? "present" : "missing") + "</span></div>"
+            );
+          })
+          .join("") +
+        "</div>" +
+        (missing.length
+          ? '<div class="alert alert--warn">' + missing.length +
+            " table(s) missing — run the setup below.</div>"
+          : '<div class="alert alert--ok">All tables are present.</div>');
+    });
+  }
+
+  function copyText(text, btn, label) {
+    var done = function () {
+      var old = btn.textContent;
+      btn.textContent = "✓ Copied";
+      setTimeout(function () { btn.textContent = old || label; }, 1600);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallback(); });
+    } else fallback();
+
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  function loadSetupSql() {
+    var pre = $("#sb-sql");
+    if (!pre) return;
+    fetch("../supabase/setup.sql", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function (txt) { pre.textContent = txt; pre.dataset.sql = txt; })
+      .catch(function (e) {
+        pre.textContent = "Could not load supabase/setup.sql (" + e.message + ").";
+      });
+  }
+
+  /* Add the signed-in user's email to public.admins. The setup SQL ships a
+   * bootstrap policy that allows exactly this while the table is empty, so
+   * the very first admin can claim the panel without the SQL editor. */
+  function addAdmin(email) {
+    var host = $("#sb-admins");
+    if (!email) { if (host) host.innerHTML = '<div class="alert alert--error">Enter an email first.</div>'; return; }
+    if (host) host.innerHTML = '<p class="muted">Adding…</p>';
+
+    sb.from("admins")
+      .insert({ email: email })
+      .then(function (r) {
+        if (r.error) {
+          var msg = r.error.message || "";
+          var hint = /duplicate|already exists/i.test(msg)
+            ? "That email is already an admin."
+            : /row-level security|policy/i.test(msg)
+            ? "Supabase refused the insert. Either the admins table already has rows (so the " +
+              "bootstrap policy no longer applies) or the setup SQL has not been run yet. " +
+              "Run the database setup below, or add the email from the SQL editor."
+            : msg;
+          if (host) host.innerHTML = '<div class="alert alert--error">' + esc(hint) + "</div>";
+          return;
+        }
+        if (host) host.innerHTML = '<div class="alert alert--ok">Added <strong>' + esc(email) + "</strong> as an admin.</div>";
+        listAdmins();
+      });
+  }
+
+  function listAdmins() {
+    var host = $("#sb-admins");
+    if (!host) return;
+    sb.from("admins")
+      .select("email")
+      .then(function (r) {
+        if (r.error) {
+          host.innerHTML =
+            '<div class="alert alert--warn">Could not read the admins table: ' + esc(r.error.message) + "</div>";
+          return;
+        }
+        var rows = r.data || [];
+        if (!rows.length) {
+          host.innerHTML =
+            '<div class="alert alert--warn">The admins table is empty. Add your email above — ' +
+            "until then anyone who signs in can edit the site.</div>";
+          return;
+        }
+        host.innerHTML =
+          '<div class="repeat">' +
+          rows
+            .map(function (x) {
+              return (
+                '<div class="rep-row" style="grid-template-columns:1fr auto;align-items:center">' +
+                "<div>" + esc(x.email) + "</div>" +
+                '<span class="tag tag--ok">admin</span></div>'
+              );
+            })
+            .join("") +
+          "</div>";
+      });
+  }
+
+  function wireSupabaseTab() {
+    fillSupabaseForm();
+    loadSetupSql();
+
+    var t = $("#sb-test");
+    if (t) t.addEventListener("click", testConnection);
+    var s = $("#sb-save");
+    if (s) s.addEventListener("click", saveConnection);
+    var r = $("#sb-reset");
+    if (r) r.addEventListener("click", resetConnection);
+    var cs = $("#sb-check-schema");
+    if (cs) cs.addEventListener("click", checkSchema);
+
+    var cc = $("#sb-copy-cmd");
+    if (cc) cc.addEventListener("click", function () { copyText("npm run supabase:setup", cc); });
+    var cq = $("#sb-copy-sql");
+    if (cq) {
+      cq.addEventListener("click", function () {
+        var pre = $("#sb-sql");
+        copyText((pre && pre.dataset.sql) || (pre && pre.textContent) || "", cq);
+      });
+    }
+
+    var aa = $("#sb-add-admin");
+    if (aa) aa.addEventListener("click", function () { addAdmin($("#sb-admin-email").value.trim()); });
+    var la = $("#sb-list-admins");
+    if (la) la.addEventListener("click", listAdmins);
+
+    /* show the live state of the current connection */
+    probe(sbCfg().url, sbCfg().key)
+      .then(function () { sbState("connected", "ok"); })
+      .catch(function () { sbState("not connected", "warn"); });
+  }
+
   /* ---------------- tabs ---------------- */
   var TITLES = {
     home: ["Home page", "Hero banner, welcome text and statistics."],
@@ -540,6 +855,7 @@
     contact: ["Contact", "Address blocks and the enquiry form details."],
     footer: ["Footer", "Address, phone numbers and the subscribe box."],
     enquiries: ["Enquiries", "Messages submitted through the contact form."],
+    supabase: ["Supabase", "Connection, database setup and admin access."],
   };
 
   function showTab(name) {
@@ -554,6 +870,7 @@
     $("#pane-title").textContent = meta[0];
     $("#pane-sub").textContent = meta[1];
     if (name === "enquiries") loadEnquiries();
+    if (name === "supabase") { fillSupabaseForm(); listAdmins(); }
   }
 
   function wireTabs() {
@@ -577,6 +894,7 @@
     wireTabs();
     wireBindings();
     wireAddButtons();
+    wireSupabaseTab();
 
     $("#save-btn").addEventListener("click", saveContent);
     $("#reload-btn").addEventListener("click", function () {

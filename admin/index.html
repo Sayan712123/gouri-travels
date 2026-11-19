@@ -72,6 +72,7 @@
     <a href="#" data-tab="contact">📞 <span>Contact</span></a>
     <a href="#" data-tab="footer">🔗 <span>Footer</span></a>
     <a href="#" data-tab="enquiries">✉️ <span>Enquiries</span></a>
+    <a href="#" data-tab="supabase">🔌 <span>Supabase</span></a>
     <a href="../index.html" target="_blank" rel="noopener">🌐 <span>View site</span></a>
     <div class="sidebar__spacer"></div>
     <div class="sidebar__user">
@@ -213,6 +214,88 @@
           <h3 class="sub-h">Phone numbers</h3>
           <div id="phones-editor" class="repeat"></div>
           <button class="btn btn--ghost btn--sm" data-add="phones">+ Add phone</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUPABASE -->
+    <section data-pane="supabase" class="hidden">
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Connection</h2>
+          <span class="tag" id="sb-state">checking…</span>
+        </div>
+        <div class="panel__body">
+          <p class="muted" style="margin-top:0">
+            The project URL and the <code>anon</code> / publishable key. Both are safe to keep in the
+            browser — every table is protected by row level security. Never paste the
+            <code>service_role</code> key here.
+          </p>
+          <div class="form-grid">
+            <label class="fld fld--wide"><span>Project URL</span>
+              <input type="url" id="sb-url" placeholder="https://xxxxxxxx.supabase.co" spellcheck="false" autocomplete="off" /></label>
+            <label class="fld fld--wide"><span>Anon / publishable key</span>
+              <input type="text" id="sb-key" placeholder="sb_publishable_… or eyJhbGciOi…" spellcheck="false" autocomplete="off" /></label>
+          </div>
+          <div class="toolbar" style="margin-top:16px">
+            <button class="btn btn--sm" id="sb-test" type="button">⚡ Test connection</button>
+            <button class="btn btn--ghost btn--sm" id="sb-save" type="button">💾 Save connection</button>
+            <button class="btn btn--ghost btn--sm" id="sb-reset" type="button">↺ Reset to default</button>
+          </div>
+          <div id="sb-result" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Database setup</h2>
+          <button class="btn btn--ghost btn--sm" id="sb-check-schema" type="button">🔍 Check tables</button>
+        </div>
+        <div class="panel__body">
+          <p class="muted" style="margin-top:0">
+            The site needs three tables — <code>admins</code>, <code>enquiries</code> and
+            <code>settings</code> — plus the <code>is_admin()</code> helper and their row level
+            security policies. Press <strong>Check tables</strong> to see what is missing.
+          </p>
+          <div id="sb-schema"></div>
+
+          <h3 class="sub-h">Option A — run it from your terminal (recommended)</h3>
+          <p class="muted">
+            One command creates everything. It needs the <strong>database password</strong> or the
+            <strong>service_role</strong> key, which stay on your machine and are never committed.
+          </p>
+          <pre id="sb-cmd" style="margin:0 0 10px;padding:12px;overflow-x:auto;border-radius:8px;background:var(--card-2);border:1px solid var(--line);font-size:.76rem;line-height:1.5">npm run supabase:setup</pre>
+          <button class="btn btn--ghost btn--sm" id="sb-copy-cmd" type="button">⧉ Copy command</button>
+
+          <h3 class="sub-h">Option B — paste the SQL into the Supabase SQL editor</h3>
+          <p class="muted">
+            Open <a href="https://supabase.com/dashboard/project/_/sql/new" target="_blank" rel="noopener" style="color:var(--brand);font-weight:600">Supabase → SQL Editor</a>,
+            paste the script below and press Run. It is idempotent — running it twice is harmless.
+          </p>
+          <div class="toolbar" style="margin-bottom:10px">
+            <button class="btn btn--ghost btn--sm" id="sb-copy-sql" type="button">⧉ Copy SQL</button>
+            <a class="btn btn--ghost btn--sm" href="../supabase/setup.sql" target="_blank" rel="noopener">↗ Open setup.sql</a>
+          </div>
+          <pre id="sb-sql" style="margin:0;padding:12px;max-height:320px;overflow:auto;border-radius:8px;background:var(--card-2);border:1px solid var(--line);font-size:.72rem;line-height:1.5">Loading…</pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><h2>Admin access</h2></div>
+        <div class="panel__body">
+          <p class="muted" style="margin-top:0">
+            Only emails listed in the <code>admins</code> table may save changes. Add yours below —
+            it is written straight to Supabase, so no SQL editor needed.
+          </p>
+          <div class="form-grid">
+            <label class="fld fld--wide"><span>Admin email</span>
+              <input type="email" id="sb-admin-email" placeholder="you@example.com" autocomplete="off" /></label>
+          </div>
+          <div class="toolbar" style="margin-top:16px">
+            <button class="btn btn--sm" id="sb-add-admin" type="button">+ Add admin</button>
+            <button class="btn btn--ghost btn--sm" id="sb-list-admins" type="button">↻ List admins</button>
+          </div>
+          <div id="sb-admins" style="margin-top:14px"></div>
         </div>
       </div>
     </section>

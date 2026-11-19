@@ -13,21 +13,26 @@ an admin panel (manage bookings, trips and site settings), and a Supabase backen
 ```
 index.html            The whole public site — a single self-contained file
                       (#/ home, #/tourpackage, #/gallery, #/contact, #/tour-<id>)
-                      CSS, JS, fonts and every photo are embedded; no external requests
-                      or other files needed.
+                      CSS, JS, fonts and every photo are embedded.
+
+content.json          Fallback content, used when Supabase is unreachable
 
 assets/               Brand logos (light/dark), favicons, app icons
 
-admin/index.html      Admin login (email+password or Google)
-admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings, CSV export
+admin/index.html      Admin panel — login + 7 tabs (one page)
 admin/css/admin.css   Admin styles (light + dark theme)
 admin/js/admin.js     Admin logic
 admin/js/config.js    Supabase Project URL + anon key  ← edit this
 
-js/i18n.js            English / বাংলা dictionary + language toggle engine (admin)
-js/theme.js           Light/dark theme switch + first-visit intro animation (admin)
+js/config.js          Supabase Project URL + anon key for the public site
+js/site.js            Renders every page from the site_content row
+js/images.js          Embedded photos
+js/theme.js           Light/dark theme switch + first-visit intro animation
 
+supabase/setup.sql    One-shot database setup (tables, RLS, storage)
 supabase/schema.sql   Reference copy of the live database schema
+scripts/supabase-setup.mjs   Terminal setup script (npm run supabase:setup)
+package.json          npm scripts for the setup script
 docs/SETUP.md         Detailed setup + troubleshooting
 .env.example          Environment variable template
 ```
@@ -70,103 +75,112 @@ The connection details live in two files and are already filled in:
 
 | File | Keys |
 |---|---|
-| `admin/js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
+| `js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` (public site) |
+| `admin/js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` (admin panel) |
 
-> The public `index.html` is self-contained and does not talk to Supabase — the trips,
-> galleries and contact form in it are static content and a `mailto:` hand-off. Only the
-> admin panel reads and writes the database.
+Both files read a saved override from `localStorage` (`gt_sb_config`) first, so the
+**Admin → Supabase** tab can point the whole site at a different project without a rebuild.
 
-### Database schema (as it exists today)
+### Connecting from the admin panel
+
+`/admin/` → **Supabase** tab:
+
+- **Project URL** and **Anon / publishable key** are pre-filled with the current project.
+- **Test connection** probes the project with a plain REST call and reports whether
+  `settings` is reachable and `is_admin()` exists.
+- **Save connection** stores the values in this browser and reloads — the public site
+  then reads from the same project.
+- **Reset to default** forgets the override.
+
+### Connecting from the terminal
+
+```bash
+npm install          # once — installs the `pg` driver
+npm run supabase:setup
+```
+
+That creates the tables, the `is_admin()` helper, the RLS policies and the
+`trip-photos` storage bucket. It is idempotent — running it twice is harmless.
+
+It needs **one** of these, in a `.env` file (git-ignored) or exported in your shell:
+
+| Option | Variables | Where to get it |
+|---|---|---|
+| A — database password | `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` | Project Settings → Database |
+| B — connection string | `DATABASE_URL` | Project Settings → Database → Connection string → URI |
+| C — access token | `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_REF` | [Account → Access tokens](https://supabase.com/dashboard/account/tokens) |
+
+```bash
+npm run supabase:check     # only report what exists, change nothing
+```
+
+No credentials? Open `/admin/` → **Supabase** → copy the SQL into the
+[Supabase SQL editor](https://supabase.com/dashboard/project/_/sql/new). Same result.
+
+### Database schema
 
 | Table | Columns |
 |---|---|
-| `trips` | `id`, `title`, `from_place`, `to_place`, `trip_date`, `trip_time`, `price`, `boarding`, `details`, `thumb`, `photos[]`, `seats`, `open`, `created_at`, `kind`, `vehicle_name`, `cars`, `per_car` |
-| `seats` | `trip_id`, `label`, `status` (`held` / `booked`), `name`, `phone`, `held_until`, `ticket`, `note`, `created_at` |
-| `settings` | `key`, `value` |
-| `admins` | `email` |
+| `settings` | `key`, `value` — the whole public site is the row `key = 'site_content'` (JSON) |
+| `admins` | `email`, `created_at` — who may save changes |
+| `enquiries` | `id`, `name`, `phone`, `email`, `address`, `message`, `status`, `created_at` |
 
-**View:** `seat_status` (`trip_id`, `label`, `status`) — the public, privacy-safe view of taken seats.
-**RPC:** `hold_seats(p_trip, p_labels, p_name, p_phone)`, `my_bookings()`, `get_ticket(p_code)`, `is_admin()`.
+**RPC:** `is_admin()` — true when the signed-in user's email is in `admins`.
 **Storage:** `trip-photos` (public bucket) — trip covers, galleries and hero images.
 
-### How the code maps onto that schema
+### How the public site reads content
 
-The original code expected `bookings`, `enquiries`, `slug`, `price_per_person`, `duration_days`,
-`cover_image_url`, `itinerary[]` and `highlights[]` — **none of which exist** in the live database.
-`admin/js/admin.js` is a schema adapter that translates:
+`js/site.js` fetches the `site_content` row from `settings` on every load and renders
+the whole site from it. If Supabase is unreachable it falls back to the `content.json`
+shipped with the repo, so the site never goes blank. An admin save therefore shows up
+on the next page load — no rebuild, no deploy.
 
-| Old (non-existent) | Now uses |
+The contact form POSTs to `enquiries`; if that fails (offline, table missing) it falls
+back to opening the visitor's email app, so a message is never lost.
+
+### Row level security
+
+| Table | Public | Signed-in | Admin |
+|---|---|---|---|
+| `settings` | read | read | read + write |
+| `enquiries` | insert only | insert only | read + write |
+| `admins` | — | insert **own** email while the table is empty | read + write |
+
+The "insert own email while empty" policy is what lets the first admin claim the panel
+without touching the SQL editor. Once one row exists it stops matching.
+
+
+### Admin panel
+
+Sign in at `/admin/` with an email that exists in the `admins` table (or claim it from the
+panel — see below). Six content tabs plus a Supabase tab:
+
+| Tab | What it edits |
 |---|---|
-| `bookings` table | `seats` rows (`status: held` → pending, `booked` → confirmed) |
-| `enquiries` table | Contact form opens WhatsApp (no table exists) |
-| `slug` | `id` (public route is `#/tour-<id>`; a title-slug fallback also works) |
-| `price_per_person` | `price` |
-| `cover_image_url` | `thumb` |
-| `highlights[]` | `details` → `##hl` section |
-| `itinerary[]` | `details` → `##days` (JSON) or `##it` (lines) |
-| `description` / `summary` | `details` → `##ov` section |
-| `seats_total` | `seats` |
-| `departure_date` | `trip_date` |
+| **Home page** | Hero caption and slides, welcome heading/paragraphs/photo, "Since" badge, stat counters |
+| **Tours** | Add / edit / delete tours — title, URL id, cover image, body (`## Heading`, `[Day 1] text`, `- bullet`, plain paragraph) |
+| **Gallery** | Photos and captions |
+| **Contact** | Address blocks, enquiry email and phone |
+| **Footer** | Address, phone numbers, email, subscribe text, copyright |
+| **Enquiries** | Messages submitted through the public contact form |
+| **Supabase** | Connection, database setup, admin access |
 
-The `details` column is a sectioned text field:
-
-```
-##ov      overview paragraph
-##hl      highlights, one per line
-##it      day-wise plan, one per line
-##inc     included, one per line
-##exc     not included, one per line
-##pol     cancellation / policy, one per line
-##meal    meal notes
-##cl      booking closes at (YYYY-MM-DD HH:MM)
-##days    JSON array of {day, title, detail}
-```
-
----
-
-## Bilingual site (English / বাংলা)
-
-- The admin panel **opens in English** by default (`DEFAULT_LANG: "en"` in `admin/js/config.js`).
-- A **EN / বাং** toggle sits in the admin header.
-- The choice is saved in `localStorage` under `gt_lang`, so it persists between admin visits.
-- All copy lives in `js/i18n.js`. To add a string, add the same key to both the `en` and `bn` blocks
-  and put `data-i18n="your.key"` on the element (or `data-i18n-ph` for placeholders,
-  `data-i18n-html` for markup, `data-i18n-aria` for aria-labels).
-
----
-
-## Booking flow
-
-1. Visitor opens a trip at `#/tourpackage`, picks a date and phones in the booking.
-2. **Google sign-in is required** — the `hold_seats` RPC returns `"login"` for anonymous users,
-   and RLS only lets a signed-in user write to `seats`.
-3. They pick seats from the live seat map (free / your pick / on hold / booked).
-4. `hold_seats` holds the seats for 15 minutes and returns a booking code.
-5. The visitor sends the booking on WhatsApp; the admin confirms it in the dashboard,
-   which flips the seat to `booked` and issues a ticket code.
-
----
-
-## Admin panel
-
-Sign in at `/admin/` with an email that exists in the `admins` table.
-
-- **Bookings** — every `seats` row, with search and status filter. Confirm (issues a ticket code)
-  or cancel (deletes the hold).
-- **Trips** — create / edit / hide / delete trips. The editor writes the `details` sections for you.
-- **Settings** — brand name, WhatsApp number, phone, UPI id, notice banner, terms, deduction slabs,
-  reviews, FAQ and hero slider images. These drive the public site live.
+Everything is stored as one JSON document in `settings` under the key `site_content`.
 
 ### Adding an admin
 
-1. Supabase Dashboard → **Authentication → Users → Add user** (set an email + password).
-2. Then in the SQL editor:
+**From the panel (no SQL):** sign in, open the **Supabase** tab, type your email under
+*Admin access* and press **+ Add admin**. If the save is ever refused, the error banner
+offers a **Make me an admin** button that does the same thing.
+
+**From the SQL editor:**
 
 ```sql
-insert into admins (email) values ('you@example.com');
+insert into public.admins (email) values ('you@example.com')
+  on conflict (email) do nothing;
 ```
 
-3. Sign in at `/admin/`. `is_admin()` checks the signed-in email against this table.
+`is_admin()` checks the signed-in email against this table.
 
 ---
 
@@ -205,7 +219,9 @@ so the site works correctly under the `/gouri-travels/` sub-path.
 
 | Symptom | Fix |
 |---|---|
-| Admin dashboard is empty | Check `SUPABASE_URL` / `SUPABASE_ANON_KEY` in `admin/js/config.js` |
+| Admin panel is empty | Open **Admin → Supabase** and press **Test connection** |
+| "enquiries table is missing" | Run `npm run supabase:setup`, or paste `supabase/setup.sql` into the SQL editor |
+| Save is refused (RLS) | Your email is not in `admins` — press **Make me an admin**, or add it in the Supabase tab |
 | "Sign in with Google" does nothing | Add your Pages URL to Supabase → Authentication → URL Configuration → Redirect URLs |
 | Admin login says "not an admin" | The signed-in email is missing from the `admins` table |
 | Seats won't hold | The visitor is not signed in — `hold_seats` requires a session |
@@ -216,6 +232,8 @@ so the site works correctly under the `/gouri-travels/` sub-path.
 ## Security notes
 
 - Only the **anon** key is committed. The `service_role` key is never used in the browser.
-- RLS protects every table: the public can read `trips`, `settings` and the `seat_status` view,
-  but only signed-in users can hold seats, and only admins can write trips and settings.
+- RLS protects every table: the public can read `settings` and insert an enquiry, but only
+  admins can write content or read the enquiry list.
+- The setup script needs a database password or access token, but it only ever reads them from
+  your local `.env` — they are never committed and never reach the browser.
 - `admin/` is marked `noindex, nofollow`.
