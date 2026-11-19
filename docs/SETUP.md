@@ -11,8 +11,9 @@ how to add an admin, and how to deploy.
 Two files hold the credentials, and both are already filled in:
 
 ```
-js/config.js          → SUPABASE_URL, SUPABASE_ANON_KEY
 admin/js/config.js    → SUPABASE_URL, SUPABASE_ANON_KEY
+
+(index.html, the public site, is self-contained and needs no config.)
 ```
 
 Find the values in the Supabase Dashboard under **Project Settings → API**:
@@ -130,8 +131,8 @@ correctly under the `/gouri-travels/` sub-path.
 
 ## 7. Language toggle
 
-- Default language is **English** (`DEFAULT_LANG` in `js/config.js`).
-- The **EN / বাং** switch is in the header of every page and in the admin panel.
+- Default language is **English** (`DEFAULT_LANG` in `admin/js/config.js`).
+- The **EN / বাং** switch is in the admin header.
 - The choice is stored in `localStorage` (`gt_lang`) and persists across pages and visits.
 - All strings live in `js/i18n.js` under the `en` and `bn` blocks.
 
@@ -152,7 +153,7 @@ Then add `"my.key"` to both language blocks.
 
 | Symptom | Cause / fix |
 |---|---|
-| Trips don't load | Wrong `SUPABASE_URL` or `SUPABASE_ANON_KEY` in `js/config.js` |
+| Admin dashboard is empty | Wrong `SUPABASE_URL` or `SUPABASE_ANON_KEY` in `admin/js/config.js` |
 | Google button does nothing | Redirect URL missing in Supabase → Authentication → URL Configuration |
 | "This account is not an admin" | The signed-in email is not in the `admins` table |
 | Seats won't hold | Visitor is not signed in — `hold_seats` needs a session |

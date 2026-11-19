@@ -11,12 +11,10 @@ an admin panel (manage bookings, trips and site settings), and a Supabase backen
 ## What's inside
 
 ```
-index.html            Home — hero slider, search, featured trips, how-it-works, FAQ, reviews
-trips.html            All trips with filters (duration / budget) and search
-trip.html             Trip detail — overview, highlights, day-wise plan, seat count
-booking.html          Booking — Google sign-in, seat picker, hold seats, ticket
-contact.html          Contact — message opens in WhatsApp
-css/styles.css        Public site styles (light + dark theme, responsive, Hind Siliguri)
+index.html            The whole public site — a single self-contained file
+                      (#/ home, #/tourpackage, #/gallery, #/contact, #/tour-<id>)
+                      CSS, JS, fonts and every photo are embedded; no external requests
+                      or other files needed.
 
 assets/               Brand logos (light/dark), favicons, app icons
 
@@ -24,33 +22,38 @@ admin/index.html      Admin login (email+password or Google)
 admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings, CSV export
 admin/css/admin.css   Admin styles (light + dark theme)
 admin/js/admin.js     Admin logic
+admin/js/config.js    Supabase Project URL + anon key  ← edit this
 
-js/config.js          Supabase Project URL + anon key  ← edit this
-js/i18n.js            English / বাংলা dictionary + language toggle engine
-js/theme.js           Light/dark theme switch + first-visit intro animation
-js/supabase-client.js Shared Supabase client
-js/site.js            Public data layer (schema adapter)
+js/i18n.js            English / বাংলা dictionary + language toggle engine (admin)
+js/theme.js           Light/dark theme switch + first-visit intro animation (admin)
 
 supabase/schema.sql   Reference copy of the live database schema
 docs/SETUP.md         Detailed setup + troubleshooting
 .env.example          Environment variable template
 ```
 
+> The public site used to be five separate pages (`index`, `trips`, `trip`, `booking`,
+> `contact`) sharing `css/styles.css` and `js/site.js`. It has been replaced by the
+> single-file build above. Those files are gone, so `trips.html`, `booking.html` and
+> friends now return 404 — the equivalent views live at the `#/` routes in `index.html`.
+> The admin panel is unchanged and still works against Supabase.
+
 ---
 
 ## Brand, theme and language
 
-**Colours** — the whole site uses the logo's own gradient: magenta `#EC1C5A` → orange `#FF7A3D`
-on a near-black (`#0A090B`) brand background. Every colour lives in one place, the CSS
-variables at the top of `css/styles.css` and `admin/css/admin.css`.
+**Colours** — the admin panel uses the brand gradient: magenta `#EC1C5A` → orange `#FF7A3D`
+on a near-black (`#0A090B`) brand background. The single-file public site carries its own
+palette inside `index.html`, matched to the same brand. Admin colours live in the CSS
+variables at the top of `admin/css/admin.css`.
 
-**Themes** — the header has a sun/moon toggle on every public page and in the admin panel.
+**Themes** — the header has a sun/moon toggle in the admin panel.
 Dark is the default; the visitor's choice is stored in `localStorage` under `gt_theme` and is
 re-applied before the first paint, so there is no flash of the wrong theme. The logo swaps
 automatically: the white wordmark (`logo-full-dark.png`) on dark, the dark wordmark
 (`logo-full-light.png`) on light.
 
-**Intro animation** — the first time a visitor opens the site in a session, a splash screen
+**Intro animation** — the first time a visitor opens the admin panel in a session, a splash screen
 fades and scales the logo in over a magenta/orange glow, then lifts the curtain. It is shown
 once per session (`sessionStorage: gt_intro_seen`), can be skipped by clicking or pressing Esc,
 and is skipped entirely for visitors with `prefers-reduced-motion`.
@@ -67,11 +70,11 @@ The connection details live in two files and are already filled in:
 
 | File | Keys |
 |---|---|
-| `js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
 | `admin/js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
 
-> The **anon / public** key is meant to be in browser code — Row Level Security protects the data.
-> Never put the `service_role` key in these files.
+> The public `index.html` is self-contained and does not talk to Supabase — the trips,
+> galleries and contact form in it are static content and a `mailto:` hand-off. Only the
+> admin panel reads and writes the database.
 
 ### Database schema (as it exists today)
 
@@ -90,13 +93,13 @@ The connection details live in two files and are already filled in:
 
 The original code expected `bookings`, `enquiries`, `slug`, `price_per_person`, `duration_days`,
 `cover_image_url`, `itinerary[]` and `highlights[]` — **none of which exist** in the live database.
-`js/site.js` and `admin/js/admin.js` are now schema adapters that translate:
+`admin/js/admin.js` is a schema adapter that translates:
 
 | Old (non-existent) | Now uses |
 |---|---|
 | `bookings` table | `seats` rows (`status: held` → pending, `booked` → confirmed) |
 | `enquiries` table | Contact form opens WhatsApp (no table exists) |
-| `slug` | `id` (URL is `trip.html?id=…`; a title-slug fallback also works) |
+| `slug` | `id` (public route is `#/tour-<id>`; a title-slug fallback also works) |
 | `price_per_person` | `price` |
 | `cover_image_url` | `thumb` |
 | `highlights[]` | `details` → `##hl` section |
@@ -123,9 +126,9 @@ The `details` column is a sectioned text field:
 
 ## Bilingual site (English / বাংলা)
 
-- The site **opens in English** by default (`DEFAULT_LANG: "en"` in `js/config.js`).
-- A **EN / বাং** toggle sits in the header of every public page and in the admin panel.
-- The choice is saved in `localStorage` under `gt_lang`, so it follows the visitor from page to page.
+- The admin panel **opens in English** by default (`DEFAULT_LANG: "en"` in `admin/js/config.js`).
+- A **EN / বাং** toggle sits in the admin header.
+- The choice is saved in `localStorage` under `gt_lang`, so it persists between admin visits.
 - All copy lives in `js/i18n.js`. To add a string, add the same key to both the `en` and `bn` blocks
   and put `data-i18n="your.key"` on the element (or `data-i18n-ph` for placeholders,
   `data-i18n-html` for markup, `data-i18n-aria` for aria-labels).
@@ -134,7 +137,7 @@ The `details` column is a sectioned text field:
 
 ## Booking flow
 
-1. Visitor opens `booking.html`, picks a trip.
+1. Visitor opens a trip at `#/tourpackage`, picks a date and phones in the booking.
 2. **Google sign-in is required** — the `hold_seats` RPC returns `"login"` for anonymous users,
    and RLS only lets a signed-in user write to `seats`.
 3. They pick seats from the live seat map (free / your pick / on hold / booked).
@@ -202,7 +205,7 @@ so the site works correctly under the `/gouri-travels/` sub-path.
 
 | Symptom | Fix |
 |---|---|
-| Trips don't load | Check `SUPABASE_URL` / `SUPABASE_ANON_KEY` in `js/config.js` |
+| Admin dashboard is empty | Check `SUPABASE_URL` / `SUPABASE_ANON_KEY` in `admin/js/config.js` |
 | "Sign in with Google" does nothing | Add your Pages URL to Supabase → Authentication → URL Configuration → Redirect URLs |
 | Admin login says "not an admin" | The signed-in email is missing from the `admins` table |
 | Seats won't hold | The visitor is not signed in — `hold_seats` requires a session |
