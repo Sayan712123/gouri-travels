@@ -1,70 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title data-i18n="page.adminTitle">Admin Login — Gouri Travels</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — Gouri Travels</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#0a090b" />
   <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon-16.png" />
   <link rel="shortcut icon" href="../assets/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="../assets/apple-touch-icon.png" />
-  <meta name="theme-color" content="#0a090b" />
   <link rel="stylesheet" href="css/admin.css" />
   <script src="../js/theme.js"></script>
 </head>
 <body>
 
-  <div class="login-wrap">
-    <div class="login-card">
-      <div class="login-brand">
-        <img class="brand__logo--on-light" src="../assets/logo-full-light.png" alt="Gouri Travels" width="160" height="40" />
-        <img class="brand__logo--on-dark" src="../assets/logo-full-dark.png" alt="Gouri Travels" width="160" height="40" />
-      </div>
+<!-- ================= LOGIN ================= -->
+<div class="login-wrap" id="login-view">
+  <div class="login-card">
+    <div class="login-brand">
+      <img class="brand__logo--on-light" src="../assets/logo-full-light.png" alt="Gouri Travels" width="170" height="42" />
+      <img class="brand__logo--on-dark" src="../assets/logo-full-dark.png" alt="Gouri Travels" width="170" height="42" />
+    </div>
 
-      <div class="login-lang">
-        <button class="theme-switch" data-theme-toggle type="button" aria-label="Toggle theme" aria-pressed="true">
-          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
-        </button>
-        <button class="lang-switch" data-lang-toggle type="button" aria-label="Switch language">
-          <span data-lang-opt="en">EN</span><span data-lang-opt="bn">বাং</span>
-        </button>
-      </div>
-
-      <h1 data-i18n="adm.login">Admin login</h1>
-      <p class="sub" data-i18n="adm.loginSub">Sign in to manage bookings and trips.</p>
-
-      <div id="login-alert"></div>
-
-      <button class="btn btn--block btn--google" id="google-btn" type="button">
-        <span data-i18n="adm.google">Sign in with Google</span>
+    <div class="login-lang">
+      <button class="theme-switch" data-theme-toggle type="button" aria-label="Toggle theme">
+        <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
       </button>
+    </div>
 
-      <div class="or-sep"><span data-i18n="adm.or">or</span></div>
+    <h1>Admin login</h1>
+    <p class="sub">Sign in to edit the website content.</p>
 
-      <form id="login-form" novalidate>
-        <div class="field">
-          <label for="email" data-i18n="adm.email">Email</label>
-          <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@example.com" />
+    <div id="login-alert"></div>
+
+    <button class="btn btn--block btn--google" id="google-btn" type="button">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.8l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
+      <span>Sign in with Google</span>
+    </button>
+
+    <div class="or-sep"><span>or</span></div>
+
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="username" placeholder="admin@example.com" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+      </div>
+      <button class="btn btn--block" type="submit" id="login-btn">Login</button>
+    </form>
+
+    <p style="margin:20px 0 0;font-size:.82rem;color:var(--muted);text-align:center">
+      <a href="../index.html" style="color:var(--brand);font-weight:600">← Back to the public site</a>
+    </p>
+  </div>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div class="admin-shell hidden" id="dash-view">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <img class="brand__logo--on-dark" src="../assets/logo-full-dark.png" alt="Gouri Travels" width="150" height="34" />
+    </div>
+    <a href="#" data-tab="home" class="is-active">🏠 <span>Home page</span></a>
+    <a href="#" data-tab="tours">🗺️ <span>Tours</span></a>
+    <a href="#" data-tab="gallery">🖼️ <span>Gallery</span></a>
+    <a href="#" data-tab="contact">📞 <span>Contact</span></a>
+    <a href="#" data-tab="footer">🔗 <span>Footer</span></a>
+    <a href="#" data-tab="enquiries">✉️ <span>Enquiries</span></a>
+    <a href="../index.html" target="_blank" rel="noopener">🌐 <span>View site</span></a>
+    <div class="sidebar__spacer"></div>
+    <div class="sidebar__user">
+      <strong id="admin-email">…</strong>
+      <button id="logout-btn">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pane-title">Home page</h1>
+        <p id="pane-sub">Everything on the public site is edited here.</p>
+      </div>
+      <div class="toolbar topbar-actions">
+        <button class="theme-switch" data-theme-toggle type="button" aria-label="Toggle theme">
+          <svg class="ico-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <svg class="ico-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+        </button>
+        <button class="btn btn--ghost btn--sm" id="reload-btn">↻ Reload</button>
+        <button class="btn btn--sm" id="save-btn">💾 Save changes</button>
+      </div>
+    </div>
+
+    <div id="admin-warning" class="hidden"></div>
+    <div id="save-note" class="save-note hidden"></div>
+
+    <!-- HOME -->
+    <section data-pane="home">
+      <div class="panel">
+        <div class="panel__head"><h2>Hero banner</h2></div>
+        <div class="panel__body">
+          <div class="form-grid">
+            <label class="fld fld--wide"><span>Hero caption</span>
+              <input type="text" data-bind="hero.caption" /></label>
+            <label class="fld fld--wide"><span>Hero slides — one image per line (URL or images/…)</span>
+              <textarea data-bind="hero.slides" data-list="1" rows="4"></textarea></label>
+          </div>
         </div>
-        <div class="field">
-          <label for="password" data-i18n="adm.password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
-        </div>
-        <button class="btn btn--block" type="submit" id="login-btn" data-i18n="adm.signIn">Login</button>
-      </form>
+      </div>
 
-      <p style="margin:20px 0 0;font-size:.82rem;color:#7b8a84;text-align:center">
-        <a href="../index.html" style="color:#0f6b52;font-weight:600" data-i18n="adm.back">← Back to the public site</a>
-      </p>
+      <div class="panel">
+        <div class="panel__head"><h2>Welcome section</h2></div>
+        <div class="panel__body">
+          <div class="form-grid">
+            <label class="fld"><span>Heading</span>
+              <input type="text" data-bind="welcome.title" /></label>
+            <label class="fld"><span>Photo</span>
+              <input type="text" data-bind="welcome.photo" /></label>
+            <label class="fld"><span>Badge year</span>
+              <input type="text" data-bind="welcome.sinceYear" /></label>
+            <label class="fld"><span>Badge label</span>
+              <input type="text" data-bind="welcome.sinceLabel" /></label>
+            <label class="fld fld--wide"><span>Paragraphs — one per line (basic HTML allowed: &lt;strong&gt;, &lt;u&gt;, &lt;span class="marker"&gt;)</span>
+              <textarea data-bind="welcome.paragraphs" data-list="1" rows="10"></textarea></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__head"><h2>Statistics</h2></div>
+        <div class="panel__body">
+          <div id="stats-editor" class="repeat"></div>
+          <button class="btn btn--ghost btn--sm" data-add="stats">+ Add statistic</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOURS -->
+    <section data-pane="tours" class="hidden">
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Tours</h2>
+          <button class="btn btn--sm" id="new-tour-btn">+ New tour</button>
+        </div>
+        <div class="panel__body panel__body--flush">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Image</th><th>Title</th><th>ID</th><th>Blocks</th><th>Action</th></tr></thead>
+              <tbody id="tours-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section data-pane="gallery" class="hidden">
+      <div class="panel">
+        <div class="panel__head"><h2>Gallery</h2></div>
+        <div class="panel__body">
+          <div id="gallery-editor" class="repeat"></div>
+          <button class="btn btn--ghost btn--sm" data-add="gallery">+ Add photo</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section data-pane="contact" class="hidden">
+      <div class="panel">
+        <div class="panel__head"><h2>Contact blocks</h2></div>
+        <div class="panel__body">
+          <div id="contact-editor" class="repeat"></div>
+          <button class="btn btn--ghost btn--sm" data-add="contact">+ Add block</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel__head"><h2>Enquiry form</h2></div>
+        <div class="panel__body">
+          <div class="form-grid">
+            <label class="fld"><span>Enquiry email</span>
+              <input type="email" data-bind="enquiryEmail" /></label>
+            <label class="fld"><span>Phone shown</span>
+              <input type="text" data-bind="enquiryPhone" /></label>
+            <label class="fld"><span>Phone link (tel:)</span>
+              <input type="text" data-bind="enquiryPhoneTel" /></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <section data-pane="footer" class="hidden">
+      <div class="panel">
+        <div class="panel__head"><h2>Footer</h2></div>
+        <div class="panel__body">
+          <div class="form-grid">
+            <label class="fld fld--wide"><span>Address (HTML allowed, use &lt;br&gt;)</span>
+              <textarea data-bind="footer.address" rows="4"></textarea></label>
+            <label class="fld"><span>Email</span>
+              <input type="email" data-bind="footer.email" /></label>
+            <label class="fld"><span>Copyright line (HTML allowed)</span>
+              <input type="text" data-bind="footer.copyright" /></label>
+            <label class="fld fld--wide"><span>Subscribe text</span>
+              <input type="text" data-bind="footer.subscribeText" /></label>
+            <label class="fld fld--wide"><span>Subscribe note</span>
+              <input type="text" data-bind="footer.subscribeNote" /></label>
+          </div>
+          <h3 class="sub-h">Phone numbers</h3>
+          <div id="phones-editor" class="repeat"></div>
+          <button class="btn btn--ghost btn--sm" data-add="phones">+ Add phone</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENQUIRIES -->
+    <section data-pane="enquiries" class="hidden">
+      <div class="panel">
+        <div class="panel__head">
+          <h2>Enquiries</h2>
+          <button class="btn btn--ghost btn--sm" id="enq-reload">↻ Refresh</button>
+        </div>
+        <div class="panel__body panel__body--flush">
+          <div id="enq-note" class="enq-note hidden"></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>When</th><th>Name</th><th>Phone</th><th>Email</th><th>Message</th><th>Status</th></tr></thead>
+              <tbody id="enq-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= TOUR MODAL ================= -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal__head">
+      <h2 id="modal-title">Edit tour</h2>
+      <button class="modal__close" data-modal-close aria-label="Close">×</button>
+    </div>
+    <div class="modal__body" id="modal-body"></div>
+    <div class="modal__foot">
+      <button class="btn btn--ghost" data-modal-close>Cancel</button>
+      <button class="btn" id="modal-save">Save tour</button>
     </div>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/i18n.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/admin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>

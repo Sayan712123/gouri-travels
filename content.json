@@ -1,0 +1,1314 @@
+{
+ "version": 2,
+ "brand": "Gouri Travels",
+ "hero": {
+  "caption": "Find Your Special Tour with Us",
+  "slides": [
+   "images/banner1.webp",
+   "images/banner2.webp",
+   "images/banner3.webp",
+   "images/banner4.jpg"
+  ]
+ },
+ "welcome": {
+  "title": "Welcome To Our Website",
+  "paragraphs": [
+   "<strong><span class=\"marker\">Gouri Travels</span> Established in the year 2019 is one of the premium tour operator in Kolkata and one stop solution providers of Travel &amp; Tourism related services around the world. We have strong network of agents and tour operators, affiliations with reputed trade bodies and its global presence to offer unique and authentic travel experiences in Indian Subcontinent and around the globe.</strong>",
+   "<strong>We have our own property <u>HOTEL RAJ PALACE</u> at Rajarhat&ndash;Newtown, near City Centre 2, (3 km from Kolkata Airport) with 35 air conditioned well equipped Rooms with all modern facilities, Banquet / Conference hall and Multi cuisine restaurant 60 sitting arrangements.</strong>",
+   "<strong>We have a <u>TRAVEL DESK</u> at Hotel Raj Palace, Rajarhat&ndash;Newtown, Kolkata&ndash;700157. (M) 9836905770.</strong>",
+   "<strong><u>Service we offer:-</u></strong>",
+   "<strong>Hotel Booking, Package Tour, Customized Tour, International &amp; Domestic Tour, Flight and Train Tickets, Passport and Visa Assistance, Bus Ticket booking etc.</strong>",
+   "<strong>Easy EMI facilities for both Domestic &amp; International Tours (0% interest).</strong>",
+   "<strong><span class=\"marker\"><u>Some of our Happy Corporate Hotel Clients are :</u></span></strong>",
+   "<strong>Punjab National Bank, Bank of Baroda, State Bank India, Go Airlines, Spice Jet, Bangladesh Airlines, Asiatic Society, Sun Pharma, Airport Authority, Indian Airlines, Shyam Steel, Calcutta Customs and many more.</strong>"
+  ],
+  "photo": "images/homeimage.webp",
+  "sinceYear": "2019",
+  "sinceLabel": "Since"
+ },
+ "stats": [
+  {
+   "num": 12000,
+   "label": "CUSTOMERS"
+  },
+  {
+   "num": 500,
+   "label": "DESTINATIONS"
+  },
+  {
+   "num": 200,
+   "label": "TOURS"
+  }
+ ],
+ "tours": [
+  {
+   "id": "65",
+   "title": "Thailand",
+   "image": "images/tour-65.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 6N 7D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Arrive Suwarnabhumi Airport at Bangkok. After immigration transfer to Dong Muang Airport by free shuttle and fly to Phuket. Transfer to Hotel. Afternoon - enjoy the Patong Beach and Nightlife at Bangla Road. O/n stay at Phuket."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "Full day Phi Phi Island tour. Evening is free at Bangla Road and/or Patong Beach. O/n stay at Phuket."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Transfer to Airport. Fly to Bangkok and transfer to Pattaya. Check in to your Hotel. Evening enjoy Alcazar Show. O/n stay at Pattaya."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Morning – Coral Island tour. Enjoy the optional Water Sports activities. Afternoon back to hotel. Evening – free for individual activities. O/n stay at Pattaya."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Check out and transfer to Bangkok. Check into hotel. O/n stay at Bangkok."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "Bangkok city tour with Marble Buddha, Golden Buddha. Evening is free for shopping. O/n stay at Bangkok."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "After Check out Full day enjoy Safari World with buffet lunch. Transfer to Airport."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Airfare.",
+      "Normal tourist Visa of Thailand.",
+      "Phuket Airport to Phuket Hotel transfer by AC Van.",
+      "Bangkok Airport to Pattaya Hotel to Bangkok Hotel to Bangkok Airport transfer by AC Van.",
+      "Accommodation on twin/triple sharing at 4 star Hotels.",
+      "Six Continental Buffet Breakfast at respective Hotel.",
+      "Six Dinner at Indian Restaurant.",
+      "Phi Phi Island Tour by big boat with Continental lunch on SIC basis.",
+      "Coral Island tour by speed boat with Indian Lunch on SIC basis.",
+      "Alcazar Show.",
+      "Bangkok city temple tour covering Golden Buddha and Marble Buddha.",
+      "Visit to Gems Gallery.",
+      "Safari World with Safari Park and Marine Park with lunch on SIC basis.",
+      "All sightseeing by AC Van.",
+      "Medical and Baggage Insurance.",
+      "Applicable GST."
+     ]
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Meals not mentioned.",
+      "National Park Fees payable on spot.",
+      "Cost incurred due to natural calamities, political disturbance, pandemic situation or any unforeseen reason.",
+      "Anything which is not included in above inclusions."
+     ]
+    },
+    {
+     "t": "para",
+     "text": "For more details contact us."
+    }
+   ]
+  },
+  {
+   "id": "66",
+   "title": "Singapore",
+   "image": "images/tour-66.webp",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary for 5 N 6 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Fly from Kolkata to Kuala Lumpur. Transfer to Hotel. Half day city sightseeing. Visit to observatory deck of KL Tower. O/n stay at Kuala Lumpur."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "Full day excursion to Genting Highlands. O/n stay at Kuala Lumpur."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Transfer to Coach Station. Proceed to Singapore by Luxury coach. Transfer to Hotel. Later in the evening enjoy the Night Safari. O/n stay at Singapore."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Half day city tour in Singapore. Afternoon proceed to Sentosa Island by Cable Car and visit SEA Aquarium. Then explore Sentosa on your own for couple of hours. Watch the Laser Fountain Show 'Wings of Time'. Back to your Hotel. O/n stay at Singapore."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Today you will enjoy the whole day at 'Universal Studio'. Lot of activities and shows and happenings are there and you can grab as much as you can. O/n stay at Singapore."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast – checkout. Transfer to Airport as per your flight time. Fly back to Kolkata."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Kolkata – Kuala Lumpur and Singapore - Kuala Lumpur – Kolkata Economy class Airfare.",
+      "Malaysia and Singapore Visa.",
+      "Transfer from Kuala Lumpur Airport – Kuala Lumpur Hotel – KUL Bus Station and Singapore Bus Station – Singapore Hotel – Singapore Airport.",
+      "City sightseeing (2.30 hrs) in Kuala Lumpur covering King’s Palace, National Memorial, National Mosque, Mardeka Square, PETRONAS Tower (photo stop only), Chocolate Factory.",
+      "Visit to observatory deck of KL Tower.",
+      "Full day visit to Genting Highlands.",
+      "Transfer from Kuala Lumpur to Singapore by AC Super Luxury coach.",
+      "Half day (3 hours) city sightseeing in Singapore covering Merlion Park, Chinatown, passing by the Parliament House, Supreme Court and City Hall, Marina Bay and Suntek city.",
+      "Sentosa Island entry ticket with transfers.",
+      "one way Cable Car ride at Sentosa.",
+      "'SEA Aquarium' entry ticket.",
+      "Entry to the second show of 'Wings of Time’.",
+      "Accommodation at 4 Star Hotel at Kuala Lumpur on twin / triple share.",
+      "Accommodation at 3 Star Hotel at Singapore on twin / triple share.",
+      "Five American Buffet Breakfast at respective Hotels.",
+      "Five Dinner at Indian Restaurant.",
+      "Medical and Baggage Insurance.",
+      "GST as applicable."
+     ]
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "para",
+     "text": "Food and beverage which is not mentioned in above inclusion."
+    },
+    {
+     "t": "para",
+     "text": "Porter, laundry, tips and any similar personal nature of expenses."
+    },
+    {
+     "t": "para",
+     "text": "Additional cost incurred due to natural calamity, political disturbance, Pandemic situation or any unforeseen reason."
+    },
+    {
+     "t": "para",
+     "text": "Anything which is not mentioned in above inclusions."
+    },
+    {
+     "t": "para",
+     "text": "for more details please contact us."
+    }
+   ]
+  },
+  {
+   "id": "67",
+   "title": "Malaysia",
+   "image": "images/tour-67.webp",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 5N 6 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Fly from Kolkata to Kuala Lumpur to Langkawi. Transfer to Hotel. Rest of the day is free to enjoy the wonderful sea beach. O/n stay at Langkawi."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "Explore the wonder of beaches and islands during 4.30 hrs Island hopping tour at Langkawi. Afternoon city sightseeing in and around Langkawi. O/n stay at Langkawi."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Fly from Langkawi to Penang. Transfer to Hotel and check in. Afternoon – enjoy Penang city tour covering Georgetown. O/n stay at Penang."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Drive to Airport and fly to Kuala Lumpur. Transfer to Hotel and check in. Rest of the day is free for individual activities and shopping. O/n stay at Kuala Lumpur."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Drive to Batu Cave. Then full day excursion to Genting Highlands. Explore the world of fantasy and float yourself in the deployment of entertainment and surprising shows. O/n stay at Kuala Lumpur."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "Morning is free to explore the city on your own. Check out and proceed for Kuala Lumpur city tour covering King’s Palace, National Memorial, National Mosque, Mardeka Square, PETRONAS Tower (photo stop only), And Chocolate Factory. Then visit Observatory deck of KL Tower. Then proceed to Airport and fly back to Kolkata."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Kolkata – Kuala Lumpur – Langkawi – Penang – Kuala Lumpur – Kolkata economy class Airfare.",
+      "Malaysia normal tourist Visa.",
+      "Transfer from Langkawi airport to hotel to airport by AC Van on SIC.",
+      "Transfer from Penang airport to hotel to airport by AC Van on SIC.",
+      "Transfer from Kuala Lumpur Airport – Kuala Lumpur Hotel – Kuala Lumpur Airport by AC Van on SIC .",
+      "2N accommodation at 4 star hotels at Langkawi on twin/triple share.",
+      "1N accommodation at 4 star hotels at Penang on twin/triple share.",
+      "2N accommodation at 4 star hotels at Kuala Lumpur on twin/triple share.",
+      "Five breakfast at respective hotels.",
+      "Five dinner at Indian restaurants.",
+      "Island hopping tour at Langkawi.",
+      "City sightseeing in and around Langkawi.",
+      "Penang city tour covering Georgetown.",
+      "Batu Cave photo stop.",
+      "Full day visit to Genting Highlands.",
+      "City sightseeing (2.30 hrs) in Kuala Lumpur covering King’s Palace, National Memorial, National Mosque, Mardeka Square, PETRONAS Tower (photo stop only), Chocolate Factory.",
+      "Ticket of Observatory deck of KL Tower.",
+      "Medical and Baggage Insurance.",
+      "Applicable GST."
+     ]
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Food and beverage which is not mentioned in above inclusions.",
+      "Porter, laundry, tips and any similar personal nature of expenses.",
+      "Additional cost incurred due to natural calamity, political disturbance, Pandemic situation or any unforeseen reason.",
+      "Anything which is not mentioned in above inclusions."
+     ]
+    },
+    {
+     "t": "para",
+     "text": "For more please contact us."
+    }
+   ]
+  },
+  {
+   "id": "68",
+   "title": "Europe",
+   "image": "images/tour-68.webp",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 7N 8D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Reporting at Kolkata Airport. Fly for Paris (FRANCE). Arrive Paris. O/n stay at Paris (D)."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "Full day is free for optional activity - (i) Disneyland, (ii) Louvre Museum, (iii) Versailles Palace, (iv) Lido show with illumination of Eiffel Tower. O/n stay at Paris (BF, D) ."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Half day Paris city tour covering Opera House, Louvre (outside), Arc De Triumph, Place de la Concorde, Champs Elysees, Notre-Dame, the oldest square in Paris. Ascend to Eiffel Tower 2nd level. Later enjoy the Seine River Cruise. O/n stay at Paris (B, PL, D)."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Transfer to Zurich. Free time to walk along the streets of Zurich (Switzerland) and around Zurich lake. O/n stay at Zurich (B, PL, D)."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Proceed to Interlaken. Take a Rack Rail ride from Grindelwald to Jungfraujoch (Top of Europe). Back by Rack Rail from Jungfraujoch to Lauterbrunnen. Later back to Interlaken city and roam around the city on your own. Return to Zurich. O/n stay at Zurich (B, PL, D)."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "Visit Mt. Titlis by Rotair. Be amused by the experience of Ice Cave. Mesmerize by the 3600 view of glacier and Alpine peaks. Enjoy the Cliff walk and relish the Ice Flier. Afternoon visit Lucerne city and have a round on foot to Lion Monument, Chapel Bridge, Lake Lucerne. Transfer to Zurich. O/n stay at Zurich (B, PL, D)."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "Transfer to Airport at 1200 hrs. Fly from Zurich (B)."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "Arrive Kolkata with sweet memories."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "para",
+     "text": "Airfare"
+    },
+    {
+     "t": "para",
+     "text": "Schengen Visa"
+    },
+    {
+     "t": "para",
+     "text": "Land Transfers by Luxury AC Coach"
+    },
+    {
+     "t": "para",
+     "text": "Accommodation at 3/4 Star Hotels"
+    },
+    {
+     "t": "para",
+     "text": "6 Continental Buffet Breakfast at Hotel"
+    },
+    {
+     "t": "para",
+     "text": "4 Mini Packed Lunch"
+    },
+    {
+     "t": "para",
+     "text": "6 Buffet Dinner at Indian Restaurant"
+    },
+    {
+     "t": "para",
+     "text": "3 hour guided city tour at Paris"
+    },
+    {
+     "t": "para",
+     "text": "Entrance to Eiffel Tower up to 2nd level (priority pass)"
+    },
+    {
+     "t": "para",
+     "text": "Seine River Cruise"
+    },
+    {
+     "t": "para",
+     "text": "Walking tour at Zurich city"
+    },
+    {
+     "t": "para",
+     "text": "2 stage Rack Rail return Ticket from Interlaken to Lauterbrunnen to Jungfraujoch"
+    },
+    {
+     "t": "para",
+     "text": "2 stage Cable Car return ticket from Engel berg to Titlis including 2nd stage by Rotair"
+    },
+    {
+     "t": "para",
+     "text": "Walking tour at Lucerne city"
+    },
+    {
+     "t": "para",
+     "text": "Round the tour guidance of a tour director"
+    },
+    {
+     "t": "para",
+     "text": "Medical and Baggage Insurance"
+    },
+    {
+     "t": "para",
+     "text": "Applicable GST"
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "para",
+     "text": "Applicable TCS"
+    },
+    {
+     "t": "para",
+     "text": "Tips / Gratuity (3 Euro per person per day)"
+    },
+    {
+     "t": "para",
+     "text": "Optional tour expenses"
+    },
+    {
+     "t": "para",
+     "text": "Anything which is not mentioned in above inclusions"
+    },
+    {
+     "t": "para",
+     "text": "Cost incurred due to natural calamity, political disturbance, pandemic situation or any unforeseen reason."
+    },
+    {
+     "t": "para",
+     "text": "For more details contact us."
+    }
+   ]
+  },
+  {
+   "id": "71",
+   "title": "Bangladesh",
+   "image": "images/tour-71.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 8N 9 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Kolkata to Dhaka by Flight or Coach. Check in to your hotel. O/n stay at Dhaka."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "In the morning visit Dhakeswri Temple, Bhasha Shahid Minar, Dhaka University, Ramna Kalibari. Visit house of Bangabandhu Sheikh Mujibur Rahman, Parliament Building (Outside view) and Couple of hour’s free time for shopping. O/n stay at Dhaka."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "After breakfast drive to Chittagong via Comilla. On the way visit Baba Loknath Bramhachari Ashram at Barodi. Drive to Chittagong. Arrive Chittagong and visit RAM THAKUR ASHRAM (Kaibalya Dhama) at Pahartoli. If time permits visit European Club where Pritilota Waddedar was attacked at the time of British Period. Transfer to Hotel. O/n stay at Chittagong."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "In the morning visit Chatteswari temple, Second World War Cemetery then drive to Rangamati. Arrive Rangamati. After lunch two hours boating (Engine boat) on Kaptai Lake and enjoy the beauty of lake and hill. Afternoon is free or visit tribal handicrafts shops. O/n stay at Rangamati."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Drive to Cox’sbazar (Longest Sea beach in the world,120 km) the tourist capital of Bangladesh. Free time at the beach. O/n stay at Cox’sbazar."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast drive to Inani beach through the beautiful marine drive road and enjoy the beauty of hill and sea during the journey. Back to hotel. At afternoon enjoy the sunset from the beach. O/n stay at Cox’sbazar."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "Today morning drive to Chittagong. Arrive Chittagong and transfer to hotel. Afternoon is free for shopping and individual activities. O/n stay at Chittagong."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "After breakfast drive to Dhaka (Who will return by flight will proceed to Chittagang Airport and fly back to Kolkata). Arrive Dhaka and transfer to hotel. Afternoon is free for shopping. O/n stay at Dhaka."
+    },
+    {
+     "t": "day",
+     "num": "Day 9",
+     "text": "As per your Coach timing proceed to the terminus and back to Kolkata."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Kolkata – Dhaka – Kolkata AC Luxury Bus fare.",
+      "Round trip transportation by AC car."
+     ]
+    },
+    {
+     "t": "para",
+     "text": "r 3. Accommodation at 3 Star Hotels on twin share (Rangamati Hotel is not 3 Star)."
+    },
+    {
+     "t": "para",
+     "text": "4. Daily Breakfast and Dinner."
+    },
+    {
+     "t": "para",
+     "text": "5. Sightseeing as per itinerary."
+    },
+    {
+     "t": "para",
+     "text": "6. Entry fees at mentioned places of interests."
+    },
+    {
+     "t": "para",
+     "text": "7. Boating at Rangamati ."
+    },
+    {
+     "t": "para",
+     "text": "8. Guidance round the tour."
+    },
+    {
+     "t": "para",
+     "text": "9. Applicable GST."
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Anything which is not mentioned in above inclusions.",
+      "Cost incurred due to natural calamity, political disturbance, pandemic situation or any unforeseen reason."
+     ]
+    },
+    {
+     "t": "para",
+     "text": "For more details contact us."
+    }
+   ]
+  },
+  {
+   "id": "72",
+   "title": "Ladakh",
+   "image": "images/tour-72.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 6N 7D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Arrive at Leh Airport and transfer to hotel. Free for Personal activities. O/n stay at Leh."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast visit Leh local sightseeing like Shanti Stupa, Leh palace and market and back to Hotel. O/n stay at Leh."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "In the morning start for Nubra Valley reach and enjoy the Local Place. O/ n stay at Camp or Resort at Nubra Valley."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "In the morning Start for Pangong and enjoy the scenic beauty of Pangong Lake and night stay at camp or resort. O/n stay at Pangong."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "In the Morning start for Leh and O/n stay at Leh hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast visit local sightseeing like Shey Palace, Thicksey Monastery, 3idiot school, Hemis Monastery and back to hotel. O/n stay at Leh hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "Drop at Leh airport."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Airfare.",
+      "All transfer and sightseeing by private vehicle.",
+      "Double bedded deluxe ac room with all modern facilities.",
+      "MAP meal Plan."
+     ]
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "list",
+     "items": [
+      "Meals not mentioned.",
+      "Any Park or monument entry fee.",
+      "Any personal expenses like; shopping, laundry charge, horse riding, porter charge, camera ticket etc.",
+      "Cost incurred due to natural calamities, political disturbance, pandemic situation or any unforeseen reason."
+     ]
+    },
+    {
+     "t": "para",
+     "text": "for more details please contact us."
+    }
+   ]
+  },
+  {
+   "id": "73",
+   "title": "Kinnaur Kalpa",
+   "image": "images/tour-73.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 5N 6D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Arrive at the Chandigarh airport or railway station, leave for Sarahan in a cab. Spend the night @ Sarahan Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After a delicious breakfast, visit the famous Bhimkali Temple, one of the 51 Shaktipeeths that witnessed the human sacrifices about two centuries ago. Drive towards Sangla, check in to hotel and rest for a while before resuming your trip to Kamru and Sangla villages to witness amazing ancient temples and Buddhist monasteries. Spend the night @ Sangla Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "On third day visit Sangla and the nearby Kamru village. At Kamru Village, you can take a tour of the Kamru Fort to enrich your journey. The next stop is Chitkul village in Kinnaur district – the last inhabited village on the Indo-Tibetan border located in the Baspa valley.. Spend your night @ Sangla Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "After breakfast at the hotel you will be driven to Kalpa village (2-3 hrs.) while taking a comfort break at Rekongpeo - the district headquarters of Kinnaur district. Dine in a local restaurant to seek pleasure of delicious Indian as well as Tibetan cuisines. After lunch, visit Kalpa and Roghi village, covered with thick pine forests and best known for their apple & apricot forests. Spend the night @ Kalpa Valley Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Checkout from hotel and proceed to Shimla while touring Narkanda on your way, Overnight stay @ Shimla Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After having breakfast, you will be dropped at Chandigarh railway station/Airport. The tour ends here."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "para",
+     "text": "Pickup & Drop Chandigarh Railway St. Or Airport."
+    },
+    {
+     "t": "para",
+     "text": "Sightseeing & Room with MAP Food Plan (Breakfast & Dinner)."
+    },
+    {
+     "t": "subhead",
+     "text": "Excludes:"
+    },
+    {
+     "t": "para",
+     "text": "Anything which is not mentioned in above inclusions."
+    },
+    {
+     "t": "para",
+     "text": "Airfare or Train ticket, any personal expenses, shopping telephone call, horse riding or any sports activity, Porter charge etc."
+    },
+    {
+     "t": "para",
+     "text": "Any meal not mentioned above."
+    },
+    {
+     "t": "para",
+     "text": "Cost incurred due to natural calamity, political disturbance, pandemic situation or any unforeseen reason."
+    },
+    {
+     "t": "para",
+     "text": "For more details please contact us."
+    }
+   ]
+  },
+  {
+   "id": "74",
+   "title": "Andaman",
+   "image": "images/tour-74.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 7N 8D"
+    },
+    {
+     "t": "para",
+     "text": "On arrival at Port Blair, our representative will receive you at Airport /Harbor and escort you to check in to the hotel/Resort. After lunch, visit Cellular Jail museum . In the evening, enjoy Light and Sound Show at Cellular Jail where the saga of the freedom struggle brought alive and also visit Rajiv Gandhi Park. Night Stay at Port Blair."
+    },
+    {
+     "t": "para",
+     "text": "After Breakfast, we will proceed for a full day cruising towards, Ross Island and North Bay (Coral Island). First we starts with an exhilarating journey (by boat) to Ross Island (Ross Island, the erstwhile capital of Port Blair during the British regime), From Ross Island, we proceed for a joyful trip to Northbay island (Coral Island) offering exotic coral, colorful fishes and underwater marine life. We can view these colorful corals & underwater marine life via in glass bottom boat and snorkeling. Overnight stay at Port Blair."
+    },
+    {
+     "t": "para",
+     "text": "Today we start to catch ferry for Havelock Island. On arrival at Havelock Island, our representative will receive you and after relaxation we proceed to Radha Nagar Beach, which is rated as the #7 among the finest beaches in Asia. It is an ideal place for swimming, sea bathing and basking on the sun kissed beach. Night stay at Havelock."
+    },
+    {
+     "t": "para",
+     "text": "Today we start to catch ferry for Neil islands, on arrival our representative will receive you. After little relaxation, visit Laxman Pur Beach, Bharatpur beach and Sita pur beach and (Howrah Bridge) Night stay at Neil."
+    },
+    {
+     "t": "para",
+     "text": "Sail back to Port Blair. Night stay at Port blair."
+    },
+    {
+     "t": "para",
+     "text": "Early morning departure for Baratang Island via Convoy. Baratang Island is a gateway to North & Middle Andaman District of Andaman & Nicobar Islands. Enroute visit Jarawa Reserve, Lime Stone cave. Night stay at Port blair."
+    },
+    {
+     "t": "para",
+     "text": "After Breakfast,Visit Chatham saw mill, Corbyn's Cove Beach, Samudrika Museum, Anthropological Museum, Fisheries Aquarium, Science centre, Sagarika emporium for shopping. Night stay at Port Blair."
+    },
+    {
+     "t": "para",
+     "text": "Drop to Airport and Fly back with ever lasting memories of these emerald Islands."
+    },
+    {
+     "t": "para",
+     "text": "Inclusion :"
+    },
+    {
+     "t": "para",
+     "text": "1. Accommodation"
+    },
+    {
+     "t": "para",
+     "text": "2. All entry tickets."
+    },
+    {
+     "t": "para",
+     "text": "3. Sightseeing."
+    },
+    {
+     "t": "para",
+     "text": "4. Transportation."
+    },
+    {
+     "t": "para",
+     "text": "5. Boat Charges ( by Cruise)"
+    },
+    {
+     "t": "para",
+     "text": "6. Permit charges."
+    },
+    {
+     "t": "para",
+     "text": "7. Meals (AP - Breakfast - Lunch - Dinner)"
+    },
+    {
+     "t": "para",
+     "text": "8. Airport pickup and drop."
+    },
+    {
+     "t": "para",
+     "text": "9.All taxes."
+    },
+    {
+     "t": "para",
+     "text": "Exclusion :"
+    },
+    {
+     "t": "para",
+     "text": "1. Camera charges."
+    },
+    {
+     "t": "para",
+     "text": "2. Guide charges."
+    },
+    {
+     "t": "para",
+     "text": "3. Mineral water bottle."
+    },
+    {
+     "t": "para",
+     "text": "4. Snorkeling, Scuba Diving, and other water sports."
+    },
+    {
+     "t": "para",
+     "text": "5.Personal expenses (such as laundry etc.)"
+    },
+    {
+     "t": "para",
+     "text": "6. Additional or on demand tour."
+    },
+    {
+     "t": "para",
+     "text": "7. Ship fare."
+    },
+    {
+     "t": "para",
+     "text": "For more information please contact us."
+    }
+   ]
+  },
+  {
+   "id": "75",
+   "title": "Rajasthan",
+   "image": "images/tour-75.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 13N 14 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Pickup from Jodhpur Railway station and drop at hotel, after refreshment start for Umaid Bhawan Palace and Jaswant thada and back to hotel and evening free for personal activities, overnight stay at Jodhpur."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast start Jaisalmer (300km approx 5hrs. journey) and reach and overnight stay at Jaisalmer hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "After breakfast Jaisalmer local sightseeing Like Sonar Kella and after Lunch visit Gadisar Lake and overnight stay at Jaisalmer."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Morning start for Sam desert, reach there and check into assorted hotel or resort, after refreshment and lunch go for desert safari by Camel or Camel pulled cart(desert safari own cost) and back to resort enjoy Rajasthani folk music by local performer and overnight stay at Desert resort Jaisalmer."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "After Breakfast start for Mt.Abu (502km. approx 9hrs. journey) reach and after meal take rest as it will be a long journey, overnight stay at Mt.Abu."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast local sightseeing like Universal peace hall, Dilwara Temple etc. and after lunch visit Nakki Lake and night stay at Mt.Abu."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "After breakfast start for Udaipur (165km approx 3hrs. journey) reach and night stay at Udaipur."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "After breakfast start for Udaipur City palace, Saheliyon ki bari, Fateh sagar etc. and night stay at Udaipur Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 9",
+     "text": "After breakfast start for Ajmer (290km. approx 5 hrs. journey) reach and overnight stay at Ajmer."
+    },
+    {
+     "t": "day",
+     "num": "Day 10",
+     "text": "Early morning visit Ajmer Dargah and after breakfast visit Chittorgarh fort and meerabai Mandir, back and overnight stay at Hotel at Ajmer."
+    },
+    {
+     "t": "day",
+     "num": "Day 11",
+     "text": "Morning start for Pushkar and after full day sightseeing reach and overnight stay at Jaipur hotel. (Pushkar to Jaipur 160km. approx 3.30hrs. journey)."
+    },
+    {
+     "t": "day",
+     "num": "Day 12",
+     "text": "Morning after breakfast start for local sightseeing like Hawa Mahal, Jantarmantar and Amaber fort and last visit Birla temple and overnight stay at Rajasthan hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 13",
+     "text": "Full day rest at hotel Jaipur and free for personal activities and shopping and night stay at Jaipur hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 14",
+     "text": "Tour end drop at Railway station or Jaipur Airport."
+    },
+    {
+     "t": "para",
+     "text": "For more information please contact us."
+    }
+   ]
+  },
+  {
+   "id": "76",
+   "title": "Gujrat",
+   "image": "images/tour-76.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 10 N 11 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Arrival at Ahmedabad station/airport, Meet and greet with our representative and proceed to Little Rann of Kutch. On arrival check in to the resort. Explore the desert by open jeep in the Little Rann of Kutch, where one can sight animals like Wild-Ass, Desert Fox, Blue Bull, Blackbuck, Wolf, Jackal and few species of snakes & many species of birds also one can visit the home of Rabari and Banjara are the two important tribes of the region. Overnight stay at Little Rann of Kutch."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast proceed to Jamnagar. On arrival check in at the hotel. Visit Lakhota Lake & Lakhota Museum. In the evening, visit Bala Hanuman Temple known for its nonstop Ramdhun since 1956 and it mentioned in Guinness Book of World Records. Overnight stay at resort."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Today proceed to the sacred town of Dwarka. Visit Dwarkadeesh Temple and Gomti Ghat. In the afternoon take a trip to Bet Dwarka, visit Old Temple of Krishna. The trip from Okha on the mainland to the temple is by a local boat. On the way to Bet Dwarka, visit Nageshwar Temple – One of the 12th Jyotirlinga of Shiva. Rukmani Temple and Gopi Talav Return back to Dwarka. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "In the morning depart to Porbandar (75km/1.5hrs) at Porbandar visit Kirti Mandir – A place where Mahatma Gandhi was born. Later proceed to Somnath (130km/2.5hrs) on arrival visit Bhalka Tirth & Somnath Temple. In the evening watch light and Sound show. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Early in the morning Somnath Temple visit and then procced to beach town Diu,the day is to relax on the beach and overnight stay at hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "The morning is at leisure to enjoy the wide variety of water sports facilities available at Nagoa Beach. Later, visit St. Paul's Church, Diu Museum and Diu Fort. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "Today, proceed to Sasangir. Sasangir is the home of the Asiatic Lion. In the afternoon Visit Gir Interpretation Zone at Devaliya. Crocodile breeding farm, Gir Information centre. Watch movie on lion at Gir Information centre in the evening. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "Today, early morning take a Jeep Safari at the Gir National Park proceed to Junagadh. Visit Uperkot Fort, Ashok Rock Edict, Mahabat Makabara and Junagadh Museum. Continued towards Gondal. On arrival visit Navlakha Palace & Classic and Vintage Car Museum. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 9",
+     "text": "Today Proceed to Bhavnagar, enroute visit temple city Palitana, famous Jain temples at Shatrunjaya hills,Continued towards Bhavnagar. In the evening visit Takhteshwar Temple located on the small hillock. Overnight stay at the hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 10",
+     "text": "Today, Proceed to Ahmedabad via Velavadar & Lothal. After visiting Lothal and Velavadar National Park Continued towards Ahmedabad."
+    },
+    {
+     "t": "day",
+     "num": "Day 11",
+     "text": "Drop at Ahmedabad Airport / Station, Tour end."
+    },
+    {
+     "t": "para",
+     "text": "For more information please contact us."
+    }
+   ]
+  },
+  {
+   "id": "77",
+   "title": "Kerala",
+   "image": "images/tour-77.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 7 N 8 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "You will be picking from Cochin Airport / Ernakulum railway station and drive to Munnar (04 Hrs drive). On the way enjoy some waterfalls and natural scenic spots. On arrival at Munnar check into Hotel and relax for the rest of the day. Overnight stay at the hotel will be arranged."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast spend the day with local sightseeing. Situated at the confluence of three mountain streams - Mudrapuzha, Nallathanni and Kundale, Munnar is 1600 Meter above sea level. This majestic hill station was once the summer resort of the British government in South India. Local sightseeing of Munnar includes visit to Mattupetty Dam, Kundale Lake and Echo point. Afternoon proceed to Rajamalai were the rarest species of mountain goat, \"Nilgiri Thars\", can be spotted. Overnight stay is arranged at Munnar."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "After breakfast check out from the hotel and drive to Thekkady (04 Hrs); on arrival check in to the hotel. Proceed for the sightseeing tour of Thekkady - one of the world's most fascinating wild life reserves. The Periyar wild life sanctuary in Thekkady is spread across 777 sq km of which 360 sq km is thick ever green forest. Noted for its geomorphology, diversity of wild life and scenic beauty, the sanctuary was declared a Tiger Reserve in 1978. Optional activities like Boating at Periyar Lake, Spice Plantation visit and Elephant Ride can be done at an extra cost. Overnight stay is arranged in Thekkady."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "After breakfast check out from the hotel and drive to Kumarakom (05 Hrs Drive). Check in to the hotel. Afternoon proceeds for local sightseeing in and around Kumarakom - a tiny backwater hamlet perched on the western banks of the Vembanadu Lake. The stretch of backwater is spread over 900 sq. km. Choose a canoe, motor boat or a houseboat and devour the beauty of this backwater paradise at its best. Overnight stay is arranged in Kumarakom."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "After breakfast check out from the hotel and drive to Alleppey. Set out on an enchanting overnight backwater cruise in traditionally decorated houseboats. Check in time is 01:00 PM and cruise starts with lunch. While cruising in these floating luxury-villas, let your eyes settle for the swaying coconut groves. Food will be served on board. Overnight stay in the houseboat."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast, check out from the houseboat and drive to Kovalam (04 Hrs Drive); on arrival check-in into hotel. Kovalam is one of the prime beach destinations in India. Enjoy the evening watching a spectacular sunset or swimming at the picturesque Kovalam Beach. Overnight is to be spent at hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "Proceed for the sightseeing tour of Trivandrum after breakfast- Thiruvananthapuram, previously called Trivandrum, is an ancient city with tradition dating back to 1000 BC. This capital city of Kerala is a beautiful seaside metropolis built on seven hills. It is located on the west coast of India spreading over a total of 2,192 sq.km. Sightseeing tour is comprehensive with the visits to Padmanabhaswami Temple, Srichitra Art Gallery, Napier Museum and Zoo. Overnight stay is arranged in Kovalam."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "After breakfast check out from the Hotel and drive to Trivandrum Airport / railway station (depend on your departure place) for your flight / train back home, feeling contented about a wonderful holiday you spent in the God's Own Country."
+    },
+    {
+     "t": "para",
+     "text": "For more information please contact us."
+    }
+   ]
+  },
+  {
+   "id": "78",
+   "title": "Sikkim",
+   "image": "images/tour-78.jpg",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Itinerary 9 N 10 D"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Pickup from Njp station transfer to Gangtok Hotel, evening free to visit Mall road and overnight stay @ Gangtok Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast start for local sightseeing, This tour will include a visit to the famous Bakthang Waterfalls, Ganesh Tok, Tashi view-point, Directorate of Handicraft and Handloom, Enchey Monastery, Flower Show, Do Drul Chorten Stupa, Institute of Tibetology and back to hotel overnight stay @ Gangtok Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "After breakfast full day for Tsomgo Lake, Baba Mandir and Nathula Pass and come back in the evening, overnight stay @ Gangtok Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Morning breakfast & start for Lachen enroute visit Naga Waterfalls, Seven sister Waterfalls, Singhik view point and Overnight stay @ Lachen Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Start the day early with lip-smacking breakfast at the hotel. Then drive to Gurudongmar Lake and spend beautiful time here by the lake amidst the lush green trees. After an unwinding session here, drive through Chopta Valley and KalaPatthar, back to hotel and overnight stay @ Lachung Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "After breakfast star for will drive you to Yumthang-valley popularly known as Valley of Flowers, after that you will proceed further to Zero Point and get the chance to explore the beauty of snow-capped mountains here and after that back to hotel and overnight stay @ Gangtok Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "After a hearty breakfast at your hotel in Gangtok, you will drive to Pelling. After checking in at the hotel in Pelling spend the day ‘leisuring’ around the nearby market and overnight stay @ Pelling Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "After breakfast start for visit Ravangla and Namchi (own cost) and overnight stay @ Pelling Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 9",
+     "text": "After some tasty breakfast at the hotel, you will go for local sightseeing in Pelling. The sightseeing will include a visit to Khecheopalri sacred Lake, Kanchenjunga waterfalls, Darap Valley, Rimbi Waterfalls, and Rock Garden and overnight stay @ Pelling Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 10",
+     "text": "Drop at Njp, tour end."
+    },
+    {
+     "t": "para",
+     "text": "For more information please contact us."
+    }
+   ]
+  },
+  {
+   "id": "80",
+   "title": "Malaysia Tour",
+   "image": "images/tour-80.png",
+   "blocks": [
+    {
+     "t": "para",
+     "text": "Date of journey : 03 June, 2024."
+    },
+    {
+     "t": "para",
+     "text": "Contact Us: 9007007709 / 9836905770"
+    }
+   ]
+  },
+  {
+   "id": "81",
+   "title": "Kedarnath & Badrinath",
+   "image": "images/tour-81.jpg",
+   "blocks": [
+    {
+     "t": "para",
+     "text": "KEDARNATH & BADRINATH WITH HARIDWAR"
+    },
+    {
+     "t": "day",
+     "num": "Day 1",
+     "text": "Meet upon arrival at Haridwar Railway Station and proceed to hotel by local vehicles, Check in at Hotel (Check In Time : 12 NOON, Subject to Room Availability), after Refreshment Free for Personal Activities. Afternoon enjoy Hot Lunch and then Proceed for visit by walk to Mansa Devi Temple. One of the most famous tourist attractions in Haridwar, the temple can be reached by a cable car.(at your risk by own cost). The temple is dedicated to the Goddess Mansa, the goddess that fulfills wishes. The temple is also famous for the views it offers from the height that it is located at. you can visit Hari Ki Puri, which literally means the Lord's Footsteps. One of the most revered places in the city; it is believed to have the footprint of Lord Vishnu himself. Here you can take a dip in the River Ganga. (Please note, suggested activities are not included in the package.) Night stay at Hotel."
+    },
+    {
+     "t": "day",
+     "num": "Day 2",
+     "text": "After breakfast we proceed for Guptkashi via Srinagar, Rudraprayag, Tilwara Enroute you can see the beautiful river Mandakini at Tilwara. The Mandakini river comes from Kedarnath, drive alongside the river to reach Guptkashi, Cross Guptekashi- Sitapur- Phata and Reach Rampur, Check into the hotel. Early Dinner and Overnight stay at Guptakash/Sitapur/Rampur."
+    },
+    {
+     "t": "day",
+     "num": "Day 3",
+     "text": "Early Morning after breakfast drive to Phata for (Heli Fly) to Kedarnath Ji,(with packed lite food/lunch), For Walker proceed to SONPRAYAG, From SONPRAYAG to Gaurikund by Local Vehicle, Trek start from Gaurikund to Shri Kedarnath ji (3584 mts) on foot or by pony / Doli / Horse. Yatra members should carry personal medicines, heavy woolen, tolietries and clothes for an overnight halt at Shri Kedarnath. Check in Hotel. After freshening up, visit Shri Kedarnath ji Temple & perform Pooja/aarti darsan In the evening and also visit Adi Shankaracharya Samadhi behind the Temple. Dinner at own cost Overnight stay at Kedarnath Guest Houses. You may offer Early Morning Group Puja of Lord Kedarnath. Shri Kedarnath- is a majestic sight, standing in the middle of a wide plateau surrounded by lofty snow Covered peaks. The temple of Kedarnath, located at a height of 3,581 mts, stand at the head of the Mandakini river. The present temple, built in the 8th century by Adi Shankaracharya, stands adjacent to the site of an earlier temple built by the Pandavas. The inner walls of the assembly hall are decorated with figures of various deities and scenes from mythology. Outside the temple door a large statue of the Nandi Bull stands as guard. It is said that devotees who die here become one with Shiva himself."
+    },
+    {
+     "t": "day",
+     "num": "Day 4",
+     "text": "Today Wake up with the thinking of that you was sleeping on Spritual Heaven/ Lord Mahadeva's Land. Early morning be fresh and start your day with Darshan and Puja of LORD KEDARNATH JI. After darshan and Puja proceed for Gaurikund by Walk/Pony/Doli. Late Afternoon/Evening arrival at Gaurikund and proceed for Rampur /Guptakashi /Sitapur. On this night we will stay in Rampur /Guptakashi /Sitapur to keep a buffer time in hand to handle any last moment delay because of bad weather or any technical or medical reason. This is best way to arrange an itinerary or program for both trekkers and flyers to Shri Kedarnath Ji."
+    },
+    {
+     "t": "day",
+     "num": "Day 5",
+     "text": "Morning after breakfast drive to Badrinath via Joshimath. Enroute visit Narsingh Bhagwan Temple at Joshimath. Check in Hotel. Later at evening visit Badrinath Temple for Aarti. Overnight stay Badrinath hotel. Shri Badrinath- Shri Badrinath is one of the most important of all the four(Char) Dhams in India. This temple located between Nar & Narayan mountain ranges and in the shadow of Nilkantha peak at the height of 3,133 mts. It is the most popular of Vishnu pilgrimages among the five Badries, also known as Vishal Badri. Narsingh Temple: This is an ancient temple of Lord Vishnu in Narsingh Avtar and main temple of Joshimath. When Badrinath temple remain closed during winter every year, one idol of Lord Badri is brought to Narsingh temple and worshiped for six months. Narad Kund: A recess in the river, near Tapt Kund, forming a pool from where the Badrinath idol was recovered. Mata Murty Temple: Devoted to the mother of Sri Badrinathji. Other important temples include SeshNetra Temple, Urvashi Temple and Charanpaduka Mana Village: Inhabited by an Indo-Mongolian tribe, it is the last Indian village before Tibet. Bhim Pul: On the other side of Mana village, a massive rock forming a natural bridge lies over the roaring Saraswati River. It presents a spectacular view of water thundering down through the narrow passage under the rock and is believed to have been placed there by Bhim, the second eldest among the five Pandava brothers. Vyas Gufa (cave): Near Mana Village, this is a rock-cave where Ved Vyas is believed to have composed the Mahabharata and the pauranic commentaries."
+    },
+    {
+     "t": "day",
+     "num": "Day 6",
+     "text": "Morning after breakfast, driver for Rudraprayag via Pipalkoti. Visit on the way Narsingh Temple in Joshimath later drive back to Rudraprayag via Joshimath. Check into the hotel arrival in Pipalkoti/ Joshimath/ Srinagar/ Rudraprayag. Overnight stay at Srinagar/ Rudraprayag. Rudraprayag: One of the holy prayag of five famous prayag of Uttarakhand. Confluence of River Alaknanda and Mandakini.Narsingh Temple: This is an ancient temple of Lord Vishnu in Narsingh Avtar and main temple of Joshimath. When Badrinath temple remain closed during winter every year, one idol of Lord Badri is brought to Narsingh temple and worshiped for six months."
+    },
+    {
+     "t": "day",
+     "num": "Day 7",
+     "text": "This morning after breakfast drive to Haridwar via Rishikesh. Visit Ram Jhula, Laxman Jhula, Bharat Mata Temple at Rishikesh then proceed for Haridwar. On Arrival at Haridwar and check in at hotel. Evening free for personal activities. Dinner & overnight stay at Haridwar. Narsingh Temple: This is an ancient temple of Lord Vishnu in Narsingh Avtar and main temple of Joshimath. When Badrinath temple remains closed during winter every year, one idol of Lord Badri is brought to Narsingh temple and worshiped for six months."
+    },
+    {
+     "t": "day",
+     "num": "Day 8",
+     "text": "This morning after breakfast free for personal activities. Around 11 A.M -12 P.M,leave the rooms and enjoy Lunch at Hotel. Then proceed for visit Haridwar Local Sightseeing. You can visit some other famous temples of Haridwar such as; Daksh Temple, Chandi Devi Temple, Maya Devi Temple, Pawan Dham & Parad Shivling or you can visit Vaishno Devi Temple, a famous replica of the temple situated in Jammu and Kashmir. Later, you can attend the evening Ganga Aarti at the Vishnu Ghat. Return to your hotel for a Dinner, then proceed for Haridwar Railway Station for onward journey."
+    }
+   ]
+  },
+  {
+   "id": "82",
+   "title": "Thailand 4N/5D",
+   "image": "images/tour-82.png",
+   "blocks": [
+    {
+     "t": "subhead",
+     "text": "Package Includes:"
+    },
+    {
+     "t": "para",
+     "text": "Accommodation at 3 Star Hotels."
+    },
+    {
+     "t": "para",
+     "text": "All meals included."
+    },
+    {
+     "t": "para",
+     "text": "Medical and Baggage Insurance."
+    },
+    {
+     "t": "para",
+     "text": "Applicable GST."
+    },
+    {
+     "t": "para",
+     "text": "Applicable TCS."
+    },
+    {
+     "t": "subhead",
+     "text": "Package Excludes:"
+    },
+    {
+     "t": "para",
+     "text": "Airfare."
+    },
+    {
+     "t": "para",
+     "text": "Anything which is not mentioned in above inclusions."
+    },
+    {
+     "t": "para",
+     "text": "Cost incurred due to natural calamity, political disturbance, pandemic situation or any unforeseen reason."
+    }
+   ]
+  },
+  {
+   "id": "83",
+   "title": "Andaman 5N/6D",
+   "image": "images/tour-83.jpeg",
+   "blocks": [
+    {
+     "t": "para",
+     "text": "This departure is arranged on request. Share your travel dates and we will send you a detailed day-wise itinerary, hotel options and the best available price."
+    }
+   ]
+  }
+ ],
+ "gallery": [
+  {
+   "image": "images/tour-66.webp",
+   "title": "Singapore"
+  },
+  {
+   "image": "images/tour-67.webp",
+   "title": "Malaysia"
+  },
+  {
+   "image": "images/tour-68.webp",
+   "title": "Europe"
+  },
+  {
+   "image": "images/gal-gulmarg.jpg",
+   "title": "GulMarg"
+  },
+  {
+   "image": "images/gal-shimla.jpg",
+   "title": "Shimla Toy Train"
+  },
+  {
+   "image": "images/gal-rajasthan.jpg",
+   "title": "Rajasthan"
+  },
+  {
+   "image": "images/gal-goa.jpg",
+   "title": "Goa"
+  },
+  {
+   "image": "images/gal-sundarban.jpg",
+   "title": "Sundarban"
+  }
+ ],
+ "contact": {
+  "blocks": [
+   {
+    "title": "Gouri Travels",
+    "html": "101, Goraksha Basi Road<br>\n          <strong>&quot;BARMAN TOWER&quot;</strong><br>\n          Near Ajitesh Mancha (Town Hall)<br>\n          Nager Bazar<br>\n          Kolkata &ndash; 700028<br>\n          Email &ndash; <a href=\"mailto:gouritravels146@gmail.com\">gouritravels146@gmail.com</a>"
+   },
+   {
+    "title": "Branch – Hotel Raj Palace",
+    "html": "Rajarhat New Town<br>\n          Noapara Crossing, Near City Center &ndash; 2<br>\n          Kolkata &ndash; 700157<br>\n          Website &ndash; <a href=\"https://www.rajtourstravels.in\" target=\"_blank\" rel=\"noopener\">rajtourstravels.com</a>"
+   },
+   {
+    "title": "Phone",
+    "html": "Phone No &ndash; <a href=\"tel:+918065070301\">08065070301</a><br>\n          Whatsapp &ndash; <a href=\"tel:+919007007709\">9007007709</a><br>\n          Landline No &ndash; <a href=\"tel:+913348098671\">033 &ndash; 48098671</a>"
+   }
+  ]
+ },
+ "footer": {
+  "address": "101, Goraksha Basi Road<br>&quot;BARMAN TOWER&quot;<br>Near Ajitesh Mancha (Town Hall)<br>Nager Bazar<br>Kolkata &ndash; 700028",
+  "phones": [
+   {
+    "label": "9007007709",
+    "tel": "+919007007709"
+   },
+   {
+    "label": "033 &ndash; 48098671",
+    "tel": "+913348098671"
+   }
+  ],
+  "email": "gouritravels146@gmail.com",
+  "subscribeText": "Get our latest tour offers and departure dates in your inbox.",
+  "subscribeNote": "We only use your email to send tour updates.",
+  "copyright": "gouritravels.in &copy; 2026"
+ },
+ "tagline": "Journeys worth remembering",
+ "enquiryEmail": "gouritravels146@gmail.com",
+ "enquiryPhone": "9007007709",
+ "enquiryPhoneTel": "+919007007709"
+}

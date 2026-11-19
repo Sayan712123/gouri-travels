@@ -1,221 +1,162 @@
 # Gouri Travels — Trip Booking Website
 
-A complete trip-booking website for **Gouri Travels**: a public site (browse trips, pick seats, book),
-an admin panel (manage bookings, trips and site settings), and a Supabase backend.
+A complete trip-booking website for **Gouri Travels**: a public site (home, tour packages,
+tour details, gallery, contact) and a single admin panel that edits every word and photo on it.
 
 **Live site:** https://sayan712123.github.io/gouri-travels/
 **Admin panel:** https://sayan712123.github.io/gouri-travels/admin/
 
 ---
 
-## What's inside
+## How it works
+
+The public site is **data-driven**. All of its content — hero slides, welcome text, statistics,
+the 16 tour packages with their itineraries, the gallery, contact blocks and the footer — lives in
+one JSON document. That document is stored in Supabase (`settings` table, key `site_content`) and
+edited through the admin panel. The site reads it on every page load, so **an edit in the admin
+panel appears on the public site immediately** (no rebuild, no redeploy).
+
+If Supabase is unreachable, the site falls back to `content.json` shipped in the repo, so it never
+goes blank.
 
 ```
-index.html            The whole public site — a single self-contained file
-                      (#/ home, #/tourpackage, #/gallery, #/contact, #/tour-<id>)
-                      CSS, JS, fonts and every photo are embedded; no external requests
-                      or other files needed.
+index.html            Public site shell — header, footer, lightbox, script tags
+content.json          Fallback copy of the whole site content (also the admin's seed)
+js/config.js          Supabase Project URL + anon key        ← edit this
+js/images.js          Embedded base64 photos (banner, tours, gallery)
+js/site.js            Renderer: reads Supabase → falls back to content.json → builds every page
+js/theme.js           Light/dark theme switch (admin)
+
+admin/index.html      The one admin panel — login + content editor
+admin/css/admin.css   Admin styles (light + dark)
+admin/js/admin.js     Auth + content CRUD
+admin/js/config.js    Supabase Project URL + anon key        ← edit this
 
 assets/               Brand logos (light/dark), favicons, app icons
-
-admin/index.html      Admin login (email+password or Google)
-admin/dashboard.html  Dashboard — bookings, trips CRUD, site settings, CSV export
-admin/css/admin.css   Admin styles (light + dark theme)
-admin/js/admin.js     Admin logic
-admin/js/config.js    Supabase Project URL + anon key  ← edit this
-
-js/i18n.js            English / বাংলা dictionary + language toggle engine (admin)
-js/theme.js           Light/dark theme switch + first-visit intro animation (admin)
-
 supabase/schema.sql   Reference copy of the live database schema
-docs/SETUP.md         Detailed setup + troubleshooting
-.env.example          Environment variable template
+docs/SETUP.md         Longer setup guide and troubleshooting
 ```
 
-> The public site used to be five separate pages (`index`, `trips`, `trip`, `booking`,
-> `contact`) sharing `css/styles.css` and `js/site.js`. It has been replaced by the
-> single-file build above. Those files are gone, so `trips.html`, `booking.html` and
-> friends now return 404 — the equivalent views live at the `#/` routes in `index.html`.
-> The admin panel is unchanged and still works against Supabase.
+### Routing
 
----
+The public site is a single page with hash routes:
 
-## Brand, theme and language
-
-**Colours** — the admin panel uses the brand gradient: magenta `#EC1C5A` → orange `#FF7A3D`
-on a near-black (`#0A090B`) brand background. The single-file public site carries its own
-palette inside `index.html`, matched to the same brand. Admin colours live in the CSS
-variables at the top of `admin/css/admin.css`.
-
-**Themes** — the header has a sun/moon toggle in the admin panel.
-Dark is the default; the visitor's choice is stored in `localStorage` under `gt_theme` and is
-re-applied before the first paint, so there is no flash of the wrong theme. The logo swaps
-automatically: the white wordmark (`logo-full-dark.png`) on dark, the dark wordmark
-(`logo-full-light.png`) on light.
-
-**Intro animation** — the first time a visitor opens the admin panel in a session, a splash screen
-fades and scales the logo in over a magenta/orange glow, then lifts the curtain. It is shown
-once per session (`sessionStorage: gt_intro_seen`), can be skipped by clicking or pressing Esc,
-and is skipped entirely for visitors with `prefers-reduced-motion`.
-
-**Language** — English is the default; the EN / বাংলা toggle in the header switches every page
-and the choice is stored in `localStorage` under `gt_lang`.
-
----
-
-## Backend — the existing Supabase project
-
-This site is wired to the **existing** Supabase project (the same one the earlier site used).
-The connection details live in two files and are already filled in:
-
-| File | Keys |
+| Route | Page |
 |---|---|
-| `admin/js/config.js` | `SUPABASE_URL`, `SUPABASE_ANON_KEY` |
-
-> The public `index.html` is self-contained and does not talk to Supabase — the trips,
-> galleries and contact form in it are static content and a `mailto:` hand-off. Only the
-> admin panel reads and writes the database.
-
-### Database schema (as it exists today)
-
-| Table | Columns |
-|---|---|
-| `trips` | `id`, `title`, `from_place`, `to_place`, `trip_date`, `trip_time`, `price`, `boarding`, `details`, `thumb`, `photos[]`, `seats`, `open`, `created_at`, `kind`, `vehicle_name`, `cars`, `per_car` |
-| `seats` | `trip_id`, `label`, `status` (`held` / `booked`), `name`, `phone`, `held_until`, `ticket`, `note`, `created_at` |
-| `settings` | `key`, `value` |
-| `admins` | `email` |
-
-**View:** `seat_status` (`trip_id`, `label`, `status`) — the public, privacy-safe view of taken seats.
-**RPC:** `hold_seats(p_trip, p_labels, p_name, p_phone)`, `my_bookings()`, `get_ticket(p_code)`, `is_admin()`.
-**Storage:** `trip-photos` (public bucket) — trip covers, galleries and hero images.
-
-### How the code maps onto that schema
-
-The original code expected `bookings`, `enquiries`, `slug`, `price_per_person`, `duration_days`,
-`cover_image_url`, `itinerary[]` and `highlights[]` — **none of which exist** in the live database.
-`admin/js/admin.js` is a schema adapter that translates:
-
-| Old (non-existent) | Now uses |
-|---|---|
-| `bookings` table | `seats` rows (`status: held` → pending, `booked` → confirmed) |
-| `enquiries` table | Contact form opens WhatsApp (no table exists) |
-| `slug` | `id` (public route is `#/tour-<id>`; a title-slug fallback also works) |
-| `price_per_person` | `price` |
-| `cover_image_url` | `thumb` |
-| `highlights[]` | `details` → `##hl` section |
-| `itinerary[]` | `details` → `##days` (JSON) or `##it` (lines) |
-| `description` / `summary` | `details` → `##ov` section |
-| `seats_total` | `seats` |
-| `departure_date` | `trip_date` |
-
-The `details` column is a sectioned text field:
-
-```
-##ov      overview paragraph
-##hl      highlights, one per line
-##it      day-wise plan, one per line
-##inc     included, one per line
-##exc     not included, one per line
-##pol     cancellation / policy, one per line
-##meal    meal notes
-##cl      booking closes at (YYYY-MM-DD HH:MM)
-##days    JSON array of {day, title, detail}
-```
-
----
-
-## Bilingual site (English / বাংলা)
-
-- The admin panel **opens in English** by default (`DEFAULT_LANG: "en"` in `admin/js/config.js`).
-- A **EN / বাং** toggle sits in the admin header.
-- The choice is saved in `localStorage` under `gt_lang`, so it persists between admin visits.
-- All copy lives in `js/i18n.js`. To add a string, add the same key to both the `en` and `bn` blocks
-  and put `data-i18n="your.key"` on the element (or `data-i18n-ph` for placeholders,
-  `data-i18n-html` for markup, `data-i18n-aria` for aria-labels).
-
----
-
-## Booking flow
-
-1. Visitor opens a trip at `#/tourpackage`, picks a date and phones in the booking.
-2. **Google sign-in is required** — the `hold_seats` RPC returns `"login"` for anonymous users,
-   and RLS only lets a signed-in user write to `seats`.
-3. They pick seats from the live seat map (free / your pick / on hold / booked).
-4. `hold_seats` holds the seats for 15 minutes and returns a booking code.
-5. The visitor sends the booking on WhatsApp; the admin confirms it in the dashboard,
-   which flips the seat to `booked` and issues a ticket code.
+| `#/` | Home |
+| `#/tourpackage` | All tour packages |
+| `#/tour-<id>` | One tour's detail page (e.g. `#/tour-65`) |
+| `#/gallery` | Photo gallery |
+| `#/contact` | Contact details + enquiry form |
 
 ---
 
 ## Admin panel
 
-Sign in at `/admin/` with an email that exists in the `admins` table.
+`/admin/` is the only admin page. Sign in with **email + password** or **Google**, both through
+Supabase Auth on the same project the site already used.
 
-- **Bookings** — every `seats` row, with search and status filter. Confirm (issues a ticket code)
-  or cancel (deletes the hold).
-- **Trips** — create / edit / hide / delete trips. The editor writes the `details` sections for you.
-- **Settings** — brand name, WhatsApp number, phone, UPI id, notice banner, terms, deduction slabs,
-  reviews, FAQ and hero slider images. These drive the public site live.
+Once signed in you get six tabs:
 
-### Adding an admin
+| Tab | What it edits |
+|---|---|
+| **Home page** | Hero caption and slides, welcome heading/paragraphs/photo, the "since" badge, the statistics counters |
+| **Tours** | Add / edit / delete tour packages — title, URL id, cover image, and the body (headings, day-by-day itinerary, bullet lists, paragraphs) |
+| **Gallery** | Photo list with captions |
+| **Contact** | Address blocks and the enquiry email / phone |
+| **Footer** | Address, phone numbers, email, subscribe text, copyright |
+| **Enquiries** | Messages submitted through the contact form (read from the `enquiries` table) |
 
-1. Supabase Dashboard → **Authentication → Users → Add user** (set an email + password).
-2. Then in the SQL editor:
+Press **Save changes** to write the document back to Supabase. The public site picks it up on the
+next page load.
+
+### Who can sign in
+
+Access is controlled by the `admins` table:
+
+- If `admins` has rows, only those email addresses may use the panel.
+- If `admins` is empty, any account that can authenticate on the project may use it — so a fresh
+  project can never lock the owner out.
+
+To restrict it, add your email:
 
 ```sql
-insert into admins (email) values ('you@example.com');
+insert into public.admins (email) values ('you@example.com');
 ```
 
-3. Sign in at `/admin/`. `is_admin()` checks the signed-in email against this table.
+### Google sign-in
+
+Google login is handled by Supabase Auth. In the Supabase dashboard:
+
+1. **Authentication → Providers → Google** → enable it and paste your Google OAuth client ID and
+   secret (from Google Cloud Console → Credentials → OAuth client → *Web application*).
+2. Under **Authorized redirect URIs** in Google Cloud, add
+   `https://<your-project-ref>.supabase.co/auth/v1/callback`.
+3. In Supabase **Authentication → URL Configuration**, set **Site URL** to
+   `https://sayan712123.github.io/gouri-travels/` and add
+   `https://sayan712123.github.io/gouri-travels/admin/` to **Redirect URLs**.
 
 ---
 
-## Run locally
+## Setup
+
+### 1. Supabase
+
+The project is already provisioned. If you ever need to rebuild it, run `supabase/schema.sql` in
+the Supabase SQL editor. It creates `trips`, `seats`, `settings`, `admins`, the `is_admin()` helper
+and the row-level-security policies.
+
+The content document needs one row in `settings`:
+
+```sql
+insert into public.settings (key, value)
+values ('site_content', '{}')
+on conflict (key) do nothing;
+```
+
+The admin panel fills it in on first save (it seeds the editor from `content.json`).
+
+### 2. Credentials
+
+Put the same two values in **both** config files:
+
+- `js/config.js` → `window.GT_CONFIG`
+- `admin/js/config.js` → `window.GT_ADMIN_CONFIG`
+
+```js
+SUPABASE_URL:      "https://<project-ref>.supabase.co",
+SUPABASE_ANON_KEY: "<anon / publishable key>",
+```
+
+Both are on **Project Settings → API**. The anon key is safe to ship — every table is protected by
+RLS. **Never** put the `service_role` key in a file that ships to the browser.
+
+### 3. Run locally
 
 ```bash
 python3 -m http.server 5173
-# open http://localhost:5173
+# site  → http://localhost:5173/
+# admin → http://localhost:5173/admin/
 ```
 
-Any static server works. There is no build step.
+A plain `file://` open will not work: the site fetches `content.json` and calls Supabase, both of
+which need an HTTP origin.
+
+### 4. Publish
+
+**GitHub Pages** (current setup): push to `main`, then *Settings → Pages → Source: Deploy from a
+branch → `main` / root*. The `.nojekyll` file is already there so folders starting with `_` are
+served.
+
+**Netlify / Vercel:** publish directory is the repository root; no build command.
 
 ---
 
-## Deploy
+## Notes
 
-### GitHub Pages (current setup)
-
-The site is served from the repository root on the `main` branch.
-
-1. Repo → **Settings → Pages**
-2. Source: **Deploy from a branch** · Branch: **main** · Folder: **/ (root)**
-3. Save. The site appears at `https://<user>.github.io/gouri-travels/`.
-
-`.nojekyll` is committed so folders starting with `_` are served, and every link is relative,
-so the site works correctly under the `/gouri-travels/` sub-path.
-
-### Netlify / Vercel
-
-- Publish directory: `.` (repository root)
-- No build command
-
----
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| Admin dashboard is empty | Check `SUPABASE_URL` / `SUPABASE_ANON_KEY` in `admin/js/config.js` |
-| "Sign in with Google" does nothing | Add your Pages URL to Supabase → Authentication → URL Configuration → Redirect URLs |
-| Admin login says "not an admin" | The signed-in email is missing from the `admins` table |
-| Seats won't hold | The visitor is not signed in — `hold_seats` requires a session |
-| Bangla text looks wrong | The Hind Siliguri font is loaded from Google Fonts; check the network tab |
-
----
-
-## Security notes
-
-- Only the **anon** key is committed. The `service_role` key is never used in the browser.
-- RLS protects every table: the public can read `trips`, `settings` and the `seat_status` view,
-  but only signed-in users can hold seats, and only admins can write trips and settings.
-- `admin/` is marked `noindex, nofollow`.
+- The public site's enquiry and subscribe forms open the visitor's own email app (`mailto:`) with
+  the details filled in. They do not post to a server, so nothing is stored unless the visitor
+  actually sends the mail.
+- The `enquiries` table is optional. If it does not exist, the Enquiries tab explains how to create
+  it instead of failing.
+- `js/images.js` is ~2.7 MB of base64 photos. It is cached by the browser after the first load.
