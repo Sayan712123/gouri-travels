@@ -223,12 +223,41 @@
         btn.disabled = false;
         btn.textContent = "💾 Save changes";
         if (r.error) {
-          note("Save failed: " + r.error.message, "err");
+          showSaveBlocked(r.error.message);
           return;
         }
         dirty = false;
         note("Saved. The public site shows this on the next page load.", "ok");
       });
+  }
+
+  /* Saving needs an admins row: the settings table only accepts writes from
+   * public.is_admin(). When that is missing we say exactly what to run and
+   * offer the edited document as a file, so the work is never lost. */
+  function showSaveBlocked(msg) {
+    var el = $("#save-note");
+    if (!el) return;
+    el.className = "save-note err";
+    el.classList.remove("hidden");
+    el.innerHTML =
+      "<strong>Supabase refused the save.</strong> " + esc(msg) + "<br><br>" +
+      "The <code>settings</code> table only accepts writes from an admin, and your email is not in " +
+      "the <code>admins</code> table yet. Run this once in the Supabase SQL editor, then press " +
+      "Save again:<br>" +
+      "<pre>insert into public.admins (email) values ('" +
+      esc((user && user.email) || "you@example.com") + "');</pre>" +
+      '<button class="btn btn--ghost btn--sm" id="dl-content" type="button">⬇ Download content.json</button>';
+    var dl = $("#dl-content");
+    if (dl) {
+      dl.addEventListener("click", function () {
+        var blob = new Blob([JSON.stringify(C, null, 1)], { type: "application/json" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "content.json";
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+      });
+    }
   }
 
   /* ---------------- generic bindings ---------------- */
